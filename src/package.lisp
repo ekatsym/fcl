@@ -25,20 +25,6 @@
     #:mprogn
     #:genlist))
 
-(defpackage fcl.monad
-  (:use :common-lisp)
-  (:import-from
-    :fcl
-    #:unit
-    #:fmap
-    #:amap
-    #:mmap)
-  (:export
-    #:unit
-    #:fmap
-    #:amap
-    #:mmap))
-
 (defpackage fcl.monoid
   (:use :common-lisp)
   (:import-from
