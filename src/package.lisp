@@ -25,18 +25,6 @@
     #:mprogn
     #:genlist))
 
-(defpackage fcl.monoid
-  (:use :common-lisp)
-  (:import-from
-    :fcl
-    #:mzero
-    #:mplus
-    #:msum)
-  (:export
-    #:mzero
-    #:mplus
-    #:msum))
-
 (defpackage fcl.sugar
   (:use :common-lisp)
   (:import-from
