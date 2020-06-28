@@ -13,6 +13,9 @@
     :fcl.monad
     #:unit
     #:mmap)
+  (:import-from
+    :fcl.monoid
+    #:guard)
   (:export
     #:monad-do
     #:mlet
@@ -28,7 +31,7 @@
                   (:in
                     (assert (nlist? 3 clause) (clause))
                     `(mlet ((,(second clause) ,(third clause))) ,body))
-                  (:is
+                  (:let
                     (assert (nlist? 3 clause) (clause))
                     `(let ((,(second clause) ,(third clause))) ,body))
                   (otherwise
@@ -62,18 +65,12 @@
           :from-end t))
 
 (defmacro genlist (element &rest clauses)
-  (reduce (lambda (clause body)
-            (if (listp clause)
-                (case (first clause)
-                  (:in
-                    (assert (nlist? 3 clause) (clause))
-                    `(mlet ((,(second clause) ,(third clause))) ,body))
-                  (:is
-                    (assert (nlist? 3 clause) (clause))
-                    `(let ((,(second clause) ,(third clause))) ,body))
-                  (otherwise
-                    `(mprogn (guard 'list ,clause) ,body)))
-                `(mprogn (guard 'list ,clause) ,body)))
-          clauses
-          :initial-value `(unit 'list ,element)
-          :from-end t))
+  `(monad-do ,@(mapcar (lambda (clause)
+                         (if (listp clause)
+                             (case (first clause)
+                               (:in clause)
+                               (:let clause)
+                               (otherwise `(guard 'list ,clause)))
+                             `(guard 'list ,clause)))
+                       clauses)
+             (unit 'list ,element)))
