@@ -7,33 +7,33 @@
                 (;; Core
                  (:file "package")
                  (:file "util"
-                        :depends-on ("package"))
+                  :depends-on ("package"))
                  (:file "lazy"
-                        :depends-on ("package" "util"))
+                  :depends-on ("package" "util"))
                  (:file "defdata"
-                        :depends-on ("package" "util" "lazy"))
+                  :depends-on ("package" "util" "lazy"))
                  (:file "monad"
-                        :depends-on ("package" "util"))
+                  :depends-on ("package" "util"))
                  (:file "monoid"
-                        :depends-on ("package" "util"))
+                  :depends-on ("package" "util" "monad"))
                  (:file "sugar"
-                        :depends-on ("package" "util" "monad" "monoid"))
+                  :depends-on ("package" "util" "monad" "monoid"))
 
                  ;; Datatypes
                  (:file "datatypes/list"
-                        :depends-on ("package" "util" "monad" "monoid"))
+                  :depends-on ("package" "util" "monad" "monoid"))
                  (:file "datatypes/lazy-list"
-                        :depends-on ("package" "util" "defdata" "monad" "monoid"))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
                  (:file "datatypes/maybe"
-                        :depends-on ("package" "util" "defdata" "monad" "monoid"))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
                  (:file "datatypes/either"
-                        :depends-on ("package" "util" "defdata" "monad" "monoid"))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
                  (:file "datatypes/reader"
-                        :depends-on ("package" "util" "defdata" "monad" "monoid"))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
                  (:file "datatypes/writer"
-                        :depends-on ("package" "util" "defdata" "monad" "monoid"))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
                  (:file "datatypes/state"
-                        :depends-on ("package" "util" "defdata" "monad" "monoid")))))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid")))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
 

@@ -4,6 +4,7 @@
     #:index
     #:proper-list
     #:proper-list-p
+    #:nlist?
     #:symbolicate
     #:partial
     #:rpartial
@@ -24,6 +25,12 @@
 
 (deftype proper-list ()
   '(satisfies proper-list-p))
+
+(defun nlist? (n list)
+  (check-type n index)
+  (cond ((zerop n) (null list))
+        ((consp list) (nlist? (1- n) (rest list)))
+        (t nil)))
 
 (defun symbolicate (&rest things)
   (identity

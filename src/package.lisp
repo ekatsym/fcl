@@ -18,22 +18,9 @@
     #:mzero
     #:mplus
     #:msum
+    #:guard
 
     ;; Syntax Sugars
-    #:monad-do
-    #:mlet
-    #:mprogn
-    #:genlist))
-
-(defpackage fcl.sugar
-  (:use :common-lisp)
-  (:import-from
-    :fcl
-    #:monad-do
-    #:mlet
-    #:mprogn
-    #:genlist)
-  (:export
     #:monad-do
     #:mlet
     #:mprogn
