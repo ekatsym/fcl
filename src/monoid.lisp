@@ -4,16 +4,14 @@
     :fcl
     #:mzero
     #:mplus
-    #:msum
-    #:guard)
+    #:msum)
   (:import-from
     :fcl.monad
     #:unit)
   (:export
     #:mzero
     #:mplus
-    #:msum
-    #:guard))
+    #:msum))
 (in-package :fcl.monoid)
 
 
@@ -41,8 +39,3 @@ MPLUS must satisfy the rules:
 (defun msum (&rest monoids)
   (reduce #'mplus monoids
           :from-end t))
-
-(defun guard (class test)
-  (if test
-      (unit class nil)
-      (mzero class)))

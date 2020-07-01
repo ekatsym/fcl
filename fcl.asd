@@ -12,12 +12,18 @@
                   :depends-on ("package" "util"))
                  (:file "defdata"
                   :depends-on ("package" "util" "lazy"))
-                 (:file "monad"
+                 (:file "functor"
                   :depends-on ("package" "util"))
+                 (:file "applicative"
+                  :depends-on ("package" "util" "functor"))
+                 (:file "monad"
+                  :depends-on ("package" "util" "applicative"))
                  (:file "monoid"
-                  :depends-on ("package" "util" "monad"))
-                 (:file "sugar"
+                  :depends-on ("package" "util"))
+                 (:file "monad-plus"
                   :depends-on ("package" "util" "monad" "monoid"))
+                 (:file "foldable"
+                  :depends-on ("package" "util"))
 
                  ;; Datatypes
                  (:file "datatypes/list"

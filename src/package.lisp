@@ -8,6 +8,16 @@
     ;; DEFDATA
     #:defdata
 
+    ;; Foldable
+    #:foldr
+    #:foldl
+    #:foldr+
+    #:foldl+
+    #:unfoldr
+    #:unfoldl
+    #:unfoldr+
+    #:unfoldl+
+
     ;; Monad
     #:unit
     #:fmap

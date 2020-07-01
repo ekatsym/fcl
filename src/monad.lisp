@@ -2,49 +2,28 @@
   (:use :common-lisp)
   (:import-from
     :fcl
-    #:unit
+    #:mmap
+    #:monad-do
+    #:mprogn
+    #:mlet)
+  (:import-from
+    :fcl.applicative
     #:fmap
-    #:amap
-    #:mmap)
+    #:amap)
+  (:import-from
+    :fcl.util
+    #:nlist?)
   (:export
     #:unit
     #:fmap
     #:amap
-    #:mmap))
+    #:mmap
+    #:monad-do
+    #:mprogn
+    #:mlet))
 (in-package :fcl.monad)
 
 
-(defgeneric unit (class a)
-  (:documentation
-"Returns a minimal unit value of CLASS including A."))
-
-;;; Functor
-(defgeneric fmap (a->b a*)
-  (:documentation
-"Returns a value of class of B* including (FUNCALL A->B A)
-where A is a value included in A*.
-FMAP must satisfy the rules:
-  Identity:    (fmap #'identity a*)
-            == (identity a*)
-  Composition: (fmap (lambda (a) (b->c (a->b a))) a*)
-            == (fmap #'b->c (fmap #'a->b a*))"))
-
-;;; Applicative
-(defgeneric amap (a->*b a*)
-  (:documentation
-"Returns a value of class of B* including (FUNCALL A->B A)
-where A->B and A are values included A->*B and A*.
-AMAP must satisfy the rules:
-  Identity:     (amap (unit class #'identity) a*)
-             == a*
-  Composition:  (amap (amap (amap (unit class (curry #'compose)) b->*c) a->*b) #'a*)
-             == (amap b->*c (amap a->*b #'a*))
-  Homomorphism: (amap (unit class #'a->b) (unit class a))
-             == (unit class (a->b a))
-  Interchange:  (amap a->*b (unit class a))
-             == (amap (unit class (lambda (a->b) (funcall a->b a))) a->*b)"))
-
-;;; Monad
 (defgeneric mmap (a->b* a*)
   (:documentation
 "Returns a value of class of B*, \"appended\" (FMAP A->B* A)
@@ -56,3 +35,43 @@ MMAP must satisfy the rules:
                == a*
   Associativity:  (mmap (lambda (a) (mmap #'b->c* (a->b* a))) a*)
                == (mmap #'b->c* (mmap #'a->b* a*))"))
+
+(defmacro monad-do (&body clauses)
+  (reduce (lambda (clause body)
+            (if (listp clause)
+                (case (first clause)
+                  (:in
+                    (assert (nlist? 3 clause) (clause))
+                    `(mlet ((,(second clause) ,(third clause))) ,body))
+                  (:let
+                    (assert (nlist? 3 clause) (clause))
+                    `(let ((,(second clause) ,(third clause))) ,body))
+                  (otherwise
+                    `(mprogn ,clause ,body)))
+                `(mprogn ,clause ,body)))
+          clauses
+          :from-end t))
+
+(defmacro mprogn (&rest monads)
+  (let ((g!_ (gensym "G!_")))
+    (reduce (lambda (m body)
+              `(mmap (lambda (,g!_)
+                       (declare (ignore ,g!_))
+                       ,body)
+                     ,m))
+            monads
+            :from-end t)))
+
+(defmacro mlet ((&rest bindings) &body body)
+  (every (lambda (binding)
+           (check-type binding list)
+           (assert (nlist? 2 binding) (binding)))
+         bindings)
+  (reduce (lambda (binding monad)
+            (destructuring-bind (v m) binding
+              `(mmap (lambda (,v) ,monad) ,m)))
+          bindings
+          :initial-value (if (nlist? 1 body)
+                             (first body)
+                             `(progn ,@body))
+          :from-end t))
