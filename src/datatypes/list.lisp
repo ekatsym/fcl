@@ -41,16 +41,19 @@
 
 ;;; Foldable
 (defmethod foldr (a&x->x x0 (a* list))
+  (declare (optimize (speed 3)))
   (check-type a&x->x function)
   (foldl a&x->x x0 (reverse a*)))
 
 (defmethod foldl (a&x->x x0 (a* list))
+  (declare (optimize (speed 3)))
   (check-type a&x->x function)
   (do ((lst a* (rest lst))
        (acc x0 (funcall a&x->x (first lst) acc)))
       ((null lst) acc)))
 
 (defmethod foldr+ (a&x&a*->x x0 (a* list))
+  (declare (optimize (speed 3)))
   (check-type a&x&a*->x function)
   (do ((stack (reverse a*) (rest stack))
        (lst '() (cons (first stack) lst))
@@ -58,18 +61,21 @@
       ((null lst) acc)))
 
 (defmethod foldl+ (a&x&a*->x x0 (a* list))
+  (declare (optimize (speed 3)))
   (check-type a&x&a*->x function)
   (do ((lst a* (rest lst))
-       (acc x0 (funcall (first lst) acc lst)))
+       (acc x0 (funcall a&x&a*->x (first lst) acc lst)))
       ((null lst) acc)))
 
 (defmethod unfoldr ((class (eql 'list)) x->? x->a x->x x)
+  (declare (optimize (speed 3)))
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
   (reverse (unfoldl class x->? x->a x->x x)))
 
 (defmethod unfoldl ((class (eql 'list)) x->? x->a x->x x)
+  (declare (optimize (speed 3)))
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
@@ -78,12 +84,14 @@
       ((funcall x->? lzt) acc)))
 
 (defmethod unfoldr+ ((class (eql 'list)) x->? x->a x->x a* x)
+  (declare (optimize (speed 3)))
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
   (revappend (unfoldl class x->? x->a x->x x) a*))
 
 (defmethod unfoldl+ ((class (eql 'list)) x->? x->a x->x a* x)
+  (declare (optimize (speed 3)))
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
