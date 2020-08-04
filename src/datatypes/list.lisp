@@ -9,7 +9,8 @@
     #:genlist)
   (:import-from
     :fcl.util
-    #:index)
+    #:index
+    #:filter)
   (:import-from
     :fcl.foldable
     #:foldr
@@ -38,6 +39,8 @@
     #:enum
     #:take
     #:drop
+    #:sublist
+    #:filter
     #:foldr
     #:foldl
     #:foldr+
@@ -81,6 +84,13 @@
   (check-type n index)
   (check-type list list)
   (nthcdr n list))
+
+(declaim (inline sublist))
+(defun sublist (start end list)
+  (check-type start index)
+  (check-type end index)
+  (check-type list list)
+  (take (- end start) (drop start list)))
 
 
 ;;; Foldable

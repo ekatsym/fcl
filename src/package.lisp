@@ -37,4 +37,12 @@
     #:enum
     #:take
     #:drop
-    #:genlist))
+    #:nlist?
+    #:filter
+    #:genlist
+
+    ;; Function
+    #:partial
+    #:rpartial
+    #:curry
+    #:rcurry))

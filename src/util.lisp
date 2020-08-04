@@ -1,5 +1,13 @@
 (defpackage fcl.util
   (:use :common-lisp)
+  (:import-from
+    :fcl
+    #:nlist?
+    #:filter
+    #:partial
+    #:rpartial
+    #:curry
+    #:rcurry)
   (:export
     #:index
     #:proper-list
