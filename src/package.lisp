@@ -23,6 +23,9 @@
     #:fmap
     #:amap
     #:mmap
+    #:monad-do
+    #:mlet
+    #:mprogn
 
     ;; Monoid
     #:mzero
@@ -30,8 +33,8 @@
     #:msum
     #:guard
 
-    ;; Syntax Sugars
-    #:monad-do
-    #:mlet
-    #:mprogn
+    ;; List
+    #:enum
+    #:take
+    #:drop
     #:genlist))

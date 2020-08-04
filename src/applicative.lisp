@@ -8,8 +8,10 @@
     :fcl.functor
     #:fmap)
   (:export
-    #:amap
-    #:unit))
+    #:unit
+    #:fmap
+    #:amap))
+
 (in-package :fcl.applicative)
 
 

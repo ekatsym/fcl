@@ -11,6 +11,7 @@
     #:curry
     #:rcurry
     #:filter))
+
 (in-package :fcl.util)
 
 

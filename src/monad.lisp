@@ -8,6 +8,7 @@
     #:mlet)
   (:import-from
     :fcl.applicative
+    #:unit
     #:fmap
     #:amap)
   (:import-from
@@ -21,6 +22,7 @@
     #:monad-do
     #:mprogn
     #:mlet))
+
 (in-package :fcl.monad)
 
 

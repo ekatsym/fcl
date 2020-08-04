@@ -22,6 +22,7 @@ FOLDABLE means F-algebra where F(X) = 1+A*X.
     #:unfoldl
     #:unfoldr+
     #:unfoldl+))
+
 (in-package :fcl.foldable)
 
 

@@ -12,6 +12,7 @@
     #:mzero
     #:mplus
     #:msum))
+
 (in-package :fcl.monoid)
 
 

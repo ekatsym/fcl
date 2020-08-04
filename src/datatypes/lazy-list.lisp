@@ -16,11 +16,15 @@
     #:mplus)
   (:export
     #:lazy-list
-    )
-  )
+    #:lfirst
+    #:lrest
+    #:lendp
+    #:lmapcar))
+
 (in-package :fcl.dt.llist)
 
 
+;;; Core
 (defdata lazy-list
   (lnil)
   (lcons (:lazy t) (:lazy lazy-list)))
@@ -40,7 +44,9 @@
   (check-type llist lazy-list)
   (typep llist 'lnil))
 
-(defun lmap (function llist &rest more-llists)
+
+;;; General Utility
+(defun lmapcar (function llist &rest more-llists)
   (check-type function function)
   (check-type llist lazy-list)
   (every (lambda (llist) (check-type llist lazy-list)) more-llists)
@@ -51,6 +57,11 @@
                         (rec (mapcar #'lrest llsts))))))
     (rec (cons llist more-llists))))
 
+
+;;; Foldable
+
+
+;;; Functor, Applicative and Monad
 (defmethod unit ((class (eql 'lazy-list)) a)
   (lcons a (lnil)))
 

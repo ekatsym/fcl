@@ -3,7 +3,13 @@
   (:use :common-lisp)
   (:import-from
     :fcl
+    #:enum
+    #:take
+    #:drop
     #:genlist)
+  (:import-from
+    :fcl.util
+    #:index)
   (:import-from
     :fcl.foldable
     #:foldr
@@ -28,9 +34,28 @@
   (:import-from
     :fcl.monad+
     #:guard)
-  (:import-from
-    :fcl.util
-    #:index))
+  (:export
+    #:enum
+    #:take
+    #:drop
+    #:foldr
+    #:foldl
+    #:foldr+
+    #:foldl+
+    #:unfoldr
+    #:unfoldl
+    #:unfoldr+
+    #:unfoldl+
+    #:unit
+    #:fmap
+    #:amap
+    #:mmap
+    #:monad-do
+    #:mzero
+    #:mplus
+    #:guard
+    #:genlist))
+
 (in-package :fcl.dt.list)
 
 
@@ -134,7 +159,7 @@
       ((funcall x->? lzt) acc)))
 
 
-;;; Monad
+;;; Functor, Applicative and Monad
 (defmethod unit ((class (eql 'list)) a)
   (list a))
 
@@ -169,6 +194,8 @@
   (check-type monoid2 list)
   (append monoid1 monoid2))
 
+
+;;; List Comprehension
 (defmacro genlist (element &rest clauses)
   `(monad-do ,@(mapcar (lambda (clause)
                          (if (listp clause)

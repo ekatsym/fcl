@@ -17,6 +17,7 @@
     #:promise)
   (:export
     #:defdata))
+
 (in-package :fcl.defdata)
 
 
