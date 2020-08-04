@@ -19,14 +19,18 @@
     #:unit
     #:fmap
     #:amap
-    #:mmap)
+    #:mmap
+    #:monad-do)
   (:import-from
     :fcl.monoid
     #:mzero
     #:mplus)
   (:import-from
     :fcl.monad+
-    #:guard))
+    #:guard)
+  (:import-from
+    :fcl.util
+    #:index))
 (in-package :fcl.dt.list)
 
 
@@ -38,12 +42,32 @@
        (acc '() (cons n acc)))
       ((< n start) acc)))
 
+(defun take (n list)
+  (check-type n index)
+  (check-type list list)
+  (do ((n n (1- n))
+       (lst list (rest lst))
+       (acc '() (cons (first lst) acc)))
+      ((<= n 0) (nreverse acc))
+      (check-type lst cons)))
+
+(declaim (inline drop))
+(defun drop (n list)
+  (check-type n index)
+  (check-type list list)
+  (nthcdr n list))
+
 
 ;;; Foldable
 (defmethod foldr (a&x->x x0 (a* list))
   (declare (optimize (speed 3)))
   (check-type a&x->x function)
-  (foldl a&x->x x0 (reverse a*)))
+  (labels ((rec (lst)
+             (declare (optimize (speed 3)) (type function a&x->x))
+             (if (endp lst)
+                 x0
+                 (funcall a&x->x (first lst) (rec (rest lst))))))
+    (rec a*)))
 
 (defmethod foldl (a&x->x x0 (a* list))
   (declare (optimize (speed 3)))
@@ -53,12 +77,13 @@
       ((null lst) acc)))
 
 (defmethod foldr+ (a&x&a*->x x0 (a* list))
-  (declare (optimize (speed 3)))
   (check-type a&x&a*->x function)
-  (do ((stack (reverse a*) (rest stack))
-       (lst '() (cons (first stack) lst))
-       (acc x0 (funcall a&x&a*->x (first stack) acc lst)))
-      ((null lst) acc)))
+  (labels ((rec (lst)
+             (declare (optimize (speed 3)) (type function a&x&a*->x))
+             (if (endp lst)
+                 x0
+                 (funcall a&x&a*->x (first lst) (rec (rest lst)) lst))))
+    (rec a*)))
 
 (defmethod foldl+ (a&x&a*->x x0 (a* list))
   (declare (optimize (speed 3)))
@@ -68,11 +93,15 @@
       ((null lst) acc)))
 
 (defmethod unfoldr ((class (eql 'list)) x->? x->a x->x x)
-  (declare (optimize (speed 3)))
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
-  (reverse (unfoldl class x->? x->a x->x x)))
+  (labels ((rec (lzt)
+             (declare (optimize (speed 3)) (type function x->? x->a x->x))
+             (if (funcall x->? lzt)
+                 '()
+                 (cons (funcall x->a lzt) (rec (funcall x->x lzt))))))
+    (rec x)))
 
 (defmethod unfoldl ((class (eql 'list)) x->? x->a x->x x)
   (declare (optimize (speed 3)))
@@ -88,7 +117,12 @@
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
-  (revappend (unfoldl class x->? x->a x->x x) a*))
+  (labels ((rec (lzt)
+             (declare (optimize (speed 3)) (type function x->? x->a x->x))
+             (if (funcall x->? lzt)
+                 a*
+                 (cons (funcall x->a lzt) (rec (funcall x->x lzt))))))
+    (rec x)))
 
 (defmethod unfoldl+ ((class (eql 'list)) x->? x->a x->x a* x)
   (declare (optimize (speed 3)))
@@ -111,17 +145,18 @@
 (defmethod amap (a->*b (a* list))
   (check-type a->*b list)
   (every (lambda (a->b) (check-type a->b function)) a->*b)
-  (foldr (lambda (a->b acc)
-           (foldr (lambda (a acc)
-                    (cons (funcall a->b a) acc))
-                  acc
-                  a*))
-         '()
-         a->*b))
+  (let ((a* (reverse a*)))
+    (foldl (lambda (a->b acc)
+             (foldl (lambda (a acc)
+                      (cons (funcall a->b a) acc))
+                    acc
+                    a*))
+           '()
+           (reverse a->*b))))
 
 (defmethod mmap (a->b* (a* list))
   (check-type a->b* function)
-  (foldr (lambda (a acc) (append (the list (funcall a->b* a)) acc))
+  (foldl (lambda (a acc) (revappend (funcall a->b* a) acc))
          '()
          (reverse a*)))
 
