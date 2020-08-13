@@ -26,6 +26,12 @@
     #:monad-do
     #:mlet
     #:mprogn
+    #:join-m
+    #:sequence-m
+    #:map-m
+    #:map-m_
+    #:for-m
+    #:for-m_
     #:define-fmap-by-monad
     #:define-amap-by-monad
 
