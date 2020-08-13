@@ -5,7 +5,9 @@
     #:mmap
     #:monad-do
     #:mprogn
-    #:mlet)
+    #:mlet
+    #:define-fmap-by-monad
+    #:define-amap-by-monad)
   (:import-from
     :fcl.applicative
     #:unit
@@ -21,7 +23,9 @@
     #:mmap
     #:monad-do
     #:mprogn
-    #:mlet))
+    #:mlet
+    #:define-fmap-by-monad
+    #:define-amap-by-monad))
 
 (in-package :fcl.monad)
 
@@ -72,8 +76,12 @@ MMAP must satisfy the rules:
   (reduce (lambda (binding monad)
             (destructuring-bind (v m) binding
               `(mmap (lambda (,v) ,monad) ,m)))
-          bindings
-          :initial-value (if (nlist? 1 body)
-                             (first body)
-                             `(progn ,@body))
+          (if (null bindings)
+              bindings
+              (butlast bindings))
+          :initial-value (if (null bindings)
+                             `(let () ,@body)
+                             (let ((binding (first (last bindings))))
+                               (destructuring-bind (v m) binding
+                                 `(mmap (lambda (,v) ,@body) ,m))))
           :from-end t))

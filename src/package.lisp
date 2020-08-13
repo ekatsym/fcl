@@ -26,6 +26,8 @@
     #:monad-do
     #:mlet
     #:mprogn
+    #:define-fmap-by-monad
+    #:define-amap-by-monad
 
     ;; Monoid
     #:mzero
@@ -60,6 +62,13 @@
     #:either
     #:left
     #:right
+
+    ;; Reader
+    #:reader
+    #:run-reader
+    #:ask
+    #:local
+    #:asks
 
     ;; Lazy List
     #:lazy-list
