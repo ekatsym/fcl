@@ -90,8 +90,8 @@
   (check-type monoid2 either)
   (typecase monoid1
     (left      (typecase monoid2
-                 (left      (mplus (left%0 monoid1) (left%0 monoid2)))
+                 (left      (left (mplus (left%0 monoid1) (left%0 monoid2))))
                  (otherwise monoid2)))
     (otherwise (typecase monoid2
                  (left      monoid1)
-                 (otherwise (mplus (right%0 monoid1) (right%0 monoid2)))))))
+                 (otherwise (right (mplus (right%0 monoid1) (right%0 monoid2))))))))

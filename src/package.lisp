@@ -76,6 +76,15 @@
     #:local
     #:asks
 
+    ;; Writer
+    #:writer
+    #:run-writer
+    #:pass
+    #:hear
+    #:tell
+    #:hears
+    #:censor
+
     ;; Lazy List
     #:lazy-list
     #:lnil
