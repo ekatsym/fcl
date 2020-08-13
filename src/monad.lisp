@@ -130,17 +130,6 @@ MMAP must satisfy the rules:
           :initial-value '()
           :from-end t))
 
-(defun map-m (class a->b* as)
-  (check-type class symbol)
-  (check-type a->b* function)
-  (check-type as list)
-  (reduce (lambda (a bs*)
-            (mlet ((bs bs*))
-              (unit class (cons (funcall a->b* a) bs))))
-          as
-          :initial-value (unit class '())
-          :from-end t))
-
 (defun map-m_ (class a->b* as)
   (check-type class symbol)
   (check-type a->b* function)
