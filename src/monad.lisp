@@ -30,6 +30,7 @@
 (in-package :fcl.monad)
 
 
+;;; Core
 (defgeneric mmap (a->b* a*)
   (:documentation
 "Returns a value of class of B*, \"appended\" (FMAP A->B* A)
@@ -86,6 +87,8 @@ MMAP must satisfy the rules:
                                  `(mmap (lambda (,v) ,@body) ,m))))
           :from-end t))
 
+
+;;; Utility for Functor and Applicative
 (defmacro define-fmap-by-monad (class)
   `(defmethod fmap (a->b (a* ,class))
      (check-type a->b function)
@@ -99,3 +102,67 @@ MMAP must satisfy the rules:
             (a a*))
        (check-type a->b function)
        (unit ',class (funcall a->b a)))))
+
+
+;;; General Utility
+(defun join-m (a**)
+  (mmap #'identity a**))
+
+(defun sequence-m (class a*s)
+  (check-type class symbol)
+  (check-type a*s list)
+  (reduce (lambda (a* as*)
+            (mlet ((a a*)
+                   (as as*))
+              (unit class (cons a as))))
+          a*s
+          :initial-value (unit class '())
+          :from-end t))
+
+(defun map-m (class a->b* as)
+  (check-type class symbol)
+  (check-type a->b* function)
+  (check-type as list)
+  (reduce (lambda (a bs*)
+            (mlet ((bs bs*))
+              (unit class (cons (funcall a->b* a) bs))))
+          as
+          :initial-value '()
+          :from-end t))
+
+(defun map-m (class a->b* as)
+  (check-type class symbol)
+  (check-type a->b* function)
+  (check-type as list)
+  (reduce (lambda (a bs*)
+            (mlet ((bs bs*))
+              (unit class (cons (funcall a->b* a) bs))))
+          as
+          :initial-value (unit class '())
+          :from-end t))
+
+(defun map-m_ (class a->b* as)
+  (check-type class symbol)
+  (check-type a->b* function)
+  (check-type as list)
+  (reduce (lambda (a _)
+            (mprogn
+              (unit class (funcall a->b* a))
+              _))
+          as
+          :initial-value (unit class '())
+          :from-end t))
+
+(declaim (inline for-m))
+(defun for-m (class as a->b*)
+  (check-type class symbol)
+  (check-type as list)
+  (check-type a->b* function)
+  (map-m class a->b* as))
+
+(declaim (inline for-m_))
+(defun for-m_ (class as a->b*)
+  (check-type class symbol)
+  (check-type as list)
+  (check-type a->b* function)
+  (map-m_ class a->b* as))
