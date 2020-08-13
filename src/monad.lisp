@@ -85,3 +85,17 @@ MMAP must satisfy the rules:
                                (destructuring-bind (v m) binding
                                  `(mmap (lambda (,v) ,@body) ,m))))
           :from-end t))
+
+(defmacro define-fmap-by-monad (class)
+  `(defmethod fmap (a->b (a* ,class))
+     (check-type a->b function)
+     (mlet ((a a*))
+       (unit ',class (funcall a->b a)))))
+
+(defmacro define-amap-by-monad (class)
+  `(defmethod amap (a->*b (a* ,class))
+     (check-type a->*b ,class)
+     (mlet ((a->b a->*b)
+            (a a*))
+       (check-type a->b function)
+       (unit ',class (funcall a->b a)))))
