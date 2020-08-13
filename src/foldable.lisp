@@ -30,9 +30,9 @@ FOLDABLE means F-algebra where F(X) = 1+A*X.
 
 (defgeneric foldl (a&x->x x0 a*))
 
-(defgeneric foldr+ (a&a*&x->x x0 a*->? a*->x a*))
+(defgeneric foldr+ (a&a*&x->x x0 a*))
 
-(defgeneric foldl+ (a&a*&x->x x0 a*->? a*->x a*))
+(defgeneric foldl+ (a&a*&x->x x0 a*))
 
 (defgeneric unfoldr (class x->? x->a x->x x))
 

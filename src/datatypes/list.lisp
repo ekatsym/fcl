@@ -6,6 +6,7 @@
     #:enum
     #:take
     #:drop
+    #:sublist
     #:genlist)
   (:import-from
     :fcl.util
@@ -67,39 +68,35 @@
 (defmethod foldr (a&x->x x0 (a* list))
   (declare (optimize (speed 3)))
   (check-type a&x->x function)
-  (do ((lst (reverse a*) (rest lst))
-       (acc x0 (funcall a&x->x (first lst) acc)))
-      ((endp lst) acc)))
+  (let ((acc x0))
+    (dolist (a (reverse a*))
+      (setq acc (funcall a&x->x a acc)))
+    acc))
 
 (defmethod foldl (a&x->x x0 (a* list))
   (declare (optimize (speed 3)))
   (check-type a&x->x function)
-  (do ((lst a* (rest lst))
-       (acc x0 (funcall a&x->x (first lst) acc)))
-      ((endp lst) acc)))
+  (let ((acc x0))
+    (dolist (a a*)
+      (setq acc (funcall a&x->x a acc)))
+    acc))
 
-(defmethod foldr+ (a&a*&x->x x0 a*->? a*->x (a* list))
-  (check-type a&a*&x->x function)
-  (check-type a*->? function)
-  (check-type a*->x function)
-  (do ((lst (reverse a*) (rest lst))
-       (acc x0 (funcall a&a*&x->x (first lst) lst acc)))
-      ((endp lst) acc)
-      (when (funcall a*->? lst)
-        (return (funcall a*->x lst)))))
-
-(defmethod foldl+ (a&a*&x->x x0 a*->? a*->x (a* list))
+(defmethod foldr+ (a&a*&x->x x0 (a* list))
   (declare (optimize (speed 3)))
   (check-type a&a*&x->x function)
-  (check-type a*->? function)
-  (check-type a*->x function)
+  (do ((lst (reverse a*) (rest lst))
+       (acc x0 (funcall a&a*&x->x (first lst) lst acc)))
+      ((endp lst) acc)))
+
+(defmethod foldl+ (a&a*&x->x x0 (a* list))
+  (declare (optimize (speed 3)))
+  (check-type a&a*&x->x function)
   (do ((lst a* (rest lst))
        (acc x0 (funcall a&a*&x->x (first lst) lst acc)))
-      ((endp lst) acc)
-      (when (funcall a*->? lst)
-        (return (funcall a*->x lst)))))
+      ((endp lst) acc)))
 
 (defmethod unfoldr ((class (eql 'list)) x->? x->a x->x x)
+  (declare (optimize (speed 3)))
   (check-type x->? function)
   (check-type x->a function)
   (check-type x->x function)
@@ -140,25 +137,27 @@
   (list a))
 
 (defmethod fmap (a->b (a* list))
+  (declare (optimize (speed 3)))
   (check-type a->b function)
   (mapcar a->b a*))
 
 (defmethod amap (a->*b (a* list))
+  (declare (optimize (speed 3)))
   (check-type a->*b list)
-  (every (lambda (a->b) (check-type a->b function)) a->*b)
-  (foldr (lambda (a->b acc1)
-           (foldr (lambda (a acc2)
-                    (cons (funcall a->b a) acc2))
-                  acc1
-                  a*))
-         '()
-         a->*b))
+  (let ((acc '()))
+    (dolist (a->b a->*b)
+      (check-type a->b function)
+      (dolist (a a*)
+        (push (funcall a->b a) acc)))
+    acc))
 
 (defmethod mmap (a->b* (a* list))
+  (declare (optimize (speed 3)))
   (check-type a->b* function)
-  (foldr (lambda (a acc) (append (funcall a->b* a) acc))
-         '()
-         a*))
+  (let ((acc '()))
+    (dolist (a a*)
+      (setq acc (revappend (funcall a->b* a) acc)))
+    (nreverse acc)))
 
 
 ;;; Monoid
@@ -185,8 +184,8 @@
 
 ;;; General Utility
 (defun enum (start end)
-  (check-type start integer)
-  (check-type end integer)
+  (check-type start number)
+  (check-type end number)
   (do ((n (1- end) (1- n))
        (acc '() (cons n acc)))
       ((< n start) acc)))
@@ -198,13 +197,18 @@
        (lst list (rest lst))
        (acc '() (cons (first lst) acc)))
       ((<= n 0) (nreverse acc))
-      (check-type lst cons)))
+      (when (endp lst)
+        (error "Out of index: ~S" n))))
 
-(declaim (inline drop))
 (defun drop (n list)
   (check-type n index)
   (check-type list list)
-  (nthcdr n list))
+  (let ((lst list))
+    (dotimes (i n)
+      (when (endp lst)
+        (error "Out of index: ~S" n))
+      (setq lst (rest lst)))
+    lst))
 
 (declaim (inline sublist))
 (defun sublist (start end list)
@@ -212,3 +216,84 @@
   (check-type end index)
   (check-type list list)
   (take (- end start) (drop start list)))
+
+#|
+breakable folding functions
+
+(defmethod foldr (a&x->x x0 (a* list) &optional a->? a->x)
+  (declare (optimize (speed 3)))
+  (check-type a&x->x function)
+  (check-type a->? (or null function))
+  (check-type a->x (or null function))
+  (assert (or (and a->? a->x) (and (not a->?) (not a->x)))
+          (a->? a->x)
+          "One of A->? and A->X is true and the other is false.")
+  (if a->?
+      (let ((stack '())
+            (acc x0))
+        ;; set STACK
+        (dolist (a a*)
+          (declare (type function a->? a->x))
+          (if (funcall a->? a)
+              (return (setq acc (funcall a->x a))) ; break
+              (push (partial a&x->x a) stack)))
+        ;; use STACK
+        (dolist (func stack acc)
+          (declare (type function func))
+          (setq acc (funcall func acc))))
+      (foldl a&x->x x0 (reverse a*))))
+
+(defmethod foldl (a&x->x x0 (a* list) &optional a->? a->x)
+  (declare (optimize (speed 3)))
+  (check-type a&x->x function)
+  (check-type a->? (or null function))
+  (check-type a->x (or null function))
+  (assert (or (and a->? a->x) (and (not a->?) (not a->x)))
+          (a->? a->x)
+          "One of A->? and A->X is true and the other is false.")
+  (if a->?
+      (foldr a&x->x x0 (reverse a*) a->? a->x)
+      (let ((acc x0))
+        (dolist (a a* acc)
+          (setq acc (funcall a&x->x a acc))))))
+
+(defmethod foldr+ (a&a*&x->x x0 (a* list) &optional a&a*->? a&a*->x)
+  (declare (optimize (speed 3)))
+  (check-type a&a*&x->x function)
+  (check-type a&a*->? (or null function))
+  (check-type a&a*->x (or null function))
+  (assert (or (and a&a*->? a&a*->x) (and (not a&a*->?) (not a&a*->x)))
+          (a&a*->? a&a*->x)
+          "One of A&A*->? and A&A*->X is true and the other is false.")
+  (if a&a*->?
+      (let ((stack '())
+            (acc x0))
+        ;; set STACK
+        (do ((lst a* (rest lst)))
+            ((endp lst))
+            (let ((a (first lst)))
+              (declare (type function a&a*->? a&a*->x))
+              (if (funcall a&a*->? a lst)
+                  (return (setq acc (funcall a&a*->x a lst)))
+                  (push (partial a&a*&x->x a lst) acc))))
+        ;; use STACK
+        (dolist (func stack acc)
+          (declare (type function func))
+          (setq acc (funcall func acc))))
+      (foldl+ a&a*&x->x x0 (reverse a*))))
+
+(defmethod foldl+ (a&a*&x->x x0 (a* list) &optional a&a*->? a&a*->x)
+  (declare (optimize (speed 3)))
+  (check-type a&a*&x->x function)
+  (check-type a&a*->? (or null function))
+  (check-type a&a*->x (or null function))
+  (assert (or (and a&a*->? a&a*->x) (and (not a&a*->?) (not a&a*->x)))
+          (a&a*->? a&a*->x)
+          "One of A&A*->? and A&A*->X is true and the other is false.")
+  (if a&a*->?
+      (foldr+ a&a*&x->x x0 (reverse a*) a&a*->? a&a*->x)
+      (do ((lst a* (rest lst))
+           (acc x0 (funcall a&a*&x->x (first lst) lst acc)))
+          ((endp lst) acc))))
+|#
+

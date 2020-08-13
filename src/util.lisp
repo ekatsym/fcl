@@ -4,20 +4,26 @@
     :fcl
     #:nlist?
     #:filter
+    #:constant
+    #:projection
     #:partial
     #:rpartial
     #:curry
-    #:rcurry)
+    #:rcurry
+    #:compose)
   (:export
     #:index
     #:proper-list
     #:proper-list-p
     #:nlist?
     #:symbolicate
+    #:constant
+    #:projection
     #:partial
     #:rpartial
     #:curry
     #:rcurry
+    #:compose
     #:filter))
 
 (in-package :fcl.util)
@@ -49,6 +55,15 @@
               things
               :initial-value ""))))
 
+(defun constant (x)
+  (lambda (&rest args) (declare (ignore args)) x))
+
+(defun projection (n)
+  (lambda (&rest args)
+    (assert (< n (length args)) (args)
+            "invalid number of arguments: ~s" (length args))
+    (nth n args)))
+
 (defun partial (function &rest args)
   (check-type function function)
   (lambda (&rest rest-args)
@@ -70,6 +85,15 @@
   (lambda (&rest args)
     (lambda (&rest rest-args)
       (apply function (append rest-args args)))))
+
+(defun compose (&rest functions)
+  (if (null functions)
+      #'values
+      (reduce (lambda (composed func)
+                (lambda (&rest args)
+                  (apply composed (multiple-value-list (apply func args)))))
+              (rest functions)
+              :initial-value (first functions))))
 
 (defun filter (function list &rest more-lists)
   (check-type function function)

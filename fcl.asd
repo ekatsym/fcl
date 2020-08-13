@@ -29,7 +29,7 @@
                  (:file "datatypes/list"
                   :depends-on ("package" "util" "monad" "monoid"))
                  (:file "datatypes/lazy-list"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
+                  :depends-on ("package" "util" "defdata" "monad" "monoid" "datatypes/list"))
                  (:file "datatypes/maybe"
                   :depends-on ("package" "util" "defdata" "monad" "monoid"))
                  (:file "datatypes/either"
