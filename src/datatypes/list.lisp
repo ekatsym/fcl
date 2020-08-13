@@ -33,7 +33,8 @@
   (:import-from
     :fcl.monoid
     #:mzero
-    #:mplus)
+    #:mplus
+    #:msum)
   (:import-from
     :fcl.monad+
     #:guard)
@@ -58,6 +59,7 @@
     #:monad-do
     #:mzero
     #:mplus
+    #:msum
     #:guard
     #:genlist))
 
@@ -149,14 +151,14 @@
       (check-type a->b function)
       (dolist (a a*)
         (push (funcall a->b a) acc)))
-    acc))
+    (nreverse acc)))
 
 (defmethod mmap (a->b* (a* list))
   (declare (optimize (speed 3)))
   (check-type a->b* function)
   (let ((acc '()))
     (dolist (a a*)
-      (setq acc (revappend (funcall a->b* a) acc)))
+      (setq acc (revappend (the list (funcall a->b* a)) acc)))
     (nreverse acc)))
 
 

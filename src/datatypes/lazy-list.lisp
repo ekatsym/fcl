@@ -9,6 +9,7 @@
     #:lfirst
     #:lrest
     #:lendp
+    #:genllist
     #:llist
     #:lenum
     #:ladjoin
@@ -78,11 +79,17 @@
     #:fmap
     #:amap
     #:mmap
-    #:monad-do)
+    #:monad-do
+    #:mlet
+    #:mprogn)
   (:import-from
     :fcl.monoid
     #:mzero
-    #:mplus)
+    #:mplus
+    #:msum)
+  (:import-from
+    :fcl.monad+
+    #:guard)
   (:export
     #:force
     #:delay
@@ -92,6 +99,30 @@
     #:lfirst
     #:lrest
     #:lendp
+
+    #:foldr
+    #:foldl
+    #:foldr+
+    #:foldl+
+    #:unfoldr
+    #:unfoldl
+    #:unfoldr+
+    #:unfoldl+
+
+    #:unit
+    #:fmap
+    #:amap
+    #:mmap
+    #:monad-do
+    #:mlet
+    #:mprogn
+
+    #:mzero
+    #:mplus
+    #:msum
+
+    #:guard
+
     #:llist
     #:lenum
     #:ladjoin
@@ -278,12 +309,32 @@
            (declare (type function a->b*))
            (foldr (lambda (b $acc2) (lcons b (force $acc2)))
                   (force $acc1)
-                  (funcall a->b* a)))
+                  (the lazy-list (funcall a->b* a))))
          (lnil)
          a*))
 
 
+;;; Monoid
+(defmethod mzero ((class (eql 'lazy-list)))
+  (lnil))
+
+(defmethod mplus ((monoid1 lazy-list) monoid2)
+  (check-type monoid2 lazy-list)
+  (lappend monoid1 monoid2))
+
+
 ;;; General Utility
+(defmacro genllist (element &rest clauses)
+  `(monad-do ,@(mapcar (lambda (clause)
+                         (if (listp clause)
+                             (case (first clause)
+                               (:in clause)
+                               (:let clause)
+                               (otherwise `(guard 'lazy-list ,clause)))
+                             `(guard 'lazy-list ,clause)))
+                       clauses)
+             (unit 'lazy-list ,element)))
+
 (defmacro llist (&rest args)
   (foldr (lambda (arg acc) `(lcons ,arg ,acc))
          '(lnil)

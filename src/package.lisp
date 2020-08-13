@@ -51,6 +51,16 @@
     #:curry
     #:rcurry
 
+    ;; Maybe
+    #:maybe
+    #:just
+    #:nothing
+
+    ;; Either
+    #:either
+    #:left
+    #:right
+
     ;; Lazy List
     #:lazy-list
     #:lnil
@@ -58,6 +68,7 @@
     #:lfirst
     #:lrest
     #:lendp
+    #:genllist
     #:llist
     #:lenum
     #:ladjoin
