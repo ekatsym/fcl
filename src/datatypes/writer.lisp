@@ -86,7 +86,7 @@
 
 (defun run-writer (writer)
   (check-type writer writer)
-  (list (%writer%0 writer) (from-message (%writer%1 writer))))
+  (values (%writer%0 writer) (from-message (%writer%1 writer))))
 
 
 ;;; Functor, Applicative and Monad
