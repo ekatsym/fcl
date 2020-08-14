@@ -94,6 +94,12 @@
 (defun put-state (s)
   (%state (lambda (_) (declare (ignore _)) (values nil s))))
 
+(defun modify-state (function)
+  (check-type function function)
+  (monad-do (:in a (get-state))
+            (put-state (funcall function a))
+            (get-state)))
+
 (defun pop-state ()
   (%state (lambda (s) (values (first s) (rest s)))))
 
