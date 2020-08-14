@@ -85,6 +85,14 @@
     #:hears
     #:censor
 
+    ;; State
+    #:state
+    #:run-state
+    #:get-state
+    #:put-state
+    #:pop-state
+    #:push-state
+
     ;; Lazy List
     #:lazy-list
     #:lnil
