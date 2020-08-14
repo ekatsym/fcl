@@ -90,6 +90,7 @@
     #:run-state
     #:get-state
     #:put-state
+    #:modify-state
     #:pop-state
     #:push-state
 
