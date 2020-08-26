@@ -89,10 +89,8 @@
     #:state
     #:run-state
     #:get-state
-    #:put-state
+    #:set-state
     #:modify-state
-    #:pop-state
-    #:push-state
 
     ;; Lazy List
     #:lazy-list

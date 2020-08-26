@@ -6,10 +6,8 @@
     #:state
     #:run-state
     #:get-state
-    #:put-state
-    #:modify-state
-    #:pop-state
-    #:push-state)
+    #:set-state
+    #:modify-state)
   (:import-from
     :fcl.defdata
     #:defdata)
@@ -34,10 +32,8 @@
     #:state
     #:run-state
     #:get-state
-    #:put-state
+    #:set-state
     #:modify-state
-    #:pop-state
-    #:push-state
     #:unit
     #:fmap
     #:amap
@@ -93,17 +89,11 @@
 (defun get-state ()
   (%state (lambda (s) (values s s))))
 
-(defun put-state (s)
+(defun set-state (s)
   (%state (lambda (_) (declare (ignore _)) (values nil s))))
 
 (defun modify-state (function)
   (check-type function function)
   (monad-do (:in a (get-state))
-            (put-state (funcall function a))
+            (set-state (funcall function a))
             (get-state)))
-
-(defun pop-state ()
-  (%state (lambda (s) (values (first s) (rest s)))))
-
-(defun push-state (x)
-  (%state (lambda (s) (values nil (cons x s)))))
