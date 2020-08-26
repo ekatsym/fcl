@@ -17,9 +17,9 @@
     #:fmap
     #:amap
     #:mmap
-    #:monad-do
     #:mprogn
-    #:mlet)
+    #:mlet
+    #:monad-do)
   (:import-from
     :fcl.monoid
     #:mzero
@@ -38,9 +38,9 @@
     #:fmap
     #:amap
     #:mmap
-    #:monad-do
     #:mprogn
     #:mlet
+    #:monad-do
     #:mzero
     #:mplus
     #:msum

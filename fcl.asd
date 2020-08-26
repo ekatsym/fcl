@@ -6,40 +6,28 @@
                 :components
                 (;; Core
                  (:file "package")
-                 (:file "util"
-                  :depends-on ("package"))
-                 (:file "lazy"
-                  :depends-on ("package" "util"))
-                 (:file "defdata"
-                  :depends-on ("package" "util" "lazy"))
-                 (:file "functor"
-                  :depends-on ("package" "util"))
-                 (:file "applicative"
-                  :depends-on ("package" "util" "functor"))
-                 (:file "monad"
-                  :depends-on ("package" "util" "applicative"))
-                 (:file "monoid"
-                  :depends-on ("package" "util"))
-                 (:file "monad-plus"
-                  :depends-on ("package" "util" "monad" "monoid"))
-                 (:file "foldable"
-                  :depends-on ("package" "util"))
+                 (:file "util"        :depends-on ("package"))
+                 (:file "lazy"        :depends-on ("package" "util"))
+                 (:file "defdata"     :depends-on ("package" "util" "lazy"))
+                 (:file "foldable"    :depends-on ("package" "util"))
+                 (:file "functor"     :depends-on ("package" "util"))
+                 (:file "applicative" :depends-on ("package" "util" "functor"))
+                 (:file "monad"       :depends-on ("package" "util" "applicative"))
+                 (:file "monoid"      :depends-on ("package" "util"))
+                 (:file "monad-plus"  :depends-on ("package" "util" "monad" "monoid"))
 
                  ;; Datatypes
-                 (:file "datatypes/list"
-                  :depends-on ("package" "util" "monad" "monoid"))
-                 (:file "datatypes/lazy-list"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid" "datatypes/list"))
-                 (:file "datatypes/maybe"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
-                 (:file "datatypes/either"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
-                 (:file "datatypes/reader"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
-                 (:file "datatypes/writer"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid"))
-                 (:file "datatypes/state"
-                  :depends-on ("package" "util" "defdata" "monad" "monoid")))))
+                 (:module "datatypes"
+                  :depends-on ("package" "util" "lazy" "defdata" "foldable"
+                               "functor" "applicative" "monad" "monoid" "monad-plus")
+                  :components
+                  ((:file "list")
+                   (:file "lazy-list")
+                   (:file "maybe")
+                   (:file "either")
+                   (:file "reader")
+                   (:file "writer")
+                   (:file "state"))))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
 
@@ -49,7 +37,7 @@
   :depends-on ("fcl"
                "rove")
   :components ((:module "tests"
-                :components
-                ((:file "main"))))
+                        :components
+                        ((:file "main"))))
   :description "Test system for fcl"
   :perform (test-op (op c) (symbol-call :rove :run c)))

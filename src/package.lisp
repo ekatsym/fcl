@@ -23,9 +23,9 @@
     #:fmap
     #:amap
     #:mmap
-    #:monad-do
-    #:mlet
     #:mprogn
+    #:mlet
+    #:monad-do
     #:join-m
     #:sequence-m
     #:map-m
