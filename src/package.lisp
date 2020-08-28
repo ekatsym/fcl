@@ -1,4 +1,4 @@
-(defpackage fcl-core
+(defpackage fcl.core
   (:use :common-lisp)
   (:export
     ;; Lazy
