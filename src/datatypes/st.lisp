@@ -2,6 +2,14 @@
   (:nicknames :fcl.dt.st)
   (:use :common-lisp)
   (:import-from
+    :fcl
+    #:st
+    #:run-st
+    #:new-stref
+    #:read-stref
+    #:write-stref
+    #:modify-stref)
+  (:import-from
     :fcl.defdata
     #:defdata)
   (:import-from
@@ -13,6 +21,14 @@
     #:mprogn
     #:mlet
     #:monad-do)
+  (:import-from
+    :fcl.monoid
+    #:mzero
+    #:mplus
+    #:msum)
+  (:import-from
+    :fcl.monad+
+    #:guard)
   (:export
     #:st
     #:run-st
@@ -21,6 +37,10 @@
     #:mprogn
     #:mlet
     #:monad-do
+    #:mzero
+    #:mplus
+    #:msum
+    #:guard
     #:new-stref
     #:read-stref
     #:write-stref

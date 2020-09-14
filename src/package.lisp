@@ -139,6 +139,14 @@
     #:set-state
     #:modify-state
 
+    ;; ST
+    #:st
+    #:run-st
+    #:new-stref
+    #:read-stref
+    #:write-stref
+    #:modify-stref
+
     ;; Lazy List
     #:lazy-list
     #:lnil
