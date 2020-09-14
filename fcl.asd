@@ -27,7 +27,8 @@
                    (:file "either")
                    (:file "reader")
                    (:file "writer")
-                   (:file "state"))))))
+                   (:file "state")
+                   (:file "st"))))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
 

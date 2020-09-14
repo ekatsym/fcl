@@ -87,13 +87,11 @@
       (apply function (append rest-args args)))))
 
 (defun compose (&rest functions)
-  (if (null functions)
-      #'values
-      (reduce (lambda (composed func)
-                (lambda (&rest args)
-                  (apply composed (multiple-value-list (apply func args)))))
-              (rest functions)
-              :initial-value (first functions))))
+  (lambda (&rest args)
+    (reduce (lambda (f xs) (multiple-value-list (apply f xs)))
+            (cons #'values functions)
+            :from-end t
+            :initial-value args)))
 
 (defun filter (function list &rest more-lists)
   (check-type function function)
