@@ -56,7 +56,6 @@
   (:import-from
     :fcl.util
     #:index
-    #:constant
     #:compose
     #:partial)
   (:import-from

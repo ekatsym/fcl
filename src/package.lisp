@@ -95,16 +95,17 @@
     #:sublist
     #:nlist?
     #:filter
+    #:zip
     #:genlist
 
     ;; Function
-    #:constant
     #:projection
     #:compose
     #:partial
     #:rpartial
     #:curry
     #:rcurry
+    #:flip
 
     ;; Maybe
     #:maybe

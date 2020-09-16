@@ -3,28 +3,30 @@
   (:import-from
     :fcl
     #:nlist?
-    #:filter
-    #:constant
-    #:projection
-    #:partial
-    #:rpartial
-    #:curry
-    #:rcurry
-    #:compose)
-  (:export
-    #:index
-    #:proper-list
-    #:proper-list-p
-    #:nlist?
-    #:symbolicate
-    #:constant
     #:projection
     #:partial
     #:rpartial
     #:curry
     #:rcurry
     #:compose
-    #:filter))
+    #:flip
+    #:filter
+    #:zip)
+  (:export
+    #:index
+    #:proper-list
+    #:proper-list-p
+    #:nlist?
+    #:symbolicate
+    #:projection
+    #:partial
+    #:rpartial
+    #:curry
+    #:rcurry
+    #:flip
+    #:compose
+    #:filter
+    #:zip))
 
 (in-package :fcl.util)
 
@@ -54,9 +56,6 @@
                 (concatenate 'string acc (string thing)))
               things
               :initial-value ""))))
-
-(defun constant (x)
-  (lambda (&rest args) (declare (ignore args)) x))
 
 (defun projection (n)
   (lambda (&rest args)
@@ -93,6 +92,9 @@
             :from-end t
             :initial-value args)))
 
+(defun flip (function)
+  (lambda (&rest args) (apply function (reverse args))))
+
 (defun filter (function list &rest more-lists)
   (check-type function function)
   (check-type list list)
@@ -104,3 +106,6 @@
                       acc))))
       ((some #'endp lsts)
        (nreverse acc))))
+
+(defun zip (&rest lists)
+  (apply #'mapcar #'list lists))
