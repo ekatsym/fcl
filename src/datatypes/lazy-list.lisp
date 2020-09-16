@@ -99,6 +99,7 @@
     #:lfirst
     #:lrest
     #:lendp
+    #:lnull
 
     #:foldr
     #:foldl
@@ -125,9 +126,10 @@
 
     #:llist
     #:lenum
-    #:ladjoin
     #:ltake
     #:ldrop
+
+    #:ladjoin
     #:llast
     #:lbutlast
     #:lsublist
@@ -190,6 +192,10 @@
   (check-type llist lazy-list)
   (lcons%1 llist))
 
+(declaim (inline lnull))
+(defun lnull (object)
+  (typep object 'lnil))
+
 (declaim (inline lendp))
 (defun lendp (llist)
   (check-type llist lazy-list)
@@ -203,7 +209,7 @@
   (labels ((rec (llst)
              (declare (type function a&x->x))
              (if (lendp llst)
-                 x0
+                 (force x0)
                  (funcall a&x->x (lfirst llst) (delay (rec (lrest llst)))))))
     (rec a*)))
 
@@ -215,7 +221,7 @@
              (if (lendp llst)
                  acc
                  (rec (lrest llst) (funcall a&x->x (lfirst llst) (delay acc))))))
-    (rec a* x0)))
+    (rec a* (force x0))))
 
 (defmethod foldr+ (a&a*&x->x x0 (a* lazy-list))
   (declare (optimize (speed 3)))
@@ -223,7 +229,7 @@
   (labels ((rec (llst)
              (declare (type function a&a*&x->x))
              (if (lendp llst)
-                 x0
+                 (force x0)
                  (funcall a&a*&x->x (lfirst llst) llst (delay (rec (lrest llst)))))))
     (rec a*)))
 
@@ -235,7 +241,7 @@
              (if (lendp llst)
                  acc
                  (rec (lrest llst) (delay (funcall a&a*&x->x (lfirst llst) llst acc))))))
-    (rec a* x0)))
+    (rec a* (force x0))))
 
 (defmethod unfoldr ((class (eql 'lazy-list)) x->? x->a x->x x)
   (check-type x->? function)
@@ -297,9 +303,9 @@
            (foldr (lambda (a $acc2)
                     (declare (type function a->b))
                     (lcons (funcall a->b a) (force $acc2)))
-                  (force $acc1)
+                  $acc1
                   a*))
-         (lnil)
+         (delay (lnil))
          a->*b))
 
 (defmethod mmap (a->b* (a* lazy-list))
@@ -308,9 +314,9 @@
   (foldr (lambda (a $acc1)
            (declare (type function a->b*))
            (foldr (lambda (b $acc2) (lcons b (force $acc2)))
-                  (force $acc1)
-                  (the lazy-list (funcall a->b* a))))
-         (lnil)
+                  $acc1
+                  (funcall a->b* a)))
+         (delay (lnil))
          a*))
 
 
@@ -349,33 +355,6 @@
                  (lcons n (rec (1+ n))))))
     (rec start)))
 
-(declaim (inline %make-key))
-(defun %make-key (key)
-  (or key #'identity))
-
-(declaim (inline %make-test))
-(defun %make-test (test test-not default)
-  (if test-not (complement test-not) (or test default)))
-
-(defun %make-predicate (item key test test-not default)
-  (let ((key (%make-key key))
-        (test (%make-test test test-not default)))
-    (lambda (x) (funcall test item (funcall key x)))))
-
-(defmacro %test-assert (test test-not datum &rest args)
-  `(assert (and ,test ,test-not) (,test ,test-not)
-           ,datum ,@args))
-
-(defun ladjoin (item llist &key key test test-not)
-  (check-type llist lazy-list)
-  (check-type key (or function null))
-  (check-type test (or function null))
-  (check-type test-not (or function null))
-  (%test-assert test test-not "can't specify both :TEST and :TEST-NOT")
-  (if (lfind item llist :key key :test test :test-not test-not)
-      llist
-      (lcons item llist)))
-
 (defun ltake (n llist)
   (check-type n index)
   (check-type llist lazy-list)
@@ -403,6 +382,33 @@
   (if end
       (ltake (- end start) (ldrop start llist))
       (ldrop start llist)))
+
+(declaim (inline %make-key))
+(defun %make-key (key)
+  (or key #'identity))
+
+(declaim (inline %make-test))
+(defun %make-test (test test-not default)
+  (if test-not (complement test-not) (or test default)))
+
+(defun %make-predicate (item key test test-not default)
+  (let ((key (%make-key key))
+        (test (%make-test test test-not default)))
+    (lambda (x) (funcall test item (funcall key x)))))
+
+(defmacro %test-assert (test test-not datum &rest args)
+  `(assert (and ,test ,test-not) (,test ,test-not)
+           ,datum ,@args))
+
+(defun ladjoin (item llist &key key test test-not)
+  (check-type llist lazy-list)
+  (check-type key (or function null))
+  (check-type test (or function null))
+  (check-type test-not (or function null))
+  (%test-assert test test-not "can't specify both :TEST and :TEST-NOT")
+  (if (lfind item llist :key key :test test :test-not test-not)
+      llist
+      (lcons item llist)))
 
 (defun lreverse (llist)
   (check-type llist lazy-list)
