@@ -7,10 +7,11 @@
                 ((:module "util"
                   :components
                   ((:file "type")
-                   (:file "list")
-                   (:file "function")
+                   (:file "list"        :depends-on ("type"))
+                   (:file "function"    :depends-on ("list"))
                    (:file "symbol")
-                   (:file "string")))
+                   (:file "string")
+                   (:file "package"     :depends-on ("type" "list" "function" "symbol" "string"))))
                  (:module "lazy"        :depends-on ("util")
                   :components
                   ((:file "core")
@@ -35,6 +36,8 @@
                  (:module "datatypes"   :depends-on ("lazy" "data" "generics")
                   :components
                   ((:file "list")
+                   (:file "vector")
+                   (:file "array")
                    (:file "maybe")
                    (:file "either")
                    (:file "ulist")
