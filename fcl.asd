@@ -1,34 +1,48 @@
 (defsystem "fcl"
-  :version "0.1.0"
+  :version "0.2.0"
   :author "ekatsym"
   :license "LLGPL"
   :components ((:module "src"
                 :components
-                (;; Core
-                 (:file "package")
-                 (:file "util"        :depends-on ("package"))
-                 (:file "lazy"        :depends-on ("package" "util"))
-                 (:file "defdata"     :depends-on ("package" "util" "lazy"))
-                 (:file "foldable"    :depends-on ("package" "util"))
-                 (:file "functor"     :depends-on ("package" "util"))
-                 (:file "applicative" :depends-on ("package" "util" "functor"))
-                 (:file "monad"       :depends-on ("package" "util" "applicative"))
-                 (:file "monoid"      :depends-on ("package" "util"))
-                 (:file "monad-plus"  :depends-on ("package" "util" "monad" "monoid"))
-
-                 ;; Datatypes
-                 (:module "datatypes"
-                  :depends-on ("package" "util" "lazy" "defdata" "foldable"
-                               "functor" "applicative" "monad" "monoid" "monad-plus")
+                ((:module "util"
+                  :components
+                  ((:file "type")
+                   (:file "list")
+                   (:file "function")
+                   (:file "symbol")
+                   (:file "string")))
+                 (:module "lazy"        :depends-on ("util")
+                  :components
+                  ((:file "core")
+                   (:file "package")))
+                 (:module "data"        :depends-on ("util" "lazy")
+                  :components
+                  ((:file "util")
+                   (:file "parser")
+                   (:file "core")
+                   (:file "package")))
+                 (:module "generics"    :depends-on ("util")
+                  :components
+                  ((:file "functor")
+                   (:file "applicative" :depends-on ("functor"))
+                   (:file "monad"       :depends-on ("applicative"))
+                   (:file "monoid")
+                   (:file "monad-plus"  :depends-on ("monad" "monoid"))
+                   (:file "recursive"   :depends-on ("functor"))
+                   (:file "iterable"    :depends-on ("recursive"))
+                   (:file "foldable"    :depends-on ("recursive"))
+                   (:file "traversable" :depends-on ("recursive"))))
+                 (:module "datatypes"   :depends-on ("lazy" "data" "generics")
                   :components
                   ((:file "list")
-                   (:file "lazy-list")
                    (:file "maybe")
                    (:file "either")
+                   (:file "ulist")
+                   (:file "llist")
                    (:file "reader")
                    (:file "writer")
-                   (:file "state")
-                   (:file "st"))))))
+                   (:file "state")))
+                 (:file "package"))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
 
