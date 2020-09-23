@@ -32,7 +32,7 @@
 
 (defun partial-at (n func arg)
   (lambda (&rest rest-args)
-    (apply (insert-at n arg rest-args))))
+    (apply func (insert-at n arg rest-args))))
 
 (defun curry (func)
   (lambda (&rest args)

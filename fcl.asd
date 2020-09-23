@@ -10,8 +10,7 @@
                    (:file "list"        :depends-on ("type"))
                    (:file "function"    :depends-on ("list"))
                    (:file "symbol")
-                   (:file "string")
-                   (:file "package"     :depends-on ("type" "list" "function" "symbol" "string"))))
+                   (:file "package"     :depends-on ("type" "list" "function" "symbol"))))
                  (:module "lazy"        :depends-on ("util")
                   :components
                   ((:file "core")
