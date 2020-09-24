@@ -11,11 +11,13 @@
                    (:file "function"    :depends-on ("list"))
                    (:file "symbol")
                    (:file "package"     :depends-on ("type" "list" "function" "symbol"))))
+
                  (:module "lazy"
                   :depends-on ("util")
                   :components
                   ((:file "core")
                    (:file "package")))
+
                  (:module "data"
                   :depends-on ("util" "lazy")
                   :components
@@ -23,6 +25,7 @@
                    (:file "parser")
                    (:file "core")
                    (:file "package")))
+
                  (:module "match"
                   :depends-on ("util" "data" "lazy")
                   :components
@@ -30,8 +33,9 @@
                    (:file "parser")
                    (:file "core")
                    (:file "package")))
+
                  (:module "datatypes"
-                  :depends-on ("util" "lazy" "data")
+                  :depends-on ("util" "lazy" "data" "match")
                   :components
                   ((:file "maybe")
                    (:file "either")
@@ -39,6 +43,7 @@
                    (:file "reader")
                    (:file "writer")
                    (:file "state")))
+
                  (:module "generics"
                   :depends-on ("util")
                   :components
@@ -51,8 +56,9 @@
                    (:file "iterable"    :depends-on ("recursive"))
                    (:file "foldable"    :depends-on ("recursive"))
                    (:file "traversable" :depends-on ("recursive"))))
+
                  (:module "methods"
-                  :depends-on ("util" "datatypes" "generics")
+                  :depends-on ("util" "datatypes" "match" "generics")
                   :components
                   ((:file "list")
                    (:file "vector")
@@ -63,6 +69,7 @@
                    (:file "reader")
                    (:file "writer")
                    (:file "state")))
+
                  (:file "package"))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
