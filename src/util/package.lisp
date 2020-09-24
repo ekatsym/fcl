@@ -9,10 +9,13 @@
     #:index
     #:proper-list
     #:nlist?
+    #:take
+    #:enum
     #:insert-at
     #:filter
     #:mappend
     #:zip
+    #:group
     #:compose
     #:partial
     #:rpartial

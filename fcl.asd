@@ -31,7 +31,7 @@
                    (:file "core")
                    (:file "package")))
                  (:module "datatypes"
-                  :depends-on ("lazy" "data")
+                  :depends-on ("util" "lazy" "data")
                   :components
                   ((:file "maybe")
                    (:file "either")

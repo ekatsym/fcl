@@ -6,10 +6,14 @@
     #:index)
   (:export
     #:nlist?
+    #:take
+    #:drop
+    #:enum
     #:insert-at
     #:filter
     #:mappend
-    #:zip))
+    #:zip
+    #:group))
 (in-package :fcl.u.list)
 
 
@@ -20,6 +24,27 @@
        (l lst (rest l)))
       ((or (zerop i) (endp l))
        (and (zerop i) (endp l)))))
+
+(defun take (n lst)
+  (check-type n index)
+  (check-type lst list)
+  (do ((i n (1- i))
+       (l lst (rest l))
+       (acc '() (cons (first l) acc)))
+      ((or (zerop i) (endp l))
+       (nreverse acc))))
+
+(defun drop (n lst)
+  (check-type n index)
+  (check-type lst list)
+  (nthcdr n lst))
+
+(defun enum (start end)
+  (assert (typep (- end start) 'index) (start end)
+          'type-error :datum (- end start) :expected-type 'index)
+  (do ((i start (1+ i))
+       (acc '() (cons i acc)))
+      ((>= i end) (nreverse acc))))
 
 (defun insert-at (n x lst)
   (check-type n index)
@@ -52,3 +77,10 @@
   (check-type lst list)
   (every (lambda (lst) (check-type lst list)) more-lsts)
   (apply #'mapcar #'list lst more-lsts))
+
+(defun group (n lst)
+  (check-type n index)
+  (check-type lst list)
+  (do ((l lst (drop n l))
+       (acc '() (cons (take n l) acc)))
+      ((endp l) (nreverse acc))))
