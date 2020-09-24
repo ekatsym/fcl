@@ -26,7 +26,7 @@
   (check-type lst list)
   (do ((i n (1- i))
        (tail lst (rest tail))
-       (rhead '() (cons (first tail) acc)))
+       (rhead '() (cons (first tail) rhead)))
       ((or (zerop i) (endp tail)) (revappend rhead (cons x tail)))))
 
 (defun filter (func lst &rest more-lsts)

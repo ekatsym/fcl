@@ -23,12 +23,18 @@
                    (:file "parser")
                    (:file "core")
                    (:file "package")))
+                 (:module "match"
+                  :depends-on ("util" "data" "lazy")
+                  :components
+                  ((:file "util")
+                   (:file "parser")
+                   (:file "core")
+                   (:file "package")))
                  (:module "datatypes"
                   :depends-on ("lazy" "data")
                   :components
                   ((:file "maybe")
                    (:file "either")
-                   (:file "ulist")
                    (:file "llist")
                    (:file "reader")
                    (:file "writer")
@@ -53,7 +59,6 @@
                    (:file "array")
                    (:file "maybe")
                    (:file "either")
-                   (:file "ulist")
                    (:file "llist")
                    (:file "reader")
                    (:file "writer")
