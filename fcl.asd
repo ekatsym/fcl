@@ -11,17 +11,30 @@
                    (:file "function"    :depends-on ("list"))
                    (:file "symbol")
                    (:file "package"     :depends-on ("type" "list" "function" "symbol"))))
-                 (:module "lazy"        :depends-on ("util")
+                 (:module "lazy"
+                  :depends-on ("util")
                   :components
                   ((:file "core")
                    (:file "package")))
-                 (:module "data"        :depends-on ("util" "lazy")
+                 (:module "data"
+                  :depends-on ("util" "lazy")
                   :components
                   ((:file "util")
                    (:file "parser")
                    (:file "core")
                    (:file "package")))
-                 (:module "generics"    :depends-on ("util")
+                 (:module "datatypes"
+                  :depends-on ("lazy" "data")
+                  :components
+                  ((:file "maybe")
+                   (:file "either")
+                   (:file "ulist")
+                   (:file "llist")
+                   (:file "reader")
+                   (:file "writer")
+                   (:file "state")))
+                 (:module "generics"
+                  :depends-on ("util")
                   :components
                   ((:file "functor")
                    (:file "applicative" :depends-on ("functor"))
@@ -32,7 +45,8 @@
                    (:file "iterable"    :depends-on ("recursive"))
                    (:file "foldable"    :depends-on ("recursive"))
                    (:file "traversable" :depends-on ("recursive"))))
-                 (:module "datatypes"   :depends-on ("lazy" "data" "generics")
+                 (:module "methods"
+                  :depends-on ("util" "datatypes" "generics")
                   :components
                   ((:file "list")
                    (:file "vector")
