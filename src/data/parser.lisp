@@ -94,7 +94,7 @@
         (parameters (make-parameters (length (rest constructor)))))
     `(defmethod print-object ((object ,name) stream)
        (format stream
-               "(~S~{ ~S~})"
+               "#.(~S~{ ~S~})"
                ',name
                (with-slots ,parameters object
                  (list ,@parameters))))))
