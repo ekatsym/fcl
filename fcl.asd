@@ -34,16 +34,6 @@
                    (:file "core")
                    (:file "package")))
 
-                 (:module "datatypes"
-                  :depends-on ("util" "lazy" "data" "match")
-                  :components
-                  ((:file "maybe")
-                   (:file "either")
-                   (:file "llist")
-                   (:file "reader")
-                   (:file "writer")
-                   (:file "state")))
-
                  (:module "generics"
                   :depends-on ("util")
                   :components
@@ -57,8 +47,8 @@
                    (:file "foldable"    :depends-on ("recursive"))
                    (:file "traversable" :depends-on ("recursive"))))
 
-                 (:module "methods"
-                  :depends-on ("util" "datatypes" "match" "generics")
+                 (:module "datatypes"
+                  :depends-on ("util" "lazy" "data" "match" "generics")
                   :components
                   ((:file "list")
                    (:file "vector")
@@ -66,8 +56,10 @@
                    (:file "maybe")
                    (:file "either")
                    (:file "llist")
+                   (:file "queue"       :depends-on ("llist"))
+                   (:file "bheap"       :depends-on ("llist"))
                    (:file "reader")
-                   (:file "writer")
+                   (:file "writer"      :depends-on ("queue"))
                    (:file "state")))
 
                  (:file "package"))))
