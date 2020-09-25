@@ -7,4 +7,5 @@
     #:delay)
   (:export
     #:match
+    #:ematch
     #:delay))

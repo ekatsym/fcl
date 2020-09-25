@@ -114,7 +114,7 @@
               (typep ,data 'algebraic-datatype)
               ,@(mapcar (lambda (pat param)
                           (let ((g!slot (gensym "SLOT")))
-                            `(let ((,g!slot (slot-value ,data ',param)))
+                            `(let ((,g!slot (,(symbolicate name param) ,data)))
                                (declare (ignorable ,g!slot))
                                ,(pattern->test g!slot pat))))
                         pats
@@ -188,8 +188,7 @@
          ,(pattern->bind g!forced pat body)))))
 
 (defun %%class-pattern->bind (data pattern body)
-  (destructuring-bind (_ . pats) pattern
-    (declare (ignore _))
+  (destructuring-bind (name . pats) pattern
     (if (member-if #'keywordp pats)
         (reduce (lambda (key-pat body)
                     (destructuring-bind (key pat) key-pat
@@ -203,7 +202,7 @@
         (reduce (lambda (param-pat body)
                     (destructuring-bind (param pat) param-pat
                       (let ((g!slot (gensym "SLOT")))
-                        `(let ((,g!slot (slot-value ,data ',param)))
+                        `(let ((,g!slot (,(symbolicate name param) ,data)))
                            (declare (ignorable ,g!slot))
                            ,(pattern->bind g!slot pat body)))))
                   (zip (make-parameters (length pats)) pats)
