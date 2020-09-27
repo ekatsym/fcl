@@ -42,10 +42,10 @@
                    (:file "monad"       :depends-on ("applicative"))
                    (:file "monoid")
                    (:file "monad-plus"  :depends-on ("monad" "monoid"))
-                   (:file "recursive"   :depends-on ("functor"))
+                   (:file "recursive")
                    (:file "iterable"    :depends-on ("recursive"))
-                   (:file "foldable"    :depends-on ("recursive"))
-                   (:file "traversable" :depends-on ("recursive"))))
+                   (:file "foldable"    :depends-on ("iterable"))
+                   (:file "traversable" :depends-on ("foldable"))))
 
                  (:module "datatypes"
                   :depends-on ("util" "lazy" "data" "match" "generics")

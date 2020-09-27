@@ -36,10 +36,11 @@
 (match (delay (* 3 5))
   ((delay x) (print (list "matched with LAZY pattern" x))))
 
-(defstruct point1 x y)
-(match (make-point1 :x 3 :y 7)
+(defdata point-data (point1 t t))
+(defstruct point2 x y)
+(match (make-point2 :x 3 :y 7)
   ((point1 x y)       (print (list "matched with ALGEBRAIC-DATATYPE pattern" (+ x y))))
-  ((point1 :x x :y y) (print (list "matched with normal CLASS pattern" (* x y)))))
+  ((point2 :x x :y y) (print (list "matched with normal CLASS pattern" (* x y)))))
 
 (defdata maybe
   (nothing)
