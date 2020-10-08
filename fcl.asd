@@ -43,9 +43,7 @@
                    (:file "monoid")
                    (:file "monad-plus"  :depends-on ("monad" "monoid"))
                    (:file "recursive")
-                   (:file "iterable"    :depends-on ("recursive"))
-                   (:file "foldable"    :depends-on ("iterable"))
-                   (:file "traversable" :depends-on ("foldable"))))
+                   (:file "foldable"    :depends-on ("recursive"))))
 
                  (:module "datatypes"
                   :depends-on ("util" "lazy" "data" "match" "generics")

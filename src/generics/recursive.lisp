@@ -12,8 +12,8 @@
 
 (defgeneric cata (x*->x i))
 
-(defgeneric para (i&a*->a i))
+(defgeneric para (i&x*->x i))
 
-(defgeneric ana (x->x* x))
+(defgeneric ana (class x->x* x))
 
-(defgeneric apo (x->f+x* x))
+(defgeneric apo (class x->f+x* x))
