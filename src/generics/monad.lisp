@@ -55,11 +55,11 @@ MMAP must satisfy the rules:
             (if (consp clause)
                 (case (first clause)
                   (:in
-                    (assert (nlist? 2 clause) (clause))
-                    `(mlet (,(second clause) ,@(nthcdr 2 clause)) ,body))
+                    (assert (nlist? 3 clause) (clause))
+                    `(mlet ((,(second clause) ,@(nthcdr 2 clause))) ,body))
                   (:let
-                    (assert (nlist? 2 clause) (clause))
-                    `(let (,(second clause) ,@(nthcdr 2 clause)) ,body))
+                    (assert (nlist? 3 clause) (clause))
+                    `(let ((,(second clause) ,@(nthcdr 2 clause))) ,body))
                   (otherwise
                     `(mprogn ,clause ,body)))
                 `(mprogn ,clause ,body)))
