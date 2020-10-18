@@ -13,7 +13,8 @@
     #:filter
     #:mappend
     #:zip
-    #:group))
+    #:group
+    #:reverse+))
 (in-package :fcl.u.list)
 
 
@@ -69,9 +70,9 @@
   (check-type func function)
   (check-type lst list)
   (every (lambda (lst) (check-type lst list)) more-lsts)
-  (do ((lsts (cons lst more-lsts) (mapcar #'rest lsts))
-       (acc '() (revappend (apply func (mapcar #'first lsts)) acc)))
-      ((some #'endp lsts) (nreverse acc))))
+  (do ((lsts (mapcar #'reverse (cons lst more-lsts)) (mapcar #'rest lsts))
+       (acc '() (append (apply func (mapcar #'first lsts)) acc)))
+      ((some #'endp lsts) acc)))
 
 (defun zip (lst &rest more-lsts)
   (check-type lst list)
@@ -84,3 +85,9 @@
   (do ((l lst (drop n l))
        (acc '() (cons (take n l) acc)))
       ((endp l) (nreverse acc))))
+
+(defun reverse+ (lst)
+  (check-type lst list)
+  (do ((lst lst (rest lst))
+       (acc '() (cons lst acc)))
+      ((endp lst) acc)))
