@@ -16,10 +16,10 @@
     #:foldl+
     #:unfoldl
     #:unfoldl+
-    #:fold2
-    #:fold2+
-    #:unfold2
-    #:unfold2+))
+    #:fold-tree
+    #:fold-tree+
+    #:unfold-tree
+    #:unfold-tree+))
 (in-package :fcl.generics.foldable)
 
 
@@ -30,7 +30,7 @@
 
 (defgeneric unfoldr (class x->? x->a x->x x))
 
-(defgeneric unfoldr+ (class x->? x->a x->x as x))
+(defgeneric unfoldr+ (class x->? x->a x->x as0 x))
 
 (defgeneric foldl (x&a->x x0 as))
 
@@ -41,11 +41,11 @@
 (defgeneric unfoldl+ (class x->? x->x x->a as0 x))
 
 
-;;; Fold for "Binary Tree".
-(defgeneric fold2 (a&x&x->x x0 lar))
+;;; Fold for "Tree".
+(defgeneric fold-tree (a&xs->x x0 at))
 
-(defgeneric fold2+ (lar&x&x->x x0 lar))
+(defgeneric fold-tree+ (at&xs->x x0 at))
 
-(defgeneric unfold2 (class x->? x->a x->x1 x->x2 x))
+(defgeneric unfold-tree (class x->? x->a x->xs x))
 
-(defgeneric unfold2+ (class x->? x->a x->x1 x->x2 lar0 x))
+(defgeneric unfold-tree+ (class x->? x->a x->xs at0 x))

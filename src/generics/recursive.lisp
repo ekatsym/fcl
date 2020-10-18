@@ -16,4 +16,4 @@
 
 (defgeneric ana (class x->x* x))
 
-(defgeneric apo (class x->f+x* x))
+(defgeneric apo (class x->f+*x x))
