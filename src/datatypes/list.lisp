@@ -73,12 +73,12 @@
           (funcall x*->x (just (list (first as) x)))))
       ((endp as) x)))
 
-(defmethod para (i&x*->x (i list))
-  "I&X* == I (NOTHING) | I (JUST (LIST A X))"
-  (check-type i&x*->x function)
+(defmethod para (i&*x->x (i list))
+  "I&*X == (NOTHING) | (JUST (LIST A I X))"
+  (check-type i&*x->x function)
   (do ((as-s (reverse+ i) (rest as-s))
-       (x (funcall i&x*->x '() (nothing))
-          (funcall i&x*->x (first as-s) (just (list (first (first as-s)) x)))))
+       (x (funcall i&*x->x (nothing))
+          (funcall i&*x->x (just (list (first (first as-s)) (first as-s) x)))))
       ((endp as-s) x)))
 
 (defmethod ana ((class (eql 'list)) x->x* x)
