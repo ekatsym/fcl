@@ -10,8 +10,6 @@
     #:drop
     #:enum
     #:insert-at
-    #:filter
-    #:mappend
     #:zip
     #:group
     #:reverse+))
@@ -54,25 +52,6 @@
        (tail lst (rest tail))
        (rhead '() (cons (first tail) rhead)))
       ((or (zerop i) (endp tail)) (revappend rhead (cons x tail)))))
-
-(defun filter (func lst &rest more-lsts)
-  (check-type func function)
-  (check-type lst list)
-  (every (lambda (lst) (check-type lst list)) more-lsts)
-  (do ((lsts (cons lst more-lsts) (mapcar #'rest lsts))
-       (acc '() (let ((x (apply func (mapcar #'first lsts))))
-                  (if (null x)
-                      acc
-                      (cons x acc)))))
-      ((some #'endp lsts) (nreverse acc))))
-
-(defun mappend (func lst &rest more-lsts)
-  (check-type func function)
-  (check-type lst list)
-  (every (lambda (lst) (check-type lst list)) more-lsts)
-  (do ((lsts (mapcar #'reverse (cons lst more-lsts)) (mapcar #'rest lsts))
-       (acc '() (append (apply func (mapcar #'first lsts)) acc)))
-      ((some #'endp lsts) acc)))
 
 (defun zip (lst &rest more-lsts)
   (check-type lst list)

@@ -6,6 +6,9 @@
     :fcl.generics.foldable
     :fcl.generics.monad-plus)
   (:import-from
+    :fcl.util
+    #:index)
+  (:import-from
     :fcl.match
     #:ematch)
   (:import-from
@@ -24,8 +27,6 @@
     #:drop
     #:enum
     #:insert-at
-    #:filter
-    #:mappend
     #:zip
     #:group
 
@@ -41,10 +42,16 @@
     #:foldl+
     #:unfoldl
     #:unfoldl+
-    #:fold-tree
-    #:fold-tree+
-    #:unfold-tree
-    #:unfold-tree+
+    #:foldt
+    #:foldt+
+    #:unfoldt
+    #:unfoldt+
+    #:scanr
+    #:scanr+
+    #:scanl
+    #:scanl+
+    #:scant
+    #:scant+
 
     #:fmap
     #:unit
@@ -59,7 +66,20 @@
     #:guard
 
     #:lc
-    ))
+    #:iterate
+    #:take-while
+    #:drop-while
+    #:span
+    #:split-at
+    #:partition
+    #:filter
+    #:mappend
+    #:transpose
+    #:sublists
+    #:permutations
+    #:flatten
+    #:argmax
+    #:argmin))
 (in-package :fcl.datatypes.list)
 
 
@@ -196,8 +216,7 @@
   (append monoid1 monoid2))
 
 
-;;; Utility
-;; List Comprehension
+;;; List Comprehension
 (defmacro lc (element &body clauses)
   `(mdo ,@(mapcar (lambda (clause)
                     (if (listp clause)
@@ -207,3 +226,137 @@
                         `(guard 'list ,clause)))
                   clauses)
         (unit 'list ,element)))
+
+;;; Utility
+(defun iterate (n func x)
+  (check-type n index)
+  (check-type func function)
+  (do ((x x (funcall func x))
+       (n n (1- n)))
+      ((zerop n) x)))
+
+(defun take-while (pred lst)
+  (check-type pred function)
+  (check-type lst list)
+  (do ((tail lst (rest tail))
+       (rhead '() (cons (first tail) rhead)))
+      ((not (funcall pred (first tail))) (nreverse rhead))))
+
+(defun drop-while (pred lst)
+  (check-type pred function)
+  (check-type lst list)
+  (do ((tail lst (rest tail)))
+      ((not (funcall pred (first tail))) tail)))
+
+(defun span (pred lst)
+  (check-type pred function)
+  (check-type lst list)
+  (do ((tail lst (rest tail))
+       (rhead '() (cons (first tail) rhead)))
+      ((not (funcall pred (first tail))) (list (nreverse rhead) tail))))
+
+(defun split-at (n lst)
+  (check-type lst list)
+  (check-type n index)
+  (do ((tail lst (rest tail))
+       (rhead '() (cons (first tail) rhead))
+       (i 0 (1+ i)))
+      ((>= i n) (list (reverse rhead) tail))))
+
+(defun partition (pred lst)
+  (check-type pred function)
+  (check-type lst list)
+  (do ((lst lst (rest lst))
+       (acc1 '())
+       (acc2 '()))
+      ((endp lst) (list (nreverse acc1) (nreverse acc2)))
+      (if (funcall pred (first lst))
+          (push (first lst) acc1)
+          (push (first lst) acc2))))
+
+(defun filter (func lst &rest more-lsts)
+  (check-type func function)
+  (check-type lst list)
+  (every (lambda (l) (check-type l list)) more-lsts)
+  (foldr (lambda (as x)
+           (let ((b (apply func as)))
+             (if (null b)
+                 x
+                 (cons b x))))
+         '()
+         (apply #'zip lst more-lsts)))
+
+(defun mappend (func lst &rest more-lsts)
+  (check-type func function)
+  (check-type lst list)
+  (every (lambda (l) (check-type l list)) more-lsts)
+  (mmap (lambda (as) (apply func as)) (apply #'zip lst more-lsts)))
+
+(defun transpose (lsts)
+  (check-type lsts list)
+  (every (lambda (lst) (check-type lst list)) lsts)
+  (do ((lsts (filter #'identity lsts) (filter #'rest lsts))
+       (acc '() (cons (mapcar #'first lsts) acc)))
+      ((every #'endp lsts) (nreverse acc))))
+
+(defun sublists (lst)
+  (check-type lst list)
+  (cons '()
+        (foldr (lambda (x yss)
+                 (cons (list x)
+                       (foldr (lambda (ys zss) (list* ys (cons x ys) zss))
+                              '()
+                              yss)))
+               '()
+               lst)))
+
+(defun permutations (lst)
+  (check-type lst list)
+  (let ((n 0))
+    (foldr (lambda (x acc)
+             (mmap (lambda (l)
+                     (loop :repeat (incf n)
+                           :for i :from 0
+                           :collect (insert-at i x l)))
+                   acc))
+           '(())
+           lst)))
+
+(defun flatten (lst)
+  (check-type lst list)
+  (foldr (lambda (x acc)
+           (if (listp x)
+               (append (flatten x) acc)
+               (cons x acc)))
+         '()
+         lst))
+
+(defun argmax (func lst)
+  (check-type func function)
+  (check-type lst list)
+  (ematch lst
+    ((cons hd tl)
+     (apply
+       #'values
+       (foldl (lambda (acc new)
+                (ematch acc
+                  ((list _ v1)
+                   (let ((v2 (funcall func new)))
+                     (if (> v2 v1) (list new v2) acc)))))
+              (list hd (funcall func hd))
+              tl)))))
+
+(defun argmin (func lst)
+  (check-type func function)
+  (check-type lst list)
+  (ematch lst
+    ((cons hd tl)
+     (apply
+       #'values
+       (foldl (lambda (acc new)
+                (ematch acc
+                  ((list _ v1)
+                   (let ((v2 (funcall func new)))
+                     (if (< v2 v1) (list new v2) acc)))))
+              (list hd (funcall func hd))
+              tl)))))

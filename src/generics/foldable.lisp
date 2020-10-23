@@ -16,10 +16,16 @@
     #:foldl+
     #:unfoldl
     #:unfoldl+
-    #:fold-tree
-    #:fold-tree+
-    #:unfold-tree
-    #:unfold-tree+))
+    #:foldt
+    #:foldt+
+    #:unfoldt
+    #:unfoldt+
+    #:scanr
+    #:scanr+
+    #:scanl
+    #:scanl+
+    #:scant
+    #:scant+))
 (in-package :fcl.generics.foldable)
 
 
@@ -42,10 +48,44 @@
 
 
 ;;; Fold for "Tree".
-(defgeneric fold-tree (a&xs->x x0 at))
+(defgeneric foldt (a&xs->x x0 at))
 
-(defgeneric fold-tree+ (at&xs->x x0 at))
+(defgeneric foldt+ (at&xs->x x0 at))
 
-(defgeneric unfold-tree (class x->? x->a x->xs x))
+(defgeneric unfoldt (class x->? x->a x->xs x))
 
-(defgeneric unfold-tree+ (class x->? x->a x->xs at0 x))
+(defgeneric unfoldt+ (class x->? x->a x->xs at0 x))
+
+
+;;; Scans
+(defun scanr (a&x->x x0 as)
+  (check-type a&x->x function)
+  (foldr (lambda (a xs) (cons (funcall a&x->x a (first xs)) xs)) (list x0) as))
+
+(defun scanr+ (as&x->x x0 as)
+  (check-type as&x->x function)
+  (foldr+ (lambda (as xs) (cons (funcall as&x->x as (first xs)) xs)) (list x0) as))
+
+(defun scanl (x&a->x x0 as)
+  (check-type x&a->x function)
+  (foldl (lambda (xs a) (cons (funcall x&a->x (first xs) a) xs)) (list x0) as))
+
+(defun scanl+ (x&as->x x0 as)
+  (check-type x&as->x function)
+  (foldl+ (lambda (xs as) (cons (funcall x&as->x (first xs) as) xs)) (list x0) as))
+
+(defun scant (a&xs->x x0 at)
+  (check-type a&xs->x function)
+  (foldt (lambda (a xss)
+           (cons (funcall a&xs->x a (mapcar #'first xss))
+                 (mapcar #'rest xss)))
+         (list x0)
+         at))
+
+(defun scant+ (at&xs->x x0 at)
+  (check-type at&xs->x function)
+  (foldt+ (lambda (at xss)
+            (cons (funcall at&xs->x at (mapcar #'first xss))
+                  (mapcar #'rest xss)))
+          (list x0)
+          at))
