@@ -66,7 +66,6 @@
     #:guard
 
     #:lc
-    #:iterate
     #:take-while
     #:drop-while
     #:span
@@ -228,13 +227,6 @@
         (unit 'list ,element)))
 
 ;;; Utility
-(defun iterate (n func x)
-  (check-type n index)
-  (check-type func function)
-  (do ((x x (funcall func x))
-       (n n (1- n)))
-      ((zerop n) x)))
-
 (defun take-while (pred lst)
   (check-type pred function)
   (check-type lst list)

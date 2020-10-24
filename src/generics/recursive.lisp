@@ -12,7 +12,7 @@
 
 (defgeneric cata (x*->x i))
 
-(defgeneric para (i&x*->x i))
+(defgeneric para (i&*x->x i))
 
 (defgeneric ana (class x->x* x))
 
