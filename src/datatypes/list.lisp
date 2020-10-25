@@ -184,6 +184,51 @@
        (as as0 (cons (funcall x->a x) as)))
       ((funcall x->? x) as)))
 
+(defmethod foldt (a&xs->x x0 (at list))
+  (declare (optimize (speed 3)))
+  (check-type a&xs->x function)
+  (labels ((rec (at)
+             (declare (type function a&xs->x))
+             (if (endp at)
+                 x0
+                 (funcall a&xs->x (first at) (mapcar #'rec (rest at))))))
+    (rec at)))
+
+(defmethod foldt+ (at&xs->x x0 (at list))
+  (declare (optimize (speed 3)))
+  (check-type at&xs->x function)
+  (labels ((rec (at)
+             (declare (type function at&xs->x))
+             (if (endp at)
+                 x0
+                 (funcall at&xs->x at (mapcar #'rec (rest at))))))
+    (rec at)))
+
+(defmethod unfoldt ((class (eql 'list)) x->? x->a x->xs x)
+  (declare (optimize (speed 3)))
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->xs function)
+  (labels ((rec (x)
+             (declare (type function x->? x->a x->xs))
+             (if (funcall x->? x)
+                 nil
+                 (cons (funcall x->a x) (mapcar #'rec (funcall x->xs x))))))
+    (rec x)))
+
+(defmethod unfoldt+ ((class (eql 'list)) x->? x->a x->xs at0 x)
+  (declare (optimize (speed 3)))
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->xs function)
+  (check-type at0 list)
+  (labels ((rec (x)
+             (declare (type function x->? x->a x->xs))
+             (if (funcall x->? x)
+                 at0
+                 (cons (funcall x->a x) (mapcar #'rec (funcall x->xs x))))))
+    (rec x)))
+
 
 ;;; MONAD-PLUS
 (defmethod fmap (a->b (a* list))
