@@ -13,6 +13,7 @@
     #:defdata)
   (:import-from
     :fcl.match
+    #:match
     #:ematch)
   (:import-from
     :fcl.datatypes.maybe
@@ -26,8 +27,10 @@
     #:right #:right%0)
   (:export
     ;; Core
-    #:lcons
     #:lnil
+    #:lcons
+    #:lcons%0
+    #:lcons%1
 
     ;; CL-like Utility
     #:lconsp
@@ -115,3 +118,119 @@
     #:guard
     #:llc))
 (in-package :fcl.datatypes.llist)
+
+
+;;; Definition
+(defdata llist
+  (lnil)
+  (lcons (:lazy t) (:lazy llist)))
+
+
+;;; Printer
+(defmethod print-object ((object lnil) stream)
+  (format stream "#.(LNIL)"))
+
+(defmethod print-object ((object lcons) stream)
+  (match object
+    ((lcons x xs)  (format stream "#.(LCONS ~S ~S)" x xs))))
+
+
+;;; Foldable
+(defmethod cata (x*->x (i llist))
+  "X* == (NOTHING) | (JUST (LIST A X))"
+  (check-type x*->x function)
+  (ematch i
+    ((lnil)       (funcall x*->x (nothing)))
+    ((lcons a as) (funcall x*->x (just (list a (cata x*->x as)))))))
+
+(defmethod para (i&*x->x (i llist))
+  "I&*X == (NOTHING) | (JUST (LIST A I X))"
+  (check-type i&*x->x function)
+  (ematch i
+    ((lnil)       (funcall i&*x->x (nothing)))
+    ((lcons a as) (funcall i&*x->x (just (list a i (para i&*x->x as)))))))
+
+(defmethod ana ((class (eql 'llist)) x->x* x)
+  "X* == (NOTHING) | (JUST (LIST A X))"
+  (check-type x->x* function)
+  (ematch (funcall x->x* x)
+    ((nothing)         (lnil))
+    ((just (list a x)) (lcons a (ana 'llist x->x* x)))))
+
+(defmethod apo ((class (eql 'llist)) x->f+*x x)
+  "F+*X == (NOTHING) | (JUST (LIST A (LEFT F))) | (JUST (LIST A (RIGHT X)))"
+  (check-type x->f+*x function)
+  (ematch (funcall x->f+*x x)
+    ((nothing)           (lnil))
+    ((just (list a f+x)) (ematch f+x
+                           ((left f)  (lcons a f))
+                           ((right x) (lcons a (apo 'llist x->f+*x x)))))))
+
+(defmethod foldr (a&x->x x0 (as llist))
+  (check-type a&x->x function)
+  (ematch as
+    ((lnil)       x0)
+    ((lcons a as) (funcall a&x->x a (foldr a&x->x x0 as)))))
+
+(defmethod foldr+ (as&x->x x0 (as llist))
+  (check-type as&x->x function)
+  (ematch as
+    ((lnil) x0)
+    ((lcons _ as2) (funcall as&x->x as (foldr+ as&x->x x0 as2)))))
+
+(defmethod unfoldr ((class (eql 'llist)) x->? x->a x->x x)
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->x function)
+  (if (funcall x->? x)
+      (lnil)
+      (lcons (funcall x->a x) (unfoldr 'llist x->? x->a x->x (funcall x->x x)))))
+
+(defmethod unfoldr+ ((class (eql 'llist)) x->? x->a x->x as0 x)
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->x function)
+  (if (funcall x->? x)
+      as0
+      (lcons (funcall x->a x) (unfoldr 'llist x->? x->a x->x (funcall x->x x)))))
+
+(defmethod foldl (x&a->x x0 (as llist))
+  (check-type x&a->x function)
+  (labels ((rec (as x)
+             (declare (optimize (speed 3)))
+             (ematch as
+               ((lnil)       x)
+               ((lcons a as) (rec as (funcall x&a->x x a))))))
+    (rec as x0)))
+
+(defmethod foldl+ (x&as->x x0 (as llist))
+  (check-type x&as->x function)
+  (labels ((rec (as x)
+             (declare (optimize (speed 3)))
+             (ematch as
+               ((lnil) x)
+               ((lcons _ as2) (rec as2 (funcall x&as->x x as))))))
+    (rec as x0)))
+
+(defmethod unfoldl ((class (eql 'llist)) x->? x->x x->a x)
+  (check-type x->? function)
+  (check-type x->x function)
+  (check-type x->a function)
+  (labels ((rec (x as)
+             (declare (optimize (speed 3)))
+             (if (funcall x->? x)
+                 as
+                 (rec (funcall x->x x) (lcons (funcall x->a x) as)))))
+    (rec x (lnil))))
+
+(defmethod unfoldl+ ((class (eql 'llist)) x->? x->x x->a as0 x)
+  (check-type x->? function)
+  (check-type x->x function)
+  (check-type x->a function)
+  (check-type as0 llist)
+  (labels ((rec (x as)
+             (declare (optimize (speed 3)))
+             (if (funcall x->? x)
+                 as
+                 (rec (funcall x->x x) (lcons (funcall x->a x) as)))))
+    (rec x as0)))
