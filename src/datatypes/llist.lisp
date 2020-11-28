@@ -217,7 +217,8 @@
   (check-type x->x function)
   (check-type x->a function)
   (labels ((rec (x as)
-             (declare (optimize (speed 3)))
+             (declare (optimize (speed 3))
+                      (type function x->? x->x x->a))
              (if (funcall x->? x)
                  as
                  (rec (funcall x->x x) (lcons (funcall x->a x) as)))))
@@ -229,8 +230,46 @@
   (check-type x->a function)
   (check-type as0 llist)
   (labels ((rec (x as)
-             (declare (optimize (speed 3)))
+             (declare (optimize (speed 3))
+                      (type function x->? x->x x->a))
              (if (funcall x->? x)
                  as
                  (rec (funcall x->x x) (lcons (funcall x->a x) as)))))
     (rec x as0)))
+
+(defmethod foldt (a&xs->x x0 (at llist))
+  (check-type a&xs->x function)
+  (labels ((rec (at)
+             (ematch at
+               ((lnil)        x0)
+               ((lcons a ats) (funcall a&xs->x a (mapcar #'rec ats))))))
+    (rec at)))
+
+(defmethod foldt+ (at&xs->x x0 (at llist))
+  (check-type at&xs->x function)
+  (labels ((rec (at)
+             (ematch at
+               ((lnil)         x0)
+               ((lcons _ ats) (funcall at&xs->x at (mapcar #'rec ats))))))
+    (rec at)))
+
+(defmethod unfoldt ((class (eql 'llist)) x->? x->a x->xs x)
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->xs function)
+  (labels ((rec (x)
+             (if (funcall x->? x)
+                 (lnil)
+                 (lcons (funcall x->a x) (funcall x->xs x)))))
+    (rec x)))
+
+(defmethod unfoldt+ ((class (eql 'llist)) x->? x->a x->xs at0 x)
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->xs function)
+  (check-type at0 llist)
+  (labels ((rec (x)
+             (if (funcall x->? x)
+                 at0
+                 (lcons (funcall x->a x) (funcall x->xs x)))))
+    (rec x)))
