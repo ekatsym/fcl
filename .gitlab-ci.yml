@@ -1,8 +1,6 @@
 image: daewok/lisp-devel
 
 before_script:
-    - apt update -qy
-    - apt install -y git-core
     - cp -r . /usr/local/share/common-lisp/source/fcl
 
 stages:
