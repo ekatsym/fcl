@@ -1,5 +1,5 @@
 (defpackage fcl.util.function
-  (:nicknames :fcl.u.function)
+  (:nicknames :fcl.u.function :fcl.u.f)
   (:use :common-lisp)
   (:import-from
     :fcl.u.list
@@ -11,7 +11,7 @@
     #:partial-at
     #:curry
     #:rcurry))
-(in-package :fcl.u.function)
+(in-package :fcl.util.function)
 
 
 (defun compose (func &rest more-funcs)

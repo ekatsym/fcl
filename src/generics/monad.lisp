@@ -26,9 +26,9 @@
 "Returns a value of class of B*, \"appended\" (FMAP A->B* A)
 where A is a value included A*.
 MMAP must satisfy the rules:
-  Left identity:  (mmap #'a->b* (unit class a))
+  Left Identity:  (mmap #'a->b* (unit class a))
                == (a->b* a)
-  Right identity: (mmap (partial #'unit class) a*)
+  Right Identity: (mmap (partial #'unit class) a*)
                == a*
   Associativity:  (mmap (lambda (a) (mmap #'b->c* (a->b* a))) a*)
                == (mmap #'b->c* (mmap #'a->b* a*))"))

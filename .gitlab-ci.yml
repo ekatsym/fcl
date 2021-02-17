@@ -1,0 +1,13 @@
+image: daewok/lisp-devel
+
+before_script:
+    - apt update -qy
+    - apt install -y git-core
+    - git clone https://gitlab.com/ekatsym/fcl.git /usr/local/share/common-lisp/source
+
+test:
+    script:
+        - sbcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+        - ccl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+        - ecl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+        - abcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"

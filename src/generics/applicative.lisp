@@ -22,8 +22,8 @@ where A->B and A are values included A->*B and A*.
 AMAP must satisfy the rules:
   Identity:     (amap (unit class #'identity) a*)
              == a*
-  Composition:  (amap (amap (amap (unit class (curry #'compose)) b->*c) a->*b) #'a*)
-             == (amap b->*c (amap a->*b #'a*))
+  Composition:  (amap (amap (amap (unit class (curry #'compose)) b->*c) a->*b) a*)
+             == (amap b->*c (amap a->*b a*))
   Homomorphism: (amap (unit class #'a->b) (unit class a))
              == (unit class (a->b a))
   Interchange:  (amap a->*b (unit class a))

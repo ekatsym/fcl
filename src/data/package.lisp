@@ -4,4 +4,5 @@
     :fcl.data.core)
   (:export
     #:algebraic-datatype
-    #:defdata))
+    #:defdata
+    #:data=))

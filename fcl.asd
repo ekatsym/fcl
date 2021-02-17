@@ -56,21 +56,26 @@
                    (:file "llist"       :depends-on ("maybe" "either"))
                    (:file "queue"       :depends-on ("maybe" "either" "llist"))
                    (:file "bheap"       :depends-on ("maybe" "either" "llist"))
+                   (:file "function")
                    (:file "reader")
                    (:file "writer"      :depends-on ("queue"))
                    (:file "state")))
 
-                 (:file "package"))))
+                 (:file "package"
+                  :depends-on ("lazy" "data" "match" "generics" "datatypes")))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
 
 (defsystem "fcl/tests"
   :author "ekatsym"
   :license "LLGPL"
-  :depends-on ("fcl"
-               "rove")
+  :depends-on ("fcl" "rove")
   :components ((:module "tests"
                         :components
-                        ((:file "main"))))
+                        ((:module "datatypes"
+                          :components
+                          ((:file "maybe")
+                           (:file "package" :depends-on ("maybe"))))
+                         (:file "package" :depends-on ("datatypes")))))
   :description "Test system for fcl"
   :perform (test-op (op c) (symbol-call :rove :run c)))

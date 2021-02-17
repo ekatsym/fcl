@@ -10,7 +10,8 @@
     #:proper-list)
   (:export
     #:algebraic-datatype
-    #:defdata))
+    #:defdata
+    #:data=))
 (in-package :fcl.d.core)
 
 (defstruct (algebraic-datatype (:constructor nil)
@@ -31,3 +32,8 @@
                constructors)
      ,@(mapcar #'parse-printer constructors)
      ',name))
+
+(defun data= (data1 data2)
+  (check-type data1 algebraic-datatype)
+  (check-type data2 algebraic-datatype)
+  (equalp data1 data2))
