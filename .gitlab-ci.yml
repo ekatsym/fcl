@@ -3,8 +3,7 @@ image: daewok/lisp-devel
 before_script:
     - apt update -qy
     - apt install -y git-core
-    - git clone https://gitlab.com/ekatsym/fcl.git /usr/local/share/common-lisp/source/fcl
-    - cd /usr/local/share/common-lisp/source/fcl && git checkout 0.2.0
+    - cp -r . /usr/local/share/common-lisp/source/fcl
 
 stages:
     - test
