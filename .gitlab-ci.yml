@@ -6,9 +6,21 @@ before_script:
     - git clone https://gitlab.com/ekatsym/fcl.git /usr/local/share/common-lisp/source/fcl
     - cd /usr/local/share/common-lisp/source/fcl && git checkout 0.2.0
 
-test:
-    script:
-        - sbcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
-        - ccl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
-        - ecl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
-        - abcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+stages:
+    - test
+
+sbcl:
+    stage: test
+    script: sbcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+
+ccl:
+    stage: test
+    script: ccl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+
+ecl:
+    stage: test
+    script: ecl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+
+abcl:
+    stage: test
+    script: abcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
