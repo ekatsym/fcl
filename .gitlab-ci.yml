@@ -4,6 +4,7 @@ before_script:
     - apt update -qy
     - apt install -y git-core
     - git clone https://gitlab.com/ekatsym/fcl.git /usr/local/share/common-lisp/source
+    - cd /usr/local/share/common-lisp/source/fcl && git checkout 0.2.0
 
 test:
     script:
