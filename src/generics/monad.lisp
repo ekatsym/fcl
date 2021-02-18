@@ -23,7 +23,7 @@
 ;;; Core
 (defgeneric mmap (a->b* a*)
   (:documentation
-"Returns a value of class of B*, \"appended\" (FMAP A->B* A)
+"Returns a value of class B* \"appended\" (FMAP A->B* A)
 where A is a value included A*.
 MMAP must satisfy the rules:
   Left Identity:  (mmap #'a->b* (unit class a))

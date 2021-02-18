@@ -8,7 +8,7 @@
 
 (defgeneric fmap (a->b a*)
   (:documentation
-"Returns a value of class of B* including (FUNCALL A->B A)
+"Returns a value of class B* including (FUNCALL A->B A)
 where A is a value included in A*.
 FMAP must satisfy the rules:
   Identity:    (fmap #'identity a*)

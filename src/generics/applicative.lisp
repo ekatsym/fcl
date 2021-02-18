@@ -17,7 +17,7 @@
 
 (defgeneric amap (a->*b a*)
   (:documentation
-"Returns a value of class of B* including (FUNCALL A->B A)
+"Returns a value of class B* including (FUNCALL A->B A)
 where A->B and A are values included A->*B and A*.
 AMAP must satisfy the rules:
   Identity:     (amap (unit class #'identity) a*)
