@@ -75,7 +75,8 @@
                         ((:module "datatypes"
                           :components
                           ((:file "maybe")
-                           (:file "package" :depends-on ("maybe"))))
+                           (:file "either")
+                           (:file "package" :depends-on ("maybe" "either"))))
                          (:file "package" :depends-on ("datatypes")))))
   :description "Test system for fcl"
   :perform (test-op (op c) (symbol-call :rove :run c)))
