@@ -11,7 +11,7 @@
     #:ematch)
   (:export
     #:maybe
-    #:just #:just%0
+    #:just
     #:nothing
 
     #:fmap

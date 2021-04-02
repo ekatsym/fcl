@@ -18,19 +18,17 @@
   (:import-from
     :fcl.datatypes.maybe
     #:maybe
-    #:just #:just%0
+    #:just
     #:nothing)
   (:import-from
     :fcl.datatypes.either
     #:either
-    #:left #:left%0
-    #:right #:right%0)
+    #:left
+    #:right)
   (:export
     ;; Core
     #:lnil
     #:lcons
-    #:lcons%0
-    #:lcons%1
 
     ;; CL-like Utility
     #:lconsp

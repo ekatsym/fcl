@@ -11,8 +11,8 @@
     #:ematch)
   (:export
     #:either
-    #:left #:left%0
-    #:right #:right%0
+    #:left
+    #:right
 
     #:fmap
     #:unit
