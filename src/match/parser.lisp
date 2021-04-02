@@ -55,7 +55,7 @@
       't))
 
 (defun %literal-pattern->test (data pattern)
-  `(equal ,data ,pattern))
+  `(equalp ,data ,pattern))
 
 (defun %%cons-pattern->test (data pattern)
   (destructuring-bind (_ car-pat cdr-pat) pattern
@@ -100,25 +100,41 @@
                 ,(pattern->test g!forced pat))))))
 
 (defun %%class-pattern->test (data pattern)
+  (let ((name (first pattern)))
+    (if (nlist? 1 pattern)
+        `(typep ,data ',name)
+        `(if (subtypep ',name 'algebraic-datatype)
+             ,(%%%algebraic-datatype-pattern->test data pattern)
+             ,(%%%normal-class-pattern->test data pattern)))))
+
+(defun %%%algebraic-datatype-pattern->test (data pattern)
   (destructuring-bind (name . pats) pattern
-    (if (member-if #'keywordp pats)
-        `(and (typep ,data ',name)
-              ,@(mapcar (lambda (key-pat)
-                          (destructuring-bind (key pat) key-pat
+    `(and (typep ,data ',name)
+          (typep ,data 'algebraic-datatype)
+          ,@(mapcar (lambda (pat param)
+                      (let ((g!accessor (gensym "ACCESSOR"))
+                            (g!slot (gensym "SLOT")))
+                        `(let* ((,g!accessor (symbol-function
+                                               (intern ,(concatenate 'string (string name) (string param))
+                                                       (symbol-package ',name))))
+                                (,g!slot (funcall ,g!accessor ,data)))
+                           (declare (ignorable ,g!slot))
+                           ,(pattern->test g!slot pat))))
+                    pats
+                    (make-parameters (length pats))))))
+
+(defun %%%normal-class-pattern->test (data pattern)
+  (destructuring-bind (name . key-pats) pattern
+    `(and (typep ,data ',name)
+          ,@(mapcar (lambda (key-pat)
+                      (destructuring-bind (key pat) key-pat
+                        (if (keywordp key)
                             (let ((g!slot (gensym "SLOT")))
                               `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
                                  (declare (ignorable ,g!slot))
-                                 ,(pattern->test g!slot pat)))))
-                        (group 2 pats)))
-        `(and (typep ,data ',name)
-              (typep ,data 'algebraic-datatype)
-              ,@(mapcar (lambda (pat param)
-                          (let ((g!slot (gensym "SLOT")))
-                            `(let ((,g!slot (,(symbolicate name param) ,data)))
-                               (declare (ignorable ,g!slot))
-                               ,(pattern->test g!slot pat))))
-                        pats
-                        (make-parameters (length pats)))))))
+                                 ,(pattern->test g!slot pat)))
+                            nil)))
+                    (group 2 key-pats)))))
 
 
 ;;; Bind Parser
@@ -188,23 +204,48 @@
          ,(pattern->bind g!forced pat body)))))
 
 (defun %%class-pattern->bind (data pattern body)
+  (let ((name (first pattern)))
+    (if (nlist? 1 pattern)
+        body
+        `(if (subtypep ',name 'algebraic-datatype)
+             ,(%%%algebraic-datatype-pattern->bind data pattern body)
+             ,(%%%normal-class-pattern->bind data pattern body)))))
+
+(defun %%%algebraic-datatype-pattern->bind (data pattern body)
   (destructuring-bind (name . pats) pattern
-    (if (member-if #'keywordp pats)
-        (reduce (lambda (key-pat body)
-                    (destructuring-bind (key pat) key-pat
-                      (let ((g!slot (gensym "SLOT")))
-                        `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
-                           (declare (ignorable ,g!slot))
-                           ,(pattern->bind g!slot pat body)))))
-                  (group 2 pats)
-                  :initial-value body
-                  :from-end t)
-        (reduce (lambda (param-pat body)
-                    (destructuring-bind (param pat) param-pat
-                      (let ((g!slot (gensym "SLOT")))
-                        `(let ((,g!slot (,(symbolicate name param) ,data)))
-                           (declare (ignorable ,g!slot))
-                           ,(pattern->bind g!slot pat body)))))
-                  (zip (make-parameters (length pats)) pats)
-                  :initial-value body
-                  :from-end t))))
+    (reduce (lambda (param-pat body)
+              (destructuring-bind (param pat) param-pat
+                (let ((g!accessor (gensym "ACCESSOR"))
+                      (g!slot (gensym "SLOT")))
+                  `(let* ((,g!accessor (symbol-function
+                                         (intern ,(concatenate 'string (string name) (string param))
+                                                 (symbol-package ',name))))
+                          (,g!slot (funcall ,g!accessor ,data)))
+                     (declare (ignorable ,g!slot))
+                     ,(pattern->bind g!slot pat body)))))
+            (zip (make-parameters (length pats)) pats)
+            :initial-value body
+            :from-end t)))
+
+(defun %%%normal-class-pattern->bind (data pattern body)
+  (destructuring-bind (name . pats) pattern
+    (declare (ignore name))
+    (reduce (lambda (key-pat body)
+              (destructuring-bind (key pat) key-pat
+                (if (keywordp key)
+                    (let ((g!slot (gensym "SLOT")))
+                      `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
+                         (declare (ignorable ,g!slot))
+                         ,(pattern->bind g!slot pat body)))
+                    `(error 'unknown-keyword-argument :name ',key))))
+            (group 2 pats)
+            :initial-value body
+            :from-end t)))
+
+
+(define-condition unknown-keyword-argument (program-error)
+  ((name :reader unknown-keyword-argument-name :initarg :name))
+  (:report
+   (lambda (condition stream)
+     (format stream "Unknown &KEY argument: ~S"
+             (unknown-keyword-argument-name condition)))))

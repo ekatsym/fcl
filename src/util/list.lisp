@@ -30,8 +30,7 @@
   (do ((i n (1- i))
        (l lst (rest l))
        (acc '() (cons (first l) acc)))
-      ((or (zerop i) (endp l))
-       (nreverse acc))))
+      ((zerop i) (nreverse acc))))
 
 (defun drop (n lst)
   (check-type n index)
