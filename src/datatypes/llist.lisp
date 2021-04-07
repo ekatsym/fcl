@@ -25,6 +25,13 @@
     #:either
     #:left
     #:right)
+  (:import-from
+    :fcl.util
+    #:index)
+  (:import-from
+    :fcl.list
+    #:take
+    #:drop)
   (:export
     ;; Core
     #:lnil
@@ -129,8 +136,9 @@
   (format stream "#.(LNIL)"))
 
 (defmethod print-object ((object lcons) stream)
-  (match object
-    ((lcons x xs)  (format stream "#.(LCONS ~S ~S)" x xs))))
+  (format stream "#.(LLIST")
+  (lmapc (lambda (x) (format stream " ~S" x)) object)
+  (format stream ")"))
 
 
 ;;; Foldable
@@ -241,8 +249,7 @@
              (ematch at
                ((lnil)        x0)
                ((lcons a ats) (funcall a&xs->x a (mapcar #'rec ats))))))
-    (rec at)))
-
+    (rec at))) 
 (defmethod foldt+ (at&xs->x x0 (at llist))
   (check-type at&xs->x function)
   (labels ((rec (at)
@@ -271,3 +278,265 @@
                  at0
                  (lcons (funcall x->a x) (funcall x->xs x)))))
     (rec x)))
+
+
+;;; Monad Plus
+(defmethod fmap (a->b (a* llist))
+  (check-type a->b function)
+  (foldr (lambda (a b*) (lcons (funcall a->b a) b*))
+         (lnil)
+         a*))
+
+(defmethod unit ((class (eql 'llist)) a)
+  (lcons a (lnil)))
+
+(defmethod amap (a->*b (a* llist))
+  (check-type a->*b llist)
+  (foldr (lambda (a->b b*)
+           (check-type a->b function)
+           (foldr (lambda (a b*) (lcons (funcall a->b a) b*)) b* a*))
+         (lnil)
+         a->*b))
+
+(defmethod mmap (a->b* (a* llist))
+  (check-type a->b* function)
+  (foldr (lambda (a b*) (lappend (funcall a->b* a) b*))
+         (lnil)
+         a*))
+
+(defmethod mzero ((class (eql 'llist)))
+  (lnil))
+
+(defmethod mplus ((monoid1 llist) monoid2)
+  (check-type monoid2 llist)
+  (lappend monoid1 monoid2))
+
+(defmacro llc (element &body clauses)
+  `(mdo ,@(mapcar (lambda (clause)
+                    (if (listp clause)
+                        (case (first clause)
+                          ((:in :let) clause)
+                          (otherwise `(guard 'llist ,clause)))
+                        `(guard 'llist ,clause)))
+                  clauses)
+        (unit 'llist ,element)))
+
+
+;;; CL-like Utility
+(defun lconsp (object)
+  (typep object 'lcons))
+
+(defun lnull (object)
+  (typep object 'lnil))
+
+(defun lendp (object)
+  (check-type object llist)
+  (lnull object))
+
+(defun llist (&rest args)
+  (if (null args)
+      (lnil)
+      (lcons (first args) (apply #'llist (rest args)))))
+
+(defun lcar (llist)
+  (ematch llist
+    ((lnil)         (lnil))
+    ((lcons x _) x)))
+
+(defun lcdr (llist)
+  (ematch llist
+    ((lnil)         (lnil))
+    ((lcons _ llst) llst)))
+
+(defun lfirst (llist)
+  (declare (inline))
+  (lcar llist))
+
+(defun lrest (llist)
+  (declare (inline))
+  (lcdr llist))
+
+(defun ladjoin (item llist &key key (test #'eql))
+  (check-type llist llist)
+  (let ((item (if key item (funcall key item)))
+        (pred (if key
+                  (lambda (x) (funcall test item (funcall key x)))
+                  (lambda (x) (funcall test item x)))))
+    (labels ((rec (llst)
+               (declare (optimize (speed 3)))
+               (ematch llst
+                 ((lnil)         (lcons item llist))
+                 ((lcons x llst) (if (funcall pred x)
+                                     llist
+                                     (rec llst))))))
+      (rec llist))))
+
+
+(defun lnth (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (labels ((rec (n llst)
+             (declare (optimize (speed 3))
+                      (type index n))
+             (ematch (list n llst)
+               ((list 0 (lcons x _))    x)
+               ((list _ (lcons _ llst)) (rec (1- n) llst))
+               ((list _ (lnil))         (lnil)))))
+    (rec n llist)))
+
+(defun lnthcdr (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (labels ((rec (n llst)
+             (declare (optimize (speed 3))
+                      (type index n))
+             (ematch (list n llst)
+               ((list 0 _)              llst)
+               ((list _ (lcons _ llst)) (rec (1- n) llst))
+               ((list _ (lnil)          (lnil))))))
+    (rec n llist)))
+
+(defun llast (llist &optional (n 1))
+  (check-type llist llist)
+  (check-type n index)
+  (if (zerop n)
+      (lnil)
+      (foldl (lambda (acc x) (lcons x acc))
+             (lnil)
+             (take n (foldl (lambda (acc x) (cons x acc))
+                            '()
+                            llist)))))
+
+(defun lbutlast (llist &optional (n 1))
+  (check-type llist llist)
+  (check-type n index)
+  (if (zerop n)
+      llist
+      (foldl (lambda (acc x) (lcons x acc))
+             (lnil)
+             (drop n (foldl (lambda (acc x) (cons x acc))
+                            '()
+                            llist)))))
+
+(defun lreverse (llist)
+  (check-type llist llist)
+  (foldl (lambda (acc x) (lcons x acc)) (lnil) llist))
+
+(defun lappend (&rest llists)
+  (labels ((lapp2 (llst1 llst2)
+             (ematch llst1
+               ((lnil)          llst2)
+               ((lcons x rest1) (lcons x (lapp2 rest1 llst2))))))
+    (foldr #'lapp2 (lnil) llists)))
+
+(defun lrevappend (x y)
+  (check-type x llist)
+  (check-type y llist)
+  (foldl (lambda (acc x) (lcons x acc))
+         y
+         x))
+
+(defun llength (llist)
+  (foldl #'+ 0 llist))
+
+(defun lcount (item llist &key from-end (start 0) end key (test #'eql))
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (check-type test function)
+  (lcount-if (lambda (x) (funcall test item x))
+             :from-end from-end
+             :start start
+             :end end
+             :key key
+             :test test))
+
+(defun lcount-if (predicate llist &key from-end (start 0) end key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null index))
+  (let ((llst (lsubseq llist start end))))
+  )
+
+(defun lmapc (function llist &rest more-llists)
+  (check-type function function)
+  (check-type llist llist)
+  (mapc (lambda (llst) (check-type llst llist)) more-llists)
+  (labels ((rec (llsts)
+             (declare (optimize (speed 3)))
+             (unless (some #'lendp llsts)
+               (apply function (mapcar #'lfirst llsts))
+               (rec (mapcar #'lrest llsts)))))
+    (rec (cons llist more-llists))))
+
+(defun ltake (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (labels ((rec (n llst)
+             (ematch (list n llst)
+               ((list 0 _)              (lnil))
+               ((list _ (lcons x llst)) (lcons x (rec (1- n) llst)))
+               ((list _ (lnil))         (lcons (lnil) (rec (1- n) (lnil)))))))
+    (rec n llist)))
+
+(defun ldrop (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (labels ((rec (n llst)
+             (declare (optimize (speed 3))
+                      (type index n))
+             (ematch (list n llst)
+               ((list 0 _)              llst)
+               ((list _ (lcons _ llst)) (rec (1- n) llst))
+               ((list _ (lnil))         (lnil)))))
+    (rec n llist)))
+
+(defun subllist (llist start &optional end)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (if end
+      (ltake (- end start) )
+      )
+  )
+
+
+
+
+#:ladjoin
+#:lnth
+#:lnthcdr
+#:llast
+#:lbutlast
+#:lreverse
+#:lappend
+#:lrevappend
+#:llength
+#:lcount
+#:lcount-if
+#:lcount-if-not
+#:lremove
+#:lremove-if
+#:lremove-if-not
+#:lsubstitute
+#:lsubstitute-if
+#:lsubstitute-if-not
+#:lfind
+#:lfind-if
+#:lfind-if-not
+#:lposition
+#:lposition-if
+#:lposition-if-not
+#:lreplace
+#:lmapc
+#:lmapcar
+#:lmapcan
+#:lmapl
+#:lmaplist
+#:lmapcon
+#:lsearch
+#:lmismatch
+#:lsort
