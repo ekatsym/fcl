@@ -520,39 +520,3 @@
       (ldrop start llist)))
 
 
-
-
-#:ladjoin
-#:lnth
-#:lnthcdr
-#:llast
-#:lbutlast
-#:lreverse
-#:lappend
-#:lrevappend
-#:llength
-#:lcount
-#:lcount-if
-#:lcount-if-not
-#:lremove
-#:lremove-if
-#:lremove-if-not
-#:lsubstitute
-#:lsubstitute-if
-#:lsubstitute-if-not
-#:lfind
-#:lfind-if
-#:lfind-if-not
-#:lposition
-#:lposition-if
-#:lposition-if-not
-#:lreplace
-#:lmapc
-#:lmapcar
-#:lmapcan
-#:lmapl
-#:lmaplist
-#:lmapcon
-#:lsearch
-#:lmismatch
-#:lsort
