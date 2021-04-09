@@ -27,7 +27,8 @@
     #:right)
   (:import-from
     :fcl.util
-    #:index)
+    #:index
+    #:compose)
   (:import-from
     :fcl.list
     #:take
@@ -58,11 +59,7 @@
     #:lcount
     #:lcount-if
     #:lcount-if-not
-    #:lremove
-    #:lremove-if
-    #:lremove-if-not
-    #:lsubstitute
-    #:lsubstitute-if
+    #:lremove #:lremove-if #:lremove-if-not #:lsubstitute #:lsubstitute-if
     #:lsubstitute-if-not
     #:lfind
     #:lfind-if
@@ -445,21 +442,41 @@
   (check-type end (or null index))
   (check-type key (or null function))
   (check-type test function)
-  (lcount-if (lambda (x) (funcall test item x))
+  (lcount-if (lambda (x) (funcall test x item)) llist
              :from-end from-end
              :start start
              :end end
-             :key key
-             :test test))
+             :key key))
 
 (defun lcount-if (predicate llist &key from-end (start 0) end key)
   (check-type predicate function)
   (check-type llist llist)
   (check-type start index)
   (check-type end (or null index))
-  (check-type key (or null index))
-  (let ((llst (lsubseq llist start end))))
-  )
+  (check-type key (or null function))
+  (labels ((rec (i llst acc)
+             (declare (optimize (speed 3))
+                      (type (or null index) end)
+                      (type index i)
+                      (type integer acc)
+                      #+sbcl(sb-ext:muffle-conditions sb-int:simple-compiler-note))
+             (ematch llst
+               ((lnil)
+                (assert (or (null end) (= i end)) (start end))
+                acc)
+               ((lcons x llst)
+                (cond ((< i start)           (rec (1+ i) llst acc))
+                      ((and end (>= i end))  acc)
+                      ((funcall predicate x) (rec (1+ i) llst (1+ acc)))
+                      (t                     (rec (1+ i) llst acc)))))))
+    (if (or from-end key)
+        (lcount-if
+          (if key (compose predicate key) predicate)
+          (if from-end (subllist llist start end) llist)
+          :start (if from-end 0 start)
+          :end (if from-end nil end))
+        (rec 0 llist 0))))
+
 
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
@@ -499,9 +516,8 @@
   (check-type start index)
   (check-type end (or null index))
   (if end
-      (ltake (- end start) )
-      )
-  )
+      (ltake (- end start) (ldrop start llist))
+      (ldrop start llist)))
 
 
 
