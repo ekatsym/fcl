@@ -14,7 +14,7 @@
   (testing "NOTHING"
     (ok (match (nothing)
           ((nothing) t)
-          ((just x) nil))))
+          ((just _) nil))))
   (testing "JUST"
     (ok (let ((a (random 1.0e9)))
           (match (just a)

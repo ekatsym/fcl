@@ -15,12 +15,12 @@
     (let ((a (random 1.0e9)))
       (ok (match (left a)
             ((left x) (= x a))
-            ((right x) nil)))))
+            ((right _) nil)))))
   (testing "RIGHT"
     (let ((a (random 1.0e9)))
       (ok (match (right a)
             ((left x) nil)
-            ((right x) (= x a)))))))
+            ((right _) (= x a)))))))
 
 (deftest either=mzero
   (testing "Equality of EITHER and MZERO"
