@@ -48,7 +48,8 @@
                  (:module "datatypes"
                   :depends-on ("util" "lazy" "data" "match" "generics")
                   :components
-                  ((:file "maybe")
+                  ((:file "promise")
+                   (:file "maybe")
                    (:file "either")
                    (:file "list"        :depends-on ("maybe" "either"))
                    (:file "vector"      :depends-on ("maybe" "either"))
