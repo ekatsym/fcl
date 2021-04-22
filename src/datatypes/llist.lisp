@@ -124,8 +124,6 @@
     #:guard
     #:llc))
 (in-package :fcl.datatypes.llist)
-
-
 ;;; Definition
 (defdata llist
   (lnil)
@@ -485,43 +483,52 @@
   (check-type llist llist)
   (check-type test function)
   (check-type start index)
-  (check-type (or null index))
-  (check-type (or null index))
-  (check-type (or null function))
+  (check-type end (or null index))
+  (check-type count (or null index))
+  (check-type key (or null function))
   (lremove-if (lambda (x) (funcall test x item)) llist
-              :from-end from
+              :from-end from-end
               :start 0
               :end end
+              :count count
               :key key))
 
-(defun lremove-if (predicate llist &key from-end (start 0) end key)
+(defun lremove-if (predicate llist &key from-end (start 0) end count key)
   (check-type predicate function)
   (check-type llist llist)
   (check-type start index)
   (check-type end (or null index))
+  (check-type count (or null index))
   (check-type key (or null function))
-  (labels ((rec (i llst)
+  (labels ((rec (i c llst)
              (declare (optimize (speed 3))
                       (type function predicate)
                       (type index start i)
-                      (type (or null index) end))
+                      (type (or null index) end)
+                      (type fixnum c))
              (ematch llst
                ((lnil)
                 (assert (or (null end) (= i end)) (start end))
                 (lnil))
-               ((lcons x llst)
-                (cond ((< i start)           (rec (1+ i) llst))
-                      ((>= i end)            llst)
-                      ((funcall predicate x) (rec (1+ i) llst))
-                      (t                     (lcons x (rec (1+ i) llst))))))))
+               ((lcons x xs)
+                (cond ((< i start)           (rec (1+ i) c xs))
+                      ((and end (>= i end))  llst)
+                      ((zerop c)             llst)
+                      ((funcall predicate x) (rec (1+ i) (1- c) xs))
+                      (t                     (lcons x (rec (1+ i) c xs))))))))
     (cond (key      (lremove-if (compose predicate key) llist
                                 :from-end from-end
                                 :start start
-                                :end end))
+                                :end end
+                                :count count))
           (from-end (lappend (subllist llist 0 start)
-                             (lrevappend (lremove-if predicate (lreverse (subllist llist start end)))
-                                         (ldrop (- end start) llist))))
-          (t        (rec 0 llist)))))
+                             (lrevappend (lremove-if predicate
+                                                     (lreverse (subllist llist start end))
+                                                     :count count)
+                                         (if end
+                                             (ldrop end llist)
+                                             (lnil)))))
+          (t        (rec 0 (or count -1) llist)))))
 
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
