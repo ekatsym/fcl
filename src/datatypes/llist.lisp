@@ -530,6 +530,52 @@
                                              (lnil)))))
           (t        (rec 0 (or count -1) llist)))))
 
+(defun lsubstitute (new old llist &key from-end (test #'eql) (start 0) end count key)
+  (check-type llist llist)
+  (check-type test function)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type count (or null index))
+  (check-type key (or null function))
+  (lsubstitute-if new (lambda (x) (funcall test x old)) llist
+                  :from-end from-end
+                  :start start
+                  :end end
+                  :count count
+                  :key key))
+
+(defun lsubstitute-if (new predicate llist &key from-end (start 0) end count key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type count (or null index))
+  (check-type key (or null function))
+  (labels ((rec (i c llst)
+             (ematch llst
+               ((lnil)
+                (lnil))
+               ((lcons x xs)
+                (cond ((< i start)           (rec (1+ i) c xs))
+                      ((and end (>= i end))  llst)
+                      ((zerop c)             llst)
+                      ((funcall predicate x) (lcons new (rec (1+ i) (1- c) xs)))
+                      (t                     (lcons x (rec (1+ i) c xs))))))))
+    (cond (key      (lsubstitute-if new (compose predicate key) llist
+                                    :from-end from-end
+                                    :start start
+                                    :end end
+                                    :count count))
+          (from-end (lappend (subllist llist 0 start)
+                             (lrevappend (lsubstitute-if new
+                                                         predicate
+                                                         (lreverse (subllist llist start end))
+                                                         :count count)
+                                         (if end
+                                             (ldrop end llist)
+                                             (lnil)))))
+          (t        (rec 0 (or count -1) llist)))))
+
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
   (check-type llist llist)
