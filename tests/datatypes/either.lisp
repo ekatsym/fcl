@@ -19,8 +19,8 @@
   (testing "RIGHT"
     (let ((a (random 1.0e9)))
       (ok (match (right a)
-            ((left x) nil)
-            ((right _) (= x a)))))))
+            ((left _) nil)
+            ((right x) (= x a)))))))
 
 (deftest either=mzero
   (testing "Equality of EITHER and MZERO"
