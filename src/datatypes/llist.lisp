@@ -52,7 +52,6 @@
     #:lnthcdr
     #:llast
     #:lbutlast
-    #:lreverse
     #:lappend
     #:lrevappend
     #:llength
@@ -657,7 +656,6 @@
                           (- (1- (or end (llength llist))) revpos)
                           nil)))
           (t        (rec 0 llist)))))
-
 
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
