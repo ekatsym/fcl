@@ -552,6 +552,11 @@
   (check-type count (or null index))
   (check-type key (or null function))
   (labels ((rec (i c llst)
+             (declare (optimize (speed 3))
+                      (type function predicate)
+                      (type index start i)
+                      (type (or null index) end)
+                      (type fixnum c))
              (ematch llst
                ((lnil)
                 (lnil))
@@ -575,6 +580,39 @@
                                              (ldrop end llist)
                                              (lnil)))))
           (t        (rec 0 (or count -1) llist)))))
+
+(defun lfind (item llist &key from-end (start 0) end key (test #'eql))
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (check-type test function)
+  (lfind-if (lambda (x) (funcall test x item)) llist
+            :from-end from-end
+            :start start
+            :end end
+            :key key))
+
+(defun lfind-if (predicate llist &key from-end (start 0) end key)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (labels ((rec (i llst)
+             (ematch llst
+               ((lnil)
+                nil)
+               ((lcons x xs)
+                (cond ((< i start)           (rec (1+ i) xs))
+                      ((and end (>= i end))  nil)
+                      ((funcall predicate x) x)
+                      (t                     (rec (1+ i) xs)))))))
+    (cond (key      (lfind-if (compose predicate key) llist
+                              :from-end from-end
+                              :start start
+                              :end end))
+          (from-end (lfind-if predicate (lreverse (subllist llist start end))))
+          (t        (rec 0 llist)))))
 
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
