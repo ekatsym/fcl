@@ -436,7 +436,7 @@
          x))
 
 (defun llength (llist)
-  (foldl #'+ 0 llist))
+  (foldl (lambda (acc _) (declare (ignore _)) (1+ acc)) 0 llist))
 
 (defun lcount (item llist &key from-end (start 0) end key (test #'eql))
   (check-type llist llist)
@@ -599,6 +599,10 @@
   (check-type end (or null index))
   (check-type key (or null function))
   (labels ((rec (i llst)
+             (declare (optimize (speed 3))
+                      (type function predicate)
+                      (type index start i)
+                      (type (or null index) end))
              (ematch llst
                ((lnil)
                 nil)
@@ -613,6 +617,47 @@
                               :end end))
           (from-end (lfind-if predicate (lreverse (subllist llist start end))))
           (t        (rec 0 llist)))))
+
+(defun lposition (item llist &key from-end (start 0) end key (test #'eql))
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (check-type test function)
+  (lposition-if (lambda (x) (funcall test x item)) llist
+                :from-end from-end
+                :start start
+                :end end
+                :key key))
+
+(defun lposition-if (predicate llist &key from-end (start 0) end key)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (labels ((rec (i llst)
+             (declare (optimize (speed 3))
+                      (type function predicate)
+                      (type index start i)
+                      (type (or null index) end))
+             (ematch llst
+               ((lnil)
+                nil)
+               ((lcons x xs)
+                (cond ((< i start)           (rec (1+ i) xs))
+                      ((and end (>= i end))  nil)
+                      ((funcall predicate x) i)
+                      (t                     (rec (1+ i) xs)))))))
+    (cond (key      (lposition-if (compose predicate key) llist
+                                  :from-end from-end
+                                  :start start
+                                  :end end))
+          (from-end (let ((revpos (lposition-if predicate (lreverse (subllist llist start end)))))
+                      (if revpos
+                          (- (1- (or end (llength llist))) revpos)
+                          nil)))
+          (t        (rec 0 llist)))))
+
 
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
