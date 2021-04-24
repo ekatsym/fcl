@@ -53,6 +53,7 @@
     #:llast
     #:lbutlast
     #:lappend
+    #:lreverse
     #:lrevappend
     #:llength
     #:lcount
@@ -70,7 +71,6 @@
     #:lposition
     #:lposition-if
     #:lposition-if-not
-    #:lreplace
     #:lmapc
     #:lmapcar
     #:lmapcan
