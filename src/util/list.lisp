@@ -12,7 +12,8 @@
     #:insert-at
     #:zip
     #:group
-    #:reverse+))
+    #:reverse+
+    #:reverse++))
 (in-package :fcl.u.list)
 
 
@@ -76,4 +77,10 @@
   (check-type list list)
   (do ((lst list (rest lst))
        (acc '() (cons lst acc)))
+      ((endp lst) acc)))
+
+(defun reverse++ (list)
+  (check-type list list)
+  (do ((lst list (rest lst))
+       (acc '() (cons (list (first lst) (rest lst)) acc)))
       ((endp lst) acc)))

@@ -82,7 +82,6 @@
 (in-package :fcl.datatypes.list)
 
 
-;;; Utility
 ;;; FOLDABLE
 (defmethod cata (x*->x (i list))
   "X* == (NOTHING) | (JUST (LIST A X))"
@@ -132,11 +131,14 @@
        (x x0 (funcall a&x->x (first as) x)))
       ((endp as) x)))
 
-(defmethod foldr+ (as&x->x x0 (as list))
-  (check-type as&x->x function)
-  (do ((as-s (reverse+ as) (rest as-s))
-       (x x0 (funcall as&x->x (first as-s) x)))
-      ((endp as-s) x)))
+(defmethod foldr+ (a&as&x->x x0 (as list))
+  (check-type a&as&x->x function)
+  (do ((a&as-s (reverse++ as) (rest a&as-s))
+       (x x0 (ematch a&as-s
+               ((cons (list a as) _)
+                (funcall a&as&x->x a as x))
+               ('() nil))))
+      ((endp a&as-s) x)))
 
 (defmethod unfoldr ((class (eql 'list)) x->? x->a x->x x)
   (check-type x->? function)
@@ -161,10 +163,12 @@
        (x x0 (funcall x&a->x x (first as))))
       ((endp as) x)))
 
-(defmethod foldl+ (x&as->x x0 (as list))
-  (check-type x&as->x function)
-  (do ((as as (rest as))
-       (x x0 (funcall x&as->x x as)))
+(defmethod foldl+ (x&a&as->x x0 (as list))
+  (check-type x&a&as->x function)
+  (do ((as as as2)
+       (a (first as) (first as2))
+       (as2 (rest as) (rest as2))
+       (x x0 (funcall x&a&as->x x a as2)))
       ((endp as) x)))
 
 (defmethod unfoldl ((class (eql 'list)) x->? x->x x->a x)
@@ -194,14 +198,18 @@
                  (funcall a&xs->x (first at) (mapcar #'rec (rest at))))))
     (rec at)))
 
-(defmethod foldt+ (at&xs->x x0 (at list))
+(defmethod foldt+ (a&ats&xs->x x0 (at list))
   (declare (optimize (speed 3)))
-  (check-type at&xs->x function)
+  (check-type a&ats&xs->x function)
   (labels ((rec (at)
-             (declare (type function at&xs->x))
+             (declare (optimize (speed 3))
+                      (type function a&ats&xs->x))
              (if (endp at)
                  x0
-                 (funcall at&xs->x at (mapcar #'rec (rest at))))))
+                 (let ((a (first at))
+                       (ats (rest at))
+                       (xs (mapcar #'rec (rest at))))
+                   (funcall a&ats&xs->x a ats xs)))))
     (rec at)))
 
 (defmethod unfoldt ((class (eql 'list)) x->? x->a x->xs x)

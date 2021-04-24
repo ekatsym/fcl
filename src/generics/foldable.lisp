@@ -32,7 +32,7 @@
 ;;; Fold for "List".
 (defgeneric foldr (a&x->x x0 as))
 
-(defgeneric foldr+ (as&x->x x0 as))
+(defgeneric foldr+ (a&as&x->x x0 as))
 
 (defgeneric unfoldr (class x->? x->a x->x x))
 
@@ -40,7 +40,7 @@
 
 (defgeneric foldl (x&a->x x0 as))
 
-(defgeneric foldl+ (x&as->x x0 as))
+(defgeneric foldl+ (x&a&as->x x0 as))
 
 (defgeneric unfoldl (class x->? x->x x->a x))
 
@@ -50,7 +50,7 @@
 ;;; Fold for "Tree".
 (defgeneric foldt (a&xs->x x0 at))
 
-(defgeneric foldt+ (at&xs->x x0 at))
+(defgeneric foldt+ (a&ats&xs->x x0 at))
 
 (defgeneric unfoldt (class x->? x->a x->xs x))
 
@@ -60,19 +60,27 @@
 ;;; Scans
 (defun scanr (a&x->x x0 as)
   (check-type a&x->x function)
-  (foldr (lambda (a xs) (cons (funcall a&x->x a (first xs)) xs)) (list x0) as))
+  (foldr (lambda (a xs) (cons (funcall a&x->x a (first xs)) xs))
+         (list x0)
+         as))
 
-(defun scanr+ (as&x->x x0 as)
-  (check-type as&x->x function)
-  (foldr+ (lambda (as xs) (cons (funcall as&x->x as (first xs)) xs)) (list x0) as))
+(defun scanr+ (a&as&x->x x0 as)
+  (check-type a&as&x->x function)
+  (foldr+ (lambda (a as xs) (cons (funcall a&as&x->x a as (first xs)) xs))
+          (list x0)
+          as))
 
 (defun scanl (x&a->x x0 as)
   (check-type x&a->x function)
-  (foldl (lambda (xs a) (cons (funcall x&a->x (first xs) a) xs)) (list x0) as))
+  (foldl (lambda (xs a) (cons (funcall x&a->x (first xs) a) xs))
+         (list x0)
+         as))
 
-(defun scanl+ (x&as->x x0 as)
-  (check-type x&as->x function)
-  (foldl+ (lambda (xs as) (cons (funcall x&as->x (first xs) as) xs)) (list x0) as))
+(defun scanl+ (x&a&as->x x0 as)
+  (check-type x&a&as->x function)
+  (foldl+ (lambda (xs a as) (cons (funcall x&a&as->x (first xs) a as) xs))
+          (list x0)
+          as))
 
 (defun scant (a&xs->x x0 at)
   (check-type a&xs->x function)
@@ -82,10 +90,10 @@
          (list x0)
          at))
 
-(defun scant+ (at&xs->x x0 at)
-  (check-type at&xs->x function)
-  (foldt+ (lambda (at xss)
-            (cons (funcall at&xs->x at (mapcar #'first xss))
+(defun scant+ (a&at&xs->x x0 at)
+  (check-type a&at&xs->x function)
+  (foldt+ (lambda (a at xss)
+            (cons (funcall a&at&xs->x a at (mapcar #'first xss))
                   (mapcar #'rest xss)))
           (list x0)
           at))
