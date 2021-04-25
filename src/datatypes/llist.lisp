@@ -103,6 +103,12 @@
     #:foldt+
     #:unfoldt
     #:unfoldt+
+    #:lfoldr
+    #:lfoldr+
+    #:lfoldl
+    #:lfoldl+
+    #:lfoldt
+    #:lfoldt+
     #:scanr
     #:scanr+
     #:scanl
@@ -279,6 +285,59 @@
                  (lcons (funcall x->a x) (funcall x->xs x)))))
     (rec x)))
 
+(defmethod lfoldr (a&$x->x x0 (as llist))
+  (check-type a&$x->x function)
+  (labels ((rec (as)
+             (declare (optimize (speed 3))
+                      (type function a&$x->x))
+             (ematch as
+               ((lnil) x0)
+               ((lcons a as) (funcall a&$x->x a (delay (rec as)))))))
+    (rec as)))
+
+(defmethod lfoldr+ (a&as&$x->x x0 (as llist))
+  (check-type a&as&$x->x function)
+  (labels ((rec (as)
+             (declare (optimize (speed 3))
+                      (type function a&as&$x->x))
+             (ematch as
+               ((lnil) x0)
+               ((lcons a as) (funcall a&as&$x->x a as (delay (rec as)))))))
+    (rec as)))
+
+(defmethod lfoldl ($x&a->x x0 (as llist))
+  (check-type $x&a->x function)
+  (labels ((rec (as $x)
+             (declare (optimize (speed 3))
+                      (type function $x&a->x))
+             (ematch as
+               ((lnil) (force $x))
+               ((lcons a as) (rec as (delay (funcall $x&a->x $x a)))))))
+    (rec as (delay x0))))
+
+(defmethod lfoldl+ ($x&a&as->x x0 (as llist))
+  (check-type $x&a&as->x function)
+  (labels ((rec (as $x)
+             (ematch as
+               ((lnil) (force $x))
+               ((lcons a as) (rec as (delay (funcall $x&a&as->x a as)))))))
+    (rec as (delay x0))))
+
+(defmethod lfoldt (a&$xs->x x0 (at llist))
+  (check-type a&$xs->x function)
+  (labels ((rec (at)
+             (ematch at
+               ((lnil) x0)
+               ((lcons a ats) (funcall a&$xs->x a (delay (lmapcar #'rec ats)))))))
+    (rec at)))
+
+(defmethod lfoldt+ (a&ats&$xs->x x0 (at llist))
+  (check-type a&ats&$xs->x function)
+  (labels ((rec (at)
+             (ematch at
+               ((lnil) x0)
+               ((lcons a ats) (funcall a&ats&$xs->x a ats (delay (lmapcar #'rec ats)))))))
+    (rec at)))
 
 ;;; Monad Plus
 (defmethod fmap (a->b (a* llist))
@@ -692,16 +751,6 @@
                         (rec (mapcar #'lrest llsts))))))
     (rec llists)))
 
-(defun lfoldr (a&$x->x x0 as)
-  (check-type a&$x->x function)
-  (check-type as llist)
-  (labels ((rec (as)
-             (declare (optimize (speed 3))
-                      (type function a&$x->x))
-             (ematch as
-               ((lnil) x0)
-               ((lcons a as) (funcall a&$x->x a (delay (rec as)))))))
-    (rec as)))
 
 (defun lenum (start &optional end)
   (check-type start integer)

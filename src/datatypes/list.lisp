@@ -12,6 +12,10 @@
     :fcl.match
     #:ematch)
   (:import-from
+    :fcl.lazy
+    #:delay
+    #:force)
+  (:import-from
     :fcl.datatypes.maybe
     #:maybe
     #:just #:just%0
@@ -237,6 +241,65 @@
                  (cons (funcall x->a x) (mapcar #'rec (funcall x->xs x))))))
     (rec x)))
 
+(defmethod lfoldr (a&$x->x x0 (as list))
+  (check-type a&$x->x function)
+  (labels ((rec (as)
+             (if (endp as)
+                 x0
+                 (funcall a&$x->x (first as) (delay (rec (rest as)))))))
+    (rec as)))
+
+(defmethod lfoldr+ (a&as&$x->x x0 (as list))
+  (check-type a&as&$x->x function)
+  (labels ((rec (as)
+             (if (endp as)
+                 x0
+                 (let ((a (first as))
+                       (as (rest as)))
+                   (funcall a&as&$x->x a as (delay (rec as)))))))
+    (rec as)))
+
+(defmethod lfoldl ($x&a->x x0 (as list))
+  (check-type $x&a->x function)
+  (labels ((rec (as $x)
+             (declare (optimize (speed 3))
+                      (type function $x&a->x))
+             (if (endp as)
+                 (force $x)
+                 (rec (rest as) (delay (funcall $x&a->x (force $x) (first as)))))))
+    (rec as (delay x0))))
+
+(defmethod lfoldl+ ($x&a&as->x x0 (as list))
+  (check-type $x&a&as->x function)
+  (labels ((rec (as $x)
+             (declare (optimize (speed 3))
+                      (type function $x&a&as->x))
+             (if (endp as)
+                 (force $x)
+                 (let ((a (first as))
+                       (as (rest as)))
+                   (rec as (delay (funcall $x&a&as->x (force $x) a as)))))))
+    (rec as (delay x0))))
+
+(defmethod lfoldt (a&$xs->x x0 (at list))
+  (check-type a&$xs->x function)
+  (labels ((rec (at)
+             (if (endp at)
+                 x0
+                 (let ((a (first at))
+                       (ats (rest at)))
+                   (funcall a&$xs->x a (delay (mapcar #'rec ats)))))))
+    (rec at)))
+
+(defmethod lfoldt+ (a&ats&$xs->x x0 (at list))
+  (check-type a&ats&$xs->x function)
+  (labels ((rec (at)
+             (if (endp at)
+                 x0
+                 (let ((a (first at))
+                       (ats (rest at)))
+                   (funcall a&ats&$xs->x a ats (delay (mapcar #'rec ats)))))))
+    (rec at)))
 
 ;;; MONAD-PLUS
 (defmethod fmap (a->b (a* list))

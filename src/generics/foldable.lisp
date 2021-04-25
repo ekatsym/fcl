@@ -20,6 +20,12 @@
     #:foldt+
     #:unfoldt
     #:unfoldt+
+    #:lfoldr
+    #:lfoldr+
+    #:lfoldl
+    #:lfoldl+
+    #:lfoldt
+    #:lfoldt+
     #:scanr
     #:scanr+
     #:scanl
@@ -29,7 +35,7 @@
 (in-package :fcl.generics.foldable)
 
 
-;;; Fold for "List".
+;;; Folds for "List".
 (defgeneric foldr (a&x->x x0 as))
 
 (defgeneric foldr+ (a&as&x->x x0 as))
@@ -47,7 +53,7 @@
 (defgeneric unfoldl+ (class x->? x->x x->a as0 x))
 
 
-;;; Fold for "Tree".
+;;; Folds for "Tree".
 (defgeneric foldt (a&xs->x x0 at))
 
 (defgeneric foldt+ (a&ats&xs->x x0 at))
@@ -55,6 +61,20 @@
 (defgeneric unfoldt (class x->? x->a x->xs x))
 
 (defgeneric unfoldt+ (class x->? x->a x->xs at0 x))
+
+
+;;; Lazy Folds
+(defgeneric lfoldr (a&$x->x x0 as))
+
+(defgeneric lfoldr+ (a&as&$x->x x0 as))
+
+(defgeneric lfoldl ($x&a->x x0 as))
+
+(defgeneric lfoldl+ ($x&a->x x0 as))
+
+(defgeneric lfoldt (a&$xs->x x0 at))
+
+(defgeneric lfoldt+ (a&$xs->x x0 at))
 
 
 ;;; Scans

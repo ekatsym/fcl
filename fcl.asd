@@ -35,7 +35,7 @@
                    (:file "package")))
 
                  (:module "generics"
-                  :depends-on ("util")
+                  :depends-on ("util" "lazy")
                   :components
                   ((:file "functor")
                    (:file "applicative" :depends-on ("functor"))
