@@ -11,9 +11,7 @@
     #:enum
     #:insert-at
     #:zip
-    #:group
-    #:reverse+
-    #:reverse++))
+    #:group))
 (in-package :fcl.u.list)
 
 
@@ -72,15 +70,3 @@
   (do ((lst list (drop n lst))
        (acc '() (cons (take n lst) acc)))
       ((endp lst) (nreverse acc))))
-
-(defun reverse+ (list)
-  (check-type list list)
-  (do ((lst list (rest lst))
-       (acc '() (cons lst acc)))
-      ((endp lst) acc)))
-
-(defun reverse++ (list)
-  (check-type list list)
-  (do ((lst list (rest lst))
-       (acc '() (cons (list (first lst) (rest lst)) acc)))
-      ((endp lst) acc)))
