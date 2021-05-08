@@ -98,10 +98,16 @@
 (defmethod para (i&*x->x (i list))
   "I&*X == (NOTHING) | (JUST (LIST A I X))"
   (check-type i&*x->x function)
-  (do ((as-s (reverse+ i) (rest as-s))
-       (x (funcall i&*x->x (nothing))
-          (funcall i&*x->x (just (list (first (first as-s)) (first as-s) x)))))
-      ((endp as-s) x)))
+  (flet ((rev+ (lst)
+           (do ((lst lst (rest lst))
+                (acc '() (cons lst acc)))
+               ((endp lst) acc))))
+    (do ((as-s (rev+ i) (rest as-s))
+         (x (funcall i&*x->x (nothing))
+            (ematch as-s
+              ((cons (cons a as) _)
+               (funcall i&*x->x (just (list a as x)))))))
+        ((endp as-s) x))))
 
 (defmethod ana ((class (eql 'list)) x->x* x)
   "X* == (NOTHING) | (JUST (LIST A X))"
@@ -137,12 +143,15 @@
 
 (defmethod foldr+ (a&as&x->x x0 (as list))
   (check-type a&as&x->x function)
-  (do ((a&as-s (reverse++ as) (rest a&as-s))
-       (x x0 (ematch a&as-s
-               ((cons (list a as) _)
-                (funcall a&as&x->x a as x))
-               ('() nil))))
-      ((endp a&as-s) x)))
+  (flet ((rev+ (lst)
+           (do ((lst lst (rest lst))
+                (acc '() (cons lst acc)))
+               ((endp lst) acc))))
+    (do ((as-s (rev+ as) (rest as-s))
+         (x x0 (ematch as-s
+                 ((cons (cons a as) _)
+                  (funcall a&as&x->x a as x)))))
+        ((endp as-s) x))))
 
 (defmethod unfoldr ((class (eql 'list)) x->? x->a x->x x)
   (check-type x->? function)
