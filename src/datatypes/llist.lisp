@@ -69,6 +69,9 @@
     #:lfind
     #:lfind-if
     #:lfind-if-not
+    #:lmember
+    #:lmember-if
+    #:lmember-if-not
     #:lposition
     #:lposition-if
     #:lposition-if-not
@@ -130,6 +133,8 @@
     #:guard
     #:llc))
 (in-package :fcl.datatypes.llist)
+
+
 ;;; Definition
 (defdata llist
   (lnil)
@@ -179,15 +184,21 @@
 
 (defmethod foldr (a&x->x x0 (as llist))
   (check-type a&x->x function)
-  (ematch as
-    ((lnil)       x0)
-    ((lcons a as) (funcall a&x->x a (foldr a&x->x x0 as)))))
+  (do ((as (lreverse as) (lrest as))
+       (x x0 (funcall a&x->x (lfirst as) x)))
+      ((lendp as) x)))
 
 (defmethod foldr+ (a&as&x->x x0 (as llist))
   (check-type a&as&x->x function)
-  (ematch as
-    ((lnil) x0)
-    ((lcons a as) (funcall a&as&x->x a as (foldr+ a&as&x->x x0 as)))))
+  (flet ((lrev+ (llst)
+           (do ((llst llst (lrest llst))
+                (acc '() (cons llst acc)))
+               ((lendp llst) acc))))
+    (do ((as-s (lrev+ as) (rest as-s))
+         (x x0 (ematch as-s
+                 ((cons (lcons a as) _)
+                  (funcall a&as&x->x a as x)))))
+        ((endp as-s) x))))
 
 (defmethod unfoldr ((class (eql 'llist)) x->? x->a x->x x)
   (check-type x->? function)
@@ -207,21 +218,17 @@
 
 (defmethod foldl (x&a->x x0 (as llist))
   (check-type x&a->x function)
-  (labels ((rec (as x)
-             (declare (optimize (speed 3)))
-             (ematch as
-               ((lnil)       x)
-               ((lcons a as) (rec as (funcall x&a->x x a))))))
-    (rec as x0)))
+  (do ((as as (lrest as))
+       (x x0 (funcall x&a->x x (lfirst as))))
+      ((lendp as) x)))
 
 (defmethod foldl+ (x&a&as->x x0 (as llist))
   (check-type x&a&as->x function)
-  (labels ((rec (as x)
-             (declare (optimize (speed 3)))
-             (ematch as
-               ((lnil) x)
-               ((lcons a as) (rec as (funcall x&a&as->x x a as))))))
-    (rec as x0)))
+  (do ((as as as2)
+       (a (lfirst as) (lfirst as2))
+       (as2 (lrest as) (lrest as2))
+       (x x0 (funcall x&a&as->x x a as2)))
+      ((lendp as) x)))
 
 (defmethod unfoldl ((class (eql 'llist)) x->? x->x x->a x)
   (check-type x->? function)
@@ -318,9 +325,11 @@
 (defmethod lfoldl+ ($x&a&as->x x0 (as llist))
   (check-type $x&a&as->x function)
   (labels ((rec (as $x)
+             (declare (optimize (speed 3))
+                      (type function $x&a&as->x))
              (ematch as
                ((lnil) (force $x))
-               ((lcons a as) (rec as (delay (funcall $x&a&as->x a as)))))))
+               ((lcons a as) (rec as (delay (funcall $x&a&as->x $x a as)))))))
     (rec as (delay x0))))
 
 (defmethod lfoldt (a&$xs->x x0 (at llist))
@@ -392,10 +401,10 @@
   (check-type object llist)
   (lnull object))
 
-(defun llist (&rest args)
-  (if (null args)
-      (lnil)
-      (lcons (first args) (apply #'llist (rest args)))))
+(defmacro llist (&rest args)
+  (foldr (lambda (arg acc) `(lcons ,arg ,acc))
+         '(lnil)
+         args))
 
 (defun lcar (llist)
   (ematch llist
@@ -482,11 +491,11 @@
   (foldl (lambda (acc x) (lcons x acc)) (lnil) llist))
 
 (defun lappend (&rest llists)
-  (labels ((lapp2 (llst1 llst2)
-             (ematch llst1
-               ((lnil)          llst2)
-               ((lcons x rest1) (lcons x (lapp2 rest1 llst2))))))
-    (foldr #'lapp2 (lnil) llists)))
+  (flet ((lapp2 (llst1 llst2)
+           (lfoldr (lambda (x $acc) (lcons x (force $acc)))
+                   llst2
+                   llst1)))
+    (foldr #'lapp2 (first (last llists)) (butlast llists))))
 
 (defun lrevappend (x y)
   (check-type x llist)
@@ -516,20 +525,29 @@
   (check-type start index)
   (check-type end (or null index))
   (check-type key (or null function))
-  (cond (key      (lcount-if (compose predicate key) llist
-                             :from-end from-end
-                             :start start
-                             :end end))
-        (from-end (lcount-if predicate (lreverse (subllist llist start end))))
-        (t        (lfoldr (lambda (ix $acc)
-                            (ematch ix
-                              ((lcons i (lcons x (lnil)))
-                               (cond ((< i start)           (force $acc))
-                                     ((and end (>= i end))  0)
-                                     ((funcall predicate x) (1+ (force $acc)))
-                                     (t                     (force $acc))))))
-                          0
-                          (lzip (lenum start end) llist)))))
+  (let ((predicate (if key (compose predicate key) predicate)))
+    (flet ((func (ix $acc)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (cond ((< i start)           (force $acc))
+                      ((and end (>= i end))  0)
+                      ((funcall predicate x) (1+ (force $acc)))
+                      (t                     (force $acc)))))))
+      (if from-end
+          (lfoldl (lambda ($acc ix) (func ix $acc)) 0 (lzip (lenum 0) llist))
+          (lfoldr #'func 0 (lzip (lenum 0) llist))))))
+
+(defun lcount-if-not (predicate llist &key from-end (start 0) end key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (lcount-if (complement predicate) llist
+             :from-end from-end
+             :start start
+             :end end
+             :key key))
 
 (defun lremove (item llist &key from-end (test #'eql) (start 0) end count key)
   (check-type llist llist)
@@ -540,7 +558,7 @@
   (check-type key (or null function))
   (lremove-if (lambda (x) (funcall test x item)) llist
               :from-end from-end
-              :start 0
+              :start start
               :end end
               :count count
               :key key))
@@ -552,35 +570,33 @@
   (check-type end (or null index))
   (check-type count (or null index))
   (check-type key (or null function))
-  (labels ((rec (i c llst)
-             (declare (optimize (speed 3))
-                      (type function predicate)
-                      (type index start i)
-                      (type (or null index) end)
-                      (type fixnum c))
-             (ematch llst
-               ((lnil)
-                (assert (or (null end) (= i end)) (start end))
-                (lnil))
-               ((lcons x xs)
-                (cond ((< i start)           (rec (1+ i) c xs))
-                      ((and end (>= i end))  llst)
-                      ((zerop c)             llst)
-                      ((funcall predicate x) (rec (1+ i) (1- c) xs))
-                      (t                     (lcons x (rec (1+ i) c xs))))))))
-    (cond (key      (lremove-if (compose predicate key) llist
-                                :from-end from-end
-                                :start start
-                                :end end
-                                :count count))
-          (from-end (lappend (subllist llist 0 start)
-                             (lrevappend (lremove-if predicate
-                                                     (lreverse (subllist llist start end))
-                                                     :count count)
-                                         (if end
-                                             (ldrop end llist)
-                                             (lnil)))))
-          (t        (rec 0 (or count -1) llist)))))
+  (let ((predicate (if key (compose predicate key) predicate)))
+    (flet ((func (ix ixs $acc)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (cond ((< i start)               (lcons x (force $acc)))
+                      ((and end (>= i end))      (lcons x (fmap (partial #'lnth 1) ixs)))
+                      ((and count (zerop count)) (lcons x (fmap (partial #'lnth 1) ixs)))
+                      ((funcall predicate x)     (when count (decf count))
+                                                 (force $acc))
+                      (t                         (lcons x (force $acc))))))))
+      (if from-end
+          (lreverse (lfoldr+ #'func (lnil) (lreverse (lzip (lenum 0) llist))))
+          (lfoldr+ #'func (lnil) (lzip (lenum 0) llist))))))
+
+(defun lremove-if-not (predicate llist &key from-end (start 0) end count key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type count (or null index))
+  (check-type key (or null function))
+  (lremove-if (complement predicate) llist
+              :from-end from-end
+              :start start
+              :end end
+              :count count
+              :key key))
 
 (defun lsubstitute (new old llist &key from-end (test #'eql) (start 0) end count key)
   (check-type llist llist)
@@ -603,35 +619,33 @@
   (check-type end (or null index))
   (check-type count (or null index))
   (check-type key (or null function))
-  (labels ((rec (i c llst)
-             (declare (optimize (speed 3))
-                      (type function predicate)
-                      (type index start i)
-                      (type (or null index) end)
-                      (type fixnum c))
-             (ematch llst
-               ((lnil)
-                (lnil))
-               ((lcons x xs)
-                (cond ((< i start)           (rec (1+ i) c xs))
-                      ((and end (>= i end))  llst)
-                      ((zerop c)             llst)
-                      ((funcall predicate x) (lcons new (rec (1+ i) (1- c) xs)))
-                      (t                     (lcons x (rec (1+ i) c xs))))))))
-    (cond (key      (lsubstitute-if new (compose predicate key) llist
-                                    :from-end from-end
-                                    :start start
-                                    :end end
-                                    :count count))
-          (from-end (lappend (subllist llist 0 start)
-                             (lrevappend (lsubstitute-if new
-                                                         predicate
-                                                         (lreverse (subllist llist start end))
-                                                         :count count)
-                                         (if end
-                                             (ldrop end llist)
-                                             (lnil)))))
-          (t        (rec 0 (or count -1) llist)))))
+  (let ((predicate (if key (compose predicate key) predicate)))
+    (flet ((func (ix ixs $acc)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (cond ((< i start)               (lcons x (force $acc)))
+                      ((and end (>= i end))      (lcons x (fmap (partial #'lnth 1) ixs)))
+                      ((and count (zerop count)) (lcons x (fmap (partial #'lnth 1) ixs)))
+                      ((funcall predicate x)     (when count (decf count))
+                                                 (lcons new (force $acc)))
+                      (t                         (lcons x (force $acc))))))))
+      (if from-end
+          (lreverse (lfoldr+ #'func (lnil) (lreverse (lzip (lenum 0) llist))))
+          (lfoldr+ #'func (lnil) (lzip (lenum 0) llist))))))
+
+(defun lsubstitute-if-not (new predicate llist &key from-end (start 0) end count key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type count (or null index))
+  (check-type key (or null function))
+  (lsubstitute-if new (complement predicate) llist
+                  :from-end from-end
+                  :start start
+                  :end end
+                  :count count
+                  :key key))
 
 (defun lfind (item llist &key from-end (start 0) end key (test #'eql))
   (check-type llist llist)
@@ -650,25 +664,54 @@
   (check-type start index)
   (check-type end (or null index))
   (check-type key (or null function))
-  (labels ((rec (i llst)
-             (declare (optimize (speed 3))
-                      (type function predicate)
-                      (type index start i)
-                      (type (or null index) end))
-             (ematch llst
-               ((lnil)
-                nil)
-               ((lcons x xs)
-                (cond ((< i start)           (rec (1+ i) xs))
+  (let ((predicate (if key (compose predicate) predicate)))
+    (flet ((func (ix $acc)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (cond ((< i start)           (force $acc))
                       ((and end (>= i end))  nil)
                       ((funcall predicate x) x)
-                      (t                     (rec (1+ i) xs)))))))
-    (cond (key      (lfind-if (compose predicate key) llist
-                              :from-end from-end
-                              :start start
-                              :end end))
-          (from-end (lfind-if predicate (lreverse (subllist llist start end))))
-          (t        (rec 0 llist)))))
+                      (t                     (force $acc)))))))
+      (if from-end
+          (lfoldl (lambda ($acc x) (func x $acc)) nil llist)
+          (lfoldr #'func nil llist)))))
+
+(defun lfind-if-not (predicate llist &key from-end (start 0) end key)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (lfind-if (complement predicate) llist
+            :from-end from-end
+            :start start
+            :end end
+            :key key))
+
+(defun lmember (item llist &key key (test #'eql))
+  (check-type llist llist)
+  (check-type key (or null function))
+  (check-type test function)
+  (lmember-if (lambda (x) (funcall test x item)) llist
+              :key key))
+
+(defun lmember-if (predicate llist &key key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type key (or null function))
+  (let ((predicate (if key (compose predicate key) predicate)))
+    (foldr+ (lambda (x xs acc)
+              (if (funcall predicate x)
+                  (lcons x xs)
+                  acc))
+            nil
+            llist)))
+
+(defun lmember-if-not (predicate llist &key key)
+  (check-type predicate function)
+  (check-type llist llist)
+  (check-type key (or null function))
+  (lmember-if (complement predicate) llist
+              :key key))
 
 (defun lposition (item llist &key from-end (start 0) end key (test #'eql))
   (check-type llist llist)
@@ -687,28 +730,28 @@
   (check-type start index)
   (check-type end (or null index))
   (check-type key (or null function))
-  (labels ((rec (i llst)
-             (declare (optimize (speed 3))
-                      (type function predicate)
-                      (type index start i)
-                      (type (or null index) end))
-             (ematch llst
-               ((lnil)
-                nil)
-               ((lcons x xs)
-                (cond ((< i start)           (rec (1+ i) xs))
+  (let ((predicate (if key (compose predicate key) predicate)))
+    (flet ((func (ix $acc)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (cond ((< i start)           (force $acc))
                       ((and end (>= i end))  nil)
                       ((funcall predicate x) i)
-                      (t                     (rec (1+ i) xs)))))))
-    (cond (key      (lposition-if (compose predicate key) llist
-                                  :from-end from-end
-                                  :start start
-                                  :end end))
-          (from-end (let ((revpos (lposition-if predicate (lreverse (subllist llist start end)))))
-                      (if revpos
-                          (- (1- (or end (llength llist))) revpos)
-                          nil)))
-          (t        (rec 0 llist)))))
+                      (t                     (force $acc)))))))
+      (if from-end
+          (lfoldl (lambda ($acc x) (func x $acc)) nil llist)
+          (lfoldr #'func nil llist)))))
+
+(defun lposition-if-not (predicate llist &key from-end (start 0) end key)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (check-type key (or null function))
+  (lposition-if (complement predicate) llist
+                :from-end from-end
+                :start start
+                :end end
+                :key key))
 
 (defun lmapc (function llist &rest more-llists)
   (check-type function function)
@@ -725,10 +768,25 @@
   (check-type function function)
   (check-type llist llist)
   (mapc (lambda (llst) (check-type llst llist)) more-llists)
-  (lfoldr (lambda (xs $acc)
-            (lcons (lapply function xs) (force $acc)))
-          (lnil)
-          (apply #'lzip llist more-llists)))
+  (fmap (partial #'lapply function)
+        (apply #'lzip llist more-llists)))
+
+(defun lmapcan (function llist &rest more-llists)
+  (check-type function function)
+  (check-type llist llist)
+  (mapc (lambda (llst) (check-type llst llist)) more-llists)
+  (mmap (partial #'lapply function) (apply #'lzip llist more-llists)))
+
+(defun lmapl (function llist &rest more-llists)
+  (check-type function function)
+  (check-type llist llist)
+  (mapc (lambda (llst) (check-type llst llist)) more-llists)
+  (labels ((rec (llsts)
+             (declare (optimize (speed 3)))
+             (unless (some #'lendp llsts)
+               (lapply function llsts)
+               (rec (mapcar #'lrest llsts)))))
+    (rec (cons llist more-llists))))
 
 
 ;;; Utility
@@ -747,7 +805,9 @@
   (labels ((rec (llsts)
              (if (some #'lendp llsts)
                  (lnil)
-                 (lcons (foldr (lambda (llst acc) (lcons (lfirst llst) acc)) (lnil) llsts)
+                 (lcons (lfoldr (lambda (llst $acc) (lcons (lfirst llst) (force $acc)))
+                                (lnil)
+                                llsts)
                         (rec (mapcar #'lrest llsts))))))
     (rec llists)))
 
