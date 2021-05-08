@@ -70,11 +70,11 @@
 
 (defgeneric lfoldl ($x&a->x x0 as))
 
-(defgeneric lfoldl+ ($x&a->x x0 as))
+(defgeneric lfoldl+ ($x&a&as->x x0 as))
 
 (defgeneric lfoldt (a&$xs->x x0 at))
 
-(defgeneric lfoldt+ (a&$xs->x x0 at))
+(defgeneric lfoldt+ (a&ats$xs->x x0 at))
 
 
 ;;; Scans
