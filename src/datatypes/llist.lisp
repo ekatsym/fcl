@@ -788,6 +788,73 @@
                (rec (mapcar #'lrest llsts)))))
     (rec (cons llist more-llists))))
 
+(defun lmaplist (function llist &rest more-llists)
+  (check-type function function)
+  (check-type llist llist)
+  (mapc (lambda (llst) (check-type llst llist)) more-llists)
+  (labels ((rec (llsts)
+             (declare (optimize (speed 3)))
+             (if (some #'lendp llsts)
+                 (lnil)
+                 (lcons (lapply function llsts)
+                        (rec (mapcar #'lrest llsts))))))
+    (rec (cons llist more-llists))))
+
+(defun lmapcon (function llist &rest more-llists)
+  (check-type function function)
+  (check-type llist llist)
+  (mapc (lambda (llst) (check-type llst llist)) more-llists)
+  (labels ((rec (llsts)
+             (declare (optimize (speed 3)))
+             (if (some #'lendp llsts)
+                 (lnil)
+                 (lappend (lapply function llsts)
+                          (rec (mapcar #'lrest llsts))))))
+    (rec (cons llist more-llists))))
+
+(defun lsearch (sub-llist1 main-llist2
+                &key from-end (test #'eql) (start1 0) end1 (start2 0) end2 key)
+  (check-type sub-llist1 llist)
+  (check-type main-llist2 llist)
+  (check-type test function)
+  (check-type start1 index)
+  (check-type end1 (or null index))
+  (check-type start2 index)
+  (check-type end2 (or null index))
+  (check-type key (or null function))
+  (let ((test (if key
+                  (lambda (x y) (funcall test (funcall key x) (funcall key y)))
+                  test))
+        (sub-x1 (lnth start1 sub-llist1))
+        (sub-rest1 (subllist sub-llist1 (1+ start1) end1)))
+    (flet ((func (ix ixs $acc1)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (cond ((< i start2)
+                       (force $acc1))
+                      ((and end2 (>= i end2))
+                       nil)
+                      ((funcall test sub-x1 x)
+                       (lfoldr (lambda (xy $acc2)
+                                 (ematch xy
+                                   ((lcons x (lcons y (lnil)))
+                                    (if (funcall test x (print y))
+                                        (force $acc2)
+                                        (force $acc1)))))
+                               i
+                               (lzip sub-rest1
+                                     (lappend (fmap (partial #'lnth 1) ixs)
+                                              (unfoldr 'llist
+                                                       (constantly nil)
+                                                       #'identity
+                                                       #'identity
+                                                       (gensym))))))
+                      (t
+                       (force $acc1)))))))
+      (if from-end
+          (lfoldl+ (lambda ($acc ix ixs) (func ix ixs $acc)) nil (lzip (lenum 0) main-llist2))
+          (lfoldr+ #'func nil (lzip (lenum 0) main-llist2))))))
+
 
 ;;; Utility
 (defun lapply (function arg &rest args)
@@ -819,7 +886,7 @@
            (if end (partial #'= end) (constantly nil))
            #'identity
            #'1+
-           0))
+           start))
 
 (defun ltake (n llist)
   (check-type n index)
