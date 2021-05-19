@@ -838,7 +838,7 @@
                        (lfoldr (lambda (xy $acc2)
                                  (ematch xy
                                    ((lcons x (lcons y (lnil)))
-                                    (if (funcall test x (print y))
+                                    (if (funcall test x y)
                                         (force $acc2)
                                         (force $acc1)))))
                                i
@@ -854,6 +854,37 @@
       (if from-end
           (lfoldl+ (lambda ($acc ix ixs) (func ix ixs $acc)) nil (lzip (lenum 0) main-llist2))
           (lfoldr+ #'func nil (lzip (lenum 0) main-llist2))))))
+
+(defun lmismatch (llist1 llist2 &key from-end (test #'eql) (start1 0) end1 (start2 0) end2 key)
+  (check-type llist1 llist)
+  (check-type llist2 llist)
+  (check-type test function)
+  (check-type start1 index)
+  (check-type end1 (or null index))
+  (check-type start2 index)
+  (check-type end2 (or null index))
+  (check-type key (or null function))
+  (let ((llist1 (subllist llist1 start1 end1))
+        (llist2 (subllist llist2 start2 end2))
+        (test (if key
+                  (lambda (x y) (funcall test (funcall key x) (funcall key y)))
+                  test)))
+    (flet ((func (ixy $acc)
+             (ematch ixy
+               ((lcons i (lcons x (lcons y (lnil))))
+                (if (funcall test x y)
+                    i
+                    (force $acc))))))
+      (cond ((not (llength= llist1 llist2))
+             (llength llist1))
+            (from-end
+             (lfoldl (lambda ($acc ixy) (func ixy $acc))
+                     nil
+                     (lzip (lenum start1 end1) llist1 llist2)))
+            (t
+            (lfoldr #'func
+                    nil
+                    (lzip (lenum start1 end1) llist1 llist2)))))))
 
 
 ;;; Utility
@@ -917,3 +948,12 @@
   (if end
       (ltake (- end start) (ldrop start llist))
       (ldrop start llist)))
+
+(defun llength= (llist1 llist2)
+  (check-type llist1 llist)
+  (check-type llist2 llist)
+  (do ((ll1 llist1 (lrest ll1))
+       (ll2 llist2 (lrest ll2)))
+      ((and (lendp ll1) (lendp ll2)) t)
+      (unless (and (lconsp ll1) (lconsp ll2))
+        (return nil))))
