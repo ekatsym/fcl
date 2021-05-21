@@ -50,7 +50,8 @@
     #:ldrop
     #:subllist
     #:lzip
-    #:llength=
+    #:lgroup
+    #:llist-length=
 
     ;; Foldable
     #:cata
@@ -465,14 +466,26 @@
                         (rec (mapcar #'lrest llsts))))))
     (rec llists)))
 
-(defun llength= (llist1 llist2)
+(defun lgroup (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (lfoldr+ (lambda (ix ixs $acc)
+             (ematch ix
+               ((lcons i (lcons x (lnil)))
+                (if (zerop (mod i n))
+                    (lcons (lcons x (fmap (partial #'lnth 1) (ltake (1- n) ixs)))
+                           (force $acc))
+                    (force $acc)))))
+           (lnil)
+           (lzip (lenum 0) llist)))
+
+(defun llist-length= (llist1 llist2)
   (check-type llist1 llist)
   (check-type llist2 llist)
   (do ((ll1 llist1 (lrest ll1))
        (ll2 llist2 (lrest ll2)))
-      ((and (lendp ll1) (lendp ll2)) t)
-      (unless (and (lconsp ll1) (lconsp ll2))
-        (return nil))))
+      ((or (lendp ll1) (lendp ll2))
+       (and (lendp ll1) (lendp ll2)))))
 
 
 ;;; CL-like Utility

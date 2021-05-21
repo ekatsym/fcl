@@ -70,3 +70,11 @@
   (do ((lst list (drop n lst))
        (acc '() (cons (take n lst) acc)))
       ((endp lst) (nreverse acc))))
+
+(defun list-length= (list1 list2)
+  (check-type list1 list)
+  (check-type list2 list)
+  (do ((lst1 list1 (rest lst1))
+       (lst2 list2 (rest lst2)))
+      ((or (endp lst1) (endp lst2))
+       (and (endp lst1) (endp lst2)))))
