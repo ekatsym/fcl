@@ -28,8 +28,8 @@
   (:import-from
     :fcl.util
     #:index
-    #:partial
-    #:compose)
+    #:compose
+    #:partial)
   (:import-from
     :fcl.list
     #:take
@@ -38,6 +38,63 @@
     ;; Core
     #:lnil
     #:lcons
+
+    ;; Lazy
+    #:delay
+    #:force
+
+    ;; Utilitiy
+    #:lapply
+    #:lenum
+    #:ltake
+    #:ldrop
+    #:subllist
+    #:lzip
+    #:llength=
+
+    ;; Foldable
+    #:cata
+    #:para
+    #:ana
+    #:apo
+    #:foldr
+    #:foldr+
+    #:unfoldr
+    #:unfoldr+
+    #:foldl
+    #:foldl+
+    #:unfoldl
+    #:unfoldl+
+    #:foldt
+    #:foldt+
+    #:unfoldt
+    #:unfoldt+
+    #:lfoldr
+    #:lfoldr+
+    #:lfoldl
+    #:lfoldl+
+    #:lfoldt
+    #:lfoldt+
+    #:scanr
+    #:scanr+
+    #:scanl
+    #:scanl+
+    #:scant
+    #:scant+
+
+    ;; Monad Plus
+    #:fmap
+    #:unit
+    #:amap
+    #:mmap
+    #:mlet
+    #:mprogn
+    #:mdo
+    #:mzero
+    #:mplus
+    #:msum
+    #:guard
+    #:llc
 
     ;; CL-like Utility
     #:lconsp
@@ -84,54 +141,7 @@
     #:lsearch
     #:lmismatch
     #:lsort
-
-    ;; Lazy
-    #:delay
-    #:force
-
-    ;; Foldable
-    #:cata
-    #:para
-    #:ana
-    #:apo
-    #:foldr
-    #:foldr+
-    #:unfoldr
-    #:unfoldr+
-    #:foldl
-    #:foldl+
-    #:unfoldl
-    #:unfoldl+
-    #:foldt
-    #:foldt+
-    #:unfoldt
-    #:unfoldt+
-    #:lfoldr
-    #:lfoldr+
-    #:lfoldl
-    #:lfoldl+
-    #:lfoldt
-    #:lfoldt+
-    #:scanr
-    #:scanr+
-    #:scanl
-    #:scanl+
-    #:scant
-    #:scant+
-
-    ;; Monad Plus
-    #:fmap
-    #:unit
-    #:amap
-    #:mmap
-    #:mlet
-    #:mprogn
-    #:mdo
-    #:mzero
-    #:mplus
-    #:msum
-    #:guard
-    #:llc))
+    #:lstable-sort))
 (in-package :fcl.datatypes.llist)
 
 
@@ -388,6 +398,81 @@
                         `(guard 'llist ,clause)))
                   clauses)
         (unit 'llist ,element)))
+
+
+;;; Utility
+(defun lconsf (x llist)
+  (check-type llist llist)
+  (lcons x llist))
+
+(defun lapply (function arg &rest args)
+  (check-type function function)
+  (labels ((rec (f arg args)
+             (declare (optimize (speed 3))
+                      (type function f))
+             (if (endp args)
+                 (funcall (the function (foldl (lambda (f a) (partial f a)) f arg)))
+                 (apply #'rec (partial f arg) args))))
+    (rec function arg args)))
+
+(defun lenum (start &optional end)
+  (check-type start integer)
+  (check-type end (or null integer))
+  (unfoldr 'llist
+           (if end (partial #'= end) (constantly nil))
+           #'identity
+           #'1+
+           start))
+
+(defun ltake (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (labels ((rec (n llst)
+             (ematch (list n llst)
+               ((list 0 _)              (lnil))
+               ((list _ (lcons x llst)) (lcons x (rec (1- n) llst)))
+               ((list _ (lnil))         (lcons (lnil) (rec (1- n) (lnil)))))))
+    (rec n llist)))
+
+(defun ldrop (n llist)
+  (check-type n index)
+  (check-type llist llist)
+  (labels ((rec (n llst)
+             (declare (optimize (speed 3))
+                      (type index n))
+             (ematch (list n llst)
+               ((list 0 _)              llst)
+               ((list _ (lcons _ llst)) (rec (1- n) llst))
+               ((list _ (lnil))         (lnil)))))
+    (rec n llist)))
+
+(defun subllist (llist start &optional end)
+  (check-type llist llist)
+  (check-type start index)
+  (check-type end (or null index))
+  (if end
+      (ltake (- end start) (ldrop start llist))
+      (ldrop start llist)))
+
+(defun lzip (&rest llists)
+  (mapc (lambda (llst) (check-type llst llist)) llists)
+  (labels ((rec (llsts)
+             (if (some #'lendp llsts)
+                 (lnil)
+                 (lcons (lfoldr (lambda (llst $acc) (lcons (lfirst llst) (force $acc)))
+                                (lnil)
+                                llsts)
+                        (rec (mapcar #'lrest llsts))))))
+    (rec llists)))
+
+(defun llength= (llist1 llist2)
+  (check-type llist1 llist)
+  (check-type llist2 llist)
+  (do ((ll1 llist1 (lrest ll1))
+       (ll2 llist2 (lrest ll2)))
+      ((and (lendp ll1) (lendp ll2)) t)
+      (unless (and (lconsp ll1) (lconsp ll2))
+        (return nil))))
 
 
 ;;; CL-like Utility
@@ -886,74 +971,16 @@
                     nil
                     (lzip (lenum start1 end1) llist1 llist2)))))))
 
-
-;;; Utility
-(defun lapply (function arg &rest args)
-  (check-type function function)
-  (labels ((rec (f arg args)
-             (declare (optimize (speed 3))
-                      (type function f))
-             (if (endp args)
-                 (funcall (the function (foldl (lambda (f a) (partial f a)) f arg)))
-                 (apply #'rec (partial f arg) args))))
-    (rec function arg args)))
-
-(defun lzip (&rest llists)
-  (mapc (lambda (llst) (check-type llst llist)) llists)
-  (labels ((rec (llsts)
-             (if (some #'lendp llsts)
-                 (lnil)
-                 (lcons (lfoldr (lambda (llst $acc) (lcons (lfirst llst) (force $acc)))
-                                (lnil)
-                                llsts)
-                        (rec (mapcar #'lrest llsts))))))
-    (rec llists)))
-
-
-(defun lenum (start &optional end)
-  (check-type start integer)
-  (check-type end (or null integer))
-  (unfoldr 'llist
-           (if end (partial #'= end) (constantly nil))
-           #'identity
-           #'1+
-           start))
-
-(defun ltake (n llist)
-  (check-type n index)
+(defun lsort (llist predicate &key key)
   (check-type llist llist)
-  (labels ((rec (n llst)
-             (ematch (list n llst)
-               ((list 0 _)              (lnil))
-               ((list _ (lcons x llst)) (lcons x (rec (1- n) llst)))
-               ((list _ (lnil))         (lcons (lnil) (rec (1- n) (lnil)))))))
-    (rec n llist)))
+  (check-type predicate function)
+  (lfoldr (lambda (x $acc) (lcons x (force $acc)))
+          (lnil)
+          (sort (foldr #'cons '() llist) predicate :key key)))
 
-(defun ldrop (n llist)
-  (check-type n index)
+(defun lstable-sort (llist predicate &key key)
   (check-type llist llist)
-  (labels ((rec (n llst)
-             (declare (optimize (speed 3))
-                      (type index n))
-             (ematch (list n llst)
-               ((list 0 _)              llst)
-               ((list _ (lcons _ llst)) (rec (1- n) llst))
-               ((list _ (lnil))         (lnil)))))
-    (rec n llist)))
-
-(defun subllist (llist start &optional end)
-  (check-type llist llist)
-  (check-type start index)
-  (check-type end (or null index))
-  (if end
-      (ltake (- end start) (ldrop start llist))
-      (ldrop start llist)))
-
-(defun llength= (llist1 llist2)
-  (check-type llist1 llist)
-  (check-type llist2 llist)
-  (do ((ll1 llist1 (lrest ll1))
-       (ll2 llist2 (lrest ll2)))
-      ((and (lendp ll1) (lendp ll2)) t)
-      (unless (and (lconsp ll1) (lconsp ll2))
-        (return nil))))
+  (check-type predicate function)
+  (lfoldr (lambda (x $acc) (lcons x (force $acc)))
+          (lnil)
+          (stable-sort (foldr #'cons '() llist) predicate :key key)))
