@@ -9,5 +9,6 @@
     #:rpartial
     #:partial-at
     #:curry
-    #:rcurry))
+    #:rcurry
+    #:pipeline))
 (in-package :fcl.datatypes.function)

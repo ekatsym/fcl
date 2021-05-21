@@ -10,36 +10,42 @@
     #:rpartial
     #:partial-at
     #:curry
-    #:rcurry))
+    #:rcurry
+    #:pipeline))
 (in-package :fcl.util.function)
 
 
-(defun compose (func &rest more-funcs)
-  (let ((f1 (first (last more-funcs)))
-        (fs (cons func (butlast more-funcs))))
+(defun compose (function &rest more-functions)
+  (let ((f1 (first (last more-functions)))
+        (fs (cons function (butlast more-functions))))
     (lambda (&rest args)
       (reduce (lambda (acc f) (funcall f acc))
               fs
               :initial-value (apply f1 args)))))
 
-(defun partial (func &rest args)
+(defun partial (function &rest args)
   (lambda (&rest rest-args)
-    (apply func (append args rest-args))))
+    (apply function (append args rest-args))))
 
-(defun rpartial (func &rest args)
+(defun rpartial (function &rest args)
   (lambda (&rest rest-args)
-    (apply func (append rest-args args))))
+    (apply function (append rest-args args))))
 
-(defun partial-at (n func arg)
+(defun partial-at (n function arg)
   (lambda (&rest rest-args)
-    (apply func (insert-at n arg rest-args))))
+    (apply function (insert-at n arg rest-args))))
 
-(defun curry (func)
+(defun curry (function)
   (lambda (&rest args)
     (lambda (&rest rest-args)
-      (apply func (append args rest-args)))))
+      (apply function (append args rest-args)))))
 
-(defun rcurry (func)
+(defun rcurry (function)
   (lambda (&rest args)
     (lambda (&rest rest-args)
-      (apply func (append rest-args args)))))
+      (apply function (append rest-args args)))))
+
+(defun pipeline (x &rest functions)
+  (let ((acc x))
+    (dolist (func functions acc)
+      (setq acc (funcall func acc)))))
