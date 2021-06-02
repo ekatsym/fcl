@@ -1,20 +1,19 @@
 (defpackage fcl.util
-  (:use
-    :common-lisp
-    :fcl.u.type
-    :fcl.u.list
-    :fcl.u.function
-    :fcl.u.symbol)
+  (:use :common-lisp)
   (:export
     #:index
     #:proper-list
     #:nlist?
     #:take
+    #:drop
+    #:sublist
     #:enum
     #:insert-at
     #:filter
     #:mappend
     #:zip
+    #:unzip
+    #:transpose
     #:group
     #:compose
     #:partial
@@ -22,4 +21,5 @@
     #:partial-at
     #:curry
     #:rcurry
+    #:pipeline
     #:symbolicate))

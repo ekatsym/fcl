@@ -1,9 +1,8 @@
-(defpackage fcl.generics.functor
-  (:nicknames :fcl.g.functor :fcl.functor)
+(defpackage fcl.functor
+  (:nicknames :fcl.generics.functor :fcl.ft)
   (:use :common-lisp)
-  (:export
-    #:fmap))
-(in-package :fcl.generics.functor)
+  (:export #:fmap))
+(in-package :fcl.functor)
 
 
 (defgeneric fmap (a->b a*)

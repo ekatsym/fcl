@@ -4,66 +4,48 @@
   :license "LLGPL"
   :components ((:module "src"
                 :components
-                ((:module "util"
+                ((:module "package"     :depends-on ("core" "generics" "datatype"))
+                 (:module "core"        :depends-on ("util")
                   :components
-                  ((:file "type")
-                   (:file "list"        :depends-on ("type"))
-                   (:file "function"    :depends-on ("list"))
-                   (:file "symbol")
-                   (:file "package"     :depends-on ("type" "list" "function" "symbol"))))
-
-                 (:module "lazy"
-                  :depends-on ("util")
-                  :components
-                  ((:file "core")
-                   (:file "package")))
-
-                 (:module "data"
-                  :depends-on ("util" "lazy")
-                  :components
-                  ((:file "util")
-                   (:file "parser")
-                   (:file "core")
-                   (:file "package")))
-
-                 (:module "match"
-                  :depends-on ("util" "data" "lazy")
-                  :components
-                  ((:file "util")
-                   (:file "parser")
-                   (:file "core")
-                   (:file "package")))
-
-                 (:module "generics"
-                  :depends-on ("util" "lazy")
+                  ((:file "lazy")
+                   (:module "adata"       :depends-on ("lazy")
+                    :components
+                    ((:file "main"          :depends-on ("util" "parser"))
+                     (:file "parser"        :depends-on ("util"))
+                     (:file "util")))
+                   (:module "match"       :depends-on ("lazy" "adata")
+                    :components
+                    ((:file "main"          :depends-on ("util" "parser"))
+                     (:file "parser"        :depends-on ("util"))
+                     (:file "util")))))
+                 (:module "generics"    :depends-on ("util" "core")
                   :components
                   ((:file "functor")
-                   (:file "applicative" :depends-on ("functor"))
-                   (:file "monad"       :depends-on ("applicative"))
+                   (:file "applicative"   :depends-on ("functor"))
+                   (:file "monad"         :depends-on ("applicative"))
                    (:file "monoid")
-                   (:file "monad-plus"  :depends-on ("monad" "monoid"))
-                   (:file "recursive")
-                   (:file "foldable"    :depends-on ("recursive"))))
-
-                 (:module "datatypes"
-                  :depends-on ("util" "lazy" "data" "match" "generics")
+                   (:file "monad-plus"    :depends-on ("monad" "monoid"))
+                   (:file "foldable")))
+                 (:module "datatype"    :depends-on ("util" "core" "generics")
                   :components
                   ((:file "promise")
                    (:file "maybe")
                    (:file "either")
-                   (:file "list"        :depends-on ("maybe" "either"))
-                   (:file "vector"      :depends-on ("maybe" "either"))
-                   (:file "array"       :depends-on ("maybe" "either"))
-                   (:file "llist"       :depends-on ("maybe" "either"))
-                   (:file "queue"       :depends-on ("maybe" "either" "llist"))
-                   (:file "bheap"       :depends-on ("maybe" "either" "llist"))
+                   (:file "list")
+                   (:file "vector")
+                   (:file "array")
+                   (:file "queue")
                    (:file "function")
                    (:file "reader")
-                   (:file "writer"      :depends-on ("queue"))
+                   (:file "writer")
                    (:file "state")))
-
-                 (:file "package"
-                  :depends-on ("lazy" "data" "match" "generics" "datatypes")))))
+                 (:module "util"
+                  :components
+                  ((:file "package")
+                   (:file "type"          :depends-on ("package"))
+                   (:file "list"          :depends-on ("package" "type"))
+                   (:file "function"      :depends-on ("package" "list"))
+                   (:file "symbol"        :depends-on ("package")))))))
   :description ""
   :in-order-to ((test-op (test-op "fcl/tests"))))
 

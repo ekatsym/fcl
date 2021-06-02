@@ -1,10 +1,8 @@
-(defpackage :fcl.lazy.core
-  (:nicknames :fcl.l.core)
+(defpackage fcl.lazy
+  (:nicknames :fcl.core.lazy :fcl.lz)
   (:use :common-lisp)
-  (:export #:promise
-           #:delay
-           #:force))
-(in-package :fcl.l.core)
+  (:export #:promise #:delay #:force))
+(in-package :fcl.lazy)
 
 
 (defstruct (promise (:constructor make-promise (thunk))

@@ -1,31 +1,21 @@
-(defpackage fcl.datatypes.either
-  (:nicknames :fcl.dt.either :fcl.either)
-  (:use
-    :common-lisp
-    :fcl.generics.monad-plus)
+(defpackage fcl.either
+  (:nicknames :fcl.data.either :fcl.et)
+  (:use :common-lisp :fcl.monad-plus)
   (:import-from
-    :fcl.data
+    :fcl.adata
     #:defdata)
   (:import-from
     :fcl.match
     #:ematch)
   (:export
-    #:either
-    #:left
-    #:right
-
-    #:fmap
-    #:unit
-    #:amap
-    #:mmap
-    #:mlet
-    #:mprogn
-    #:mdo
-    #:mzero
-    #:mplus
-    #:msum
-    #:guard))
-(in-package :fcl.datatypes.either)
+    #:either #:left #:right
+    #:unit #:fmap #:amap #:mmap
+    #:mlet #:mprogn #:mdo
+    #:define-fmap-by-applicative
+    #:define-fmap-by-monad #:define-amap-by-monad
+    #:guard
+    #:mzero #:mplus #:msum))
+(in-package :fcl.either)
 
 
 ;;; Definition

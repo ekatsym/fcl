@@ -1,23 +1,16 @@
-(defpackage fcl.generics.monad
-  (:nicknames :fcl.g.monad :fcl.monad)
-  (:use
-    :common-lisp
-    :fcl.generics.applicative)
+(defpackage fcl.monad
+  (:nicknames :fcl.generics.monad :fcl.ma)
+  (:use :common-lisp :fcl.applicative)
   (:import-from
     :fcl.util
     #:nlist?)
   (:export
-    #:fmap
-    #:unit
-    #:amap
-    #:mmap
-    #:mlet
-    #:mprogn
-    #:mdo
+    #:unit #:fmap #:amap #:mmap
+    #:mlet #:mprogn #:mdo
     #:define-fmap-by-applicative
     #:define-fmap-by-monad
     #:define-amap-by-monad))
-(in-package :fcl.generics.monad)
+(in-package :fcl.monad)
 
 
 ;;; Core

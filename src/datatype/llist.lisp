@@ -66,16 +66,10 @@
     #:foldl+
     #:unfoldl
     #:unfoldl+
-    #:foldt
-    #:foldt+
-    #:unfoldt
-    #:unfoldt+
     #:lfoldr
     #:lfoldr+
     #:lfoldl
     #:lfoldl+
-    #:lfoldt
-    #:lfoldt+
     #:scanr
     #:scanr+
     #:scanl
@@ -266,43 +260,6 @@
                  (rec (funcall x->x x) (lcons (funcall x->a x) as)))))
     (rec x as0)))
 
-(defmethod foldt (a&xs->x x0 (at llist))
-  (check-type a&xs->x function)
-  (labels ((rec (at)
-             (ematch at
-               ((lnil)        x0)
-               ((lcons a ats) (funcall a&xs->x a (mapcar #'rec ats))))))
-    (rec at)))
-
-(defmethod foldt+ (a&ats&xs->x x0 (at llist))
-  (check-type a&ats&xs->x function)
-  (labels ((rec (at)
-             (ematch at
-               ((lnil)         x0)
-               ((lcons a ats) (funcall a&ats&xs->x a ats (mapcar #'rec ats))))))
-    (rec at)))
-
-(defmethod unfoldt ((class (eql 'llist)) x->? x->a x->xs x)
-  (check-type x->? function)
-  (check-type x->a function)
-  (check-type x->xs function)
-  (labels ((rec (x)
-             (if (funcall x->? x)
-                 (lnil)
-                 (lcons (funcall x->a x) (funcall x->xs x)))))
-    (rec x)))
-
-(defmethod unfoldt+ ((class (eql 'llist)) x->? x->a x->xs at0 x)
-  (check-type x->? function)
-  (check-type x->a function)
-  (check-type x->xs function)
-  (check-type at0 llist)
-  (labels ((rec (x)
-             (if (funcall x->? x)
-                 at0
-                 (lcons (funcall x->a x) (funcall x->xs x)))))
-    (rec x)))
-
 (defmethod lfoldr (a&$x->x x0 (as llist))
   (check-type a&$x->x function)
   (labels ((rec (as)
@@ -342,22 +299,6 @@
                ((lnil) (force $x))
                ((lcons a as) (rec as (delay (funcall $x&a&as->x $x a as)))))))
     (rec as (delay x0))))
-
-(defmethod lfoldt (a&$xs->x x0 (at llist))
-  (check-type a&$xs->x function)
-  (labels ((rec (at)
-             (ematch at
-               ((lnil) x0)
-               ((lcons a ats) (funcall a&$xs->x a (delay (lmapcar #'rec ats)))))))
-    (rec at)))
-
-(defmethod lfoldt+ (a&ats&$xs->x x0 (at llist))
-  (check-type a&ats&$xs->x function)
-  (labels ((rec (at)
-             (ematch at
-               ((lnil) x0)
-               ((lcons a ats) (funcall a&ats&$xs->x a ats (delay (lmapcar #'rec ats)))))))
-    (rec at)))
 
 ;;; Monad Plus
 (defmethod fmap (a->b (a* llist))
@@ -973,7 +914,7 @@
                 (if (funcall test x y)
                     i
                     (force $acc))))))
-      (cond ((not (llength= llist1 llist2))
+      (cond ((not (llist-length= llist1 llist2))
              (llength llist1))
             (from-end
              (lfoldl (lambda ($acc ixy) (func ixy $acc))

@@ -3,7 +3,8 @@
   (:use
     :common-lisp
     :rove
-    :fcl.data
+    :fcl.util
+    :fcl.adata
     :fcl.match
     :fcl.maybe
     :fcl.function))

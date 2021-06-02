@@ -1,106 +1,33 @@
-(defpackage fcl.datatypes.vector
-  (:nicknames :fcl.dt.vector :fcl.vector :fcl.vec)
-  (:use
-    :common-lisp
-    :fcl.generics.foldable
-    :fcl.generics.monad-plus)
+(defpackage fcl.vector
+  (:nicknames :fcl.data.vector :fcl.vc)
+  (:use :common-lisp :fcl.monad-plus :fcl.foldable)
   (:import-from
     :fcl.util
     #:index)
-  (:import-from
-    :fcl.datatypes.maybe
-    #:maybe
-    #:just #:just%0
-    #:nothing)
-  (:import-from
-    :fcl.datatypes.either
-    #:either
-    #:left #:left%0
-    #:right #:right%0)
   (:export
-    #:cata
-    #:para
-    #:ana
-    #:apo
-    #:foldr
-    #:foldr+
-    #:unfoldr
-    #:unfoldr+
-    #:foldl
-    #:foldl+
-    #:unfoldl
-    #:unfoldl+
-    #:foldt
-    #:foldt+
-    #:unfoldt
-    #:unfoldt+
-    #:scanr
-    #:scanr+
-    #:scanl
-    #:scanl+
-    #:scant
-    #:scant+
+    #:vc
 
-    #:fmap
-    #:unit
-    #:amap
+    ;; monad-plus
+    #:guard
     #:mmap
-    #:mlet
-    #:mprogn
-    #:mdo
-    #:mzero
-    #:mplus
-    #:msum
-    #:guard))
-(in-package :fcl.datatypes.vector)
+    #:mlet #:mprogn #:mdo
+    #:define-fmap-by-monad #:define-amap-by-monad
+    #:unit #:amap
+    #:define-fmap-by-applicative
+    #:fmap
+    #:mzero #:mplus #:msum
+
+    ;; foldable
+    #:foldr #:foldr+ #:unfoldr #:unfoldr+
+    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+    #:lfoldr #:lfoldr+
+    #:lfoldl #:lfoldl+
+    #:scanr #:scanr+ #:scanl #:scanl+))
+(in-package :fcl.vector)
 
 
 ;;; Methods
 ;; FOLDABLE
-(defmethod cata (x*->x (i vector))
-  "X* == (NOTHING) | (JUST (LIST A X))"
-  (check-type x*->x function)
-  (do ((x (funcall x*->x (nothing)) (funcall x*->x (just (list (aref i idx) x))))
-       (idx 0 (1+ 0))
-       (len (length i)))
-      ((>= idx len) x)))
-
-(defmethod para (i&*x->x (i vector))
-  "I&*X == (NOTHING) | (JUST (LIST A I X))"
-  (check-type i&*x->x function)
-  (do ((x (funcall i&*x->x (nothing)) (funcall i&*x->x (just (list (aref i idx) (subseq i idx) x))))
-       (idx 0 (1+ 0))
-       (len (length i)))
-      ((>= idx len) x)))
-
-(macrolet ((defana (classname)
-             `(defmethod ana ((class (eql ',classname)) x->x* x)
-                "X* == (NOTHING) | (JUST (LIST A X))"
-                (check-type x->x* function)
-                (coerce (ana 'list x->x* x) class))))
-  (defana vector)
-  (defana simple-vector)
-  (defana bit-vector)
-  (defana simple-bit-vector)
-  (defana string)
-  (defana simple-string)
-  (defana base-string)
-  (defana simple-base-string))
-
-(macrolet ((defapo (classname)
-             `(defmethod apo ((class (eql ',classname)) x->f+*x x)
-                "F+*X == (NOTHING) | (JUST (LIST A (LEFT F))) | (JUST (LIST A (RIGHT X)))"
-                (check-type x->f+*x function)
-                (coerce (apo 'list x->f+*x x) class))))
-  (defapo vector)
-  (defapo simple-vector)
-  (defapo bit-vector)
-  (defapo simple-bit-vector)
-  (defapo string)
-  (defapo simple-string)
-  (defapo base-string)
-  (defapo simple-base-string))
-
 (defmethod foldr (a&x->x x0 (as vector))
   (check-type a&x->x function)
   (do ((x x0 (funcall a&x->x (aref as i) x))
@@ -188,53 +115,6 @@
   (define-unfoldl+ simple-string)
   (define-unfoldl+ base-string)
   (define-unfoldl+ simple-base-string))
-
-(defmethod foldt (a&xs->x x0 (at vector))
-  (check-type a&xs->x function)
-  (labels ((rec (at)
-             (if (null at)
-                 x0
-                 (funcall a&xs->x (aref at 0) (map 'list #'rec (subseq at 1))))))
-    (rec at)))
-
-(defmethod foldt+ (at&xs->x x0 (at vector))
-  (check-type at&xs->x function)
-  (labels ((rec (at)
-             (if (null at)
-                 x0
-                 (funcall at&xs->x at (map 'list #'rec (subseq at 1))))))
-    (rec at)))
-
-(macrolet ((define-unfoldt (classname)
-             `(defmethod unfoldt ((class (eql ',classname)) x->? x->a x->xs x)
-                (check-type x->? function)
-                (check-type x->a function)
-                (check-type x->xs function)
-                (coerce (unfoldt 'list x->? x->a x->xs x) class))))
-  (define-unfoldt vector)
-  (define-unfoldt simple-vector)
-  (define-unfoldt bit-vector)
-  (define-unfoldt simple-bit-vector)
-  (define-unfoldt string)
-  (define-unfoldt simple-string)
-  (define-unfoldt base-string)
-  (define-unfoldt simple-base-string))
-
-(macrolet ((define-unfoldt+ (classname)
-             `(defmethod unfoldt+ ((class (eql ',classname)) x->? x->a x->xs at0 x)
-                (check-type x->? function)
-                (check-type x->a function)
-                (check-type x->xs function)
-                (check-type at0 ,classname)
-                (coerce (unfoldt+ 'list x->? x->a x->xs (coerce at0 'list) x) class))))
-  (define-unfoldt+ vector)
-  (define-unfoldt+ simple-vector)
-  (define-unfoldt+ bit-vector)
-  (define-unfoldt+ simple-bit-vector)
-  (define-unfoldt+ string)
-  (define-unfoldt+ simple-string)
-  (define-unfoldt+ base-string)
-  (define-unfoldt+ simple-base-string))
 
 ;;; MONAD-PLUS
 (define-fmap-by-monad vector)

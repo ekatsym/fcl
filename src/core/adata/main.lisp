@@ -1,18 +1,15 @@
-(defpackage fcl.data.core
-  (:nicknames :fcl.d.core)
-  (:use
-    :common-lisp
-    :fcl.d.util
-    :fcl.d.parser)
+(defpackage fcl.adata
+  (:nicknames :fcl.core.adata :fcl.dt)
+  (:use :common-lisp :fcl.adata.util :fcl.adata.parser)
   (:import-from
     :fcl.util
     #:rpartial
     #:proper-list)
   (:export
-    #:algebraic-datatype
+    #:algebraic-data
     #:defdata
     #:data=))
-(in-package :fcl.d.core)
+(in-package :fcl.adata)
 
 (defstruct (algebraic-datatype (:constructor nil)
                                (:copier nil)

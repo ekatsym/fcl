@@ -1,38 +1,13 @@
-(defpackage fcl.generics.foldable
-  (:nicknames :fcl.g.foldable :fcl.foldable)
-  (:use
-    :common-lisp
-    :fcl.generics.recursive)
+(defpackage fcl.foldable
+  (:nicknames :fcl.generics.foldable :fcl.fd)
+  (:use :common-lisp)
   (:export
-    #:cata
-    #:para
-    #:ana
-    #:apo
-    #:foldr
-    #:foldr+
-    #:unfoldr
-    #:unfoldr+
-    #:foldl
-    #:foldl+
-    #:unfoldl
-    #:unfoldl+
-    #:foldt
-    #:foldt+
-    #:unfoldt
-    #:unfoldt+
-    #:lfoldr
-    #:lfoldr+
-    #:lfoldl
-    #:lfoldl+
-    #:lfoldt
-    #:lfoldt+
-    #:scanr
-    #:scanr+
-    #:scanl
-    #:scanl+
-    #:scant
-    #:scant+))
-(in-package :fcl.generics.foldable)
+    #:foldr #:foldr+ #:unfoldr #:unfoldr+
+    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+    #:lfoldr #:lfoldr+
+    #:lfoldl #:lfoldl+
+    #:scanr #:scanr+ #:scanl #:scanl+))
+(in-package :fcl.foldable)
 
 
 ;;; Folds for "List".
@@ -51,16 +26,6 @@
 (defgeneric unfoldl (class x->? x->x x->a x))
 
 (defgeneric unfoldl+ (class x->? x->x x->a as0 x))
-
-
-;;; Folds for "Tree".
-(defgeneric foldt (a&xs->x x0 at))
-
-(defgeneric foldt+ (a&ats&xs->x x0 at))
-
-(defgeneric unfoldt (class x->? x->a x->xs x))
-
-(defgeneric unfoldt+ (class x->? x->a x->xs at0 x))
 
 
 ;;; Lazy Folds
@@ -101,19 +66,3 @@
   (foldl+ (lambda (xs a as) (cons (funcall x&a&as->x (first xs) a as) xs))
           (list x0)
           as))
-
-(defun scant (a&xs->x x0 at)
-  (check-type a&xs->x function)
-  (foldt (lambda (a xss)
-           (cons (funcall a&xs->x a (mapcar #'first xss))
-                 (mapcar #'rest xss)))
-         (list x0)
-         at))
-
-(defun scant+ (a&at&xs->x x0 at)
-  (check-type a&at&xs->x function)
-  (foldt+ (lambda (a at xss)
-            (cons (funcall a&at&xs->x a at (mapcar #'first xss))
-                  (mapcar #'rest xss)))
-          (list x0)
-          at))

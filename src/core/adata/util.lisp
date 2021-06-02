@@ -1,5 +1,4 @@
-(defpackage fcl.data.util
-  (:nicknames :fcl.d.util)
+(defpackage fcl.adata.util
   (:use :common-lisp)
   (:import-from
     :fcl.util
@@ -8,7 +7,7 @@
   (:export
     #:make-parameters
     #:lazy-type-specifier-p))
-(in-package :fcl.d.util)
+(in-package :fcl.adata.util)
 
 (defun make-parameters (n)
   "Returns a list of parameters whose size is N like (%0 %1 ... %N)."

@@ -1,10 +1,10 @@
 (defpackage fcl.util.type
-  (:nicknames :fcl.u.type)
   (:use :common-lisp)
-  (:export
+  (:import-from
+    :fcl.util
     #:index
     #:proper-list))
-(in-package :fcl.u.type)
+(in-package :fcl.util.type)
 
 
 (deftype index ()

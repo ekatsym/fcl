@@ -1,11 +1,9 @@
-(defpackage fcl.generics.monoid
-  (:nicknames :fcl.g.monoid :fcl.monoid)
+(defpackage fcl.monoid
+  (:nicknames :fcl.generics.monoid :fcl.mo)
   (:use :common-lisp)
   (:export
-    #:mzero
-    #:mplus
-    #:msum))
-(in-package :fcl.generics.monoid)
+    #:mzero #:mplus #:msum))
+(in-package :fcl.monoid)
 
 
 (defgeneric mzero (class)

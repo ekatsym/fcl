@@ -1,13 +1,15 @@
-(defpackage fcl.match.core
-  (:nicknames :fcl.ma.core)
-  (:use
-    :common-lisp
-    :fcl.ma.util
-    :fcl.ma.parser)
+(defpackage fcl.match
+  (:nicknames :fcl.core.match :fcl.mt)
+  (:use :common-lisp :fcl.lazy :fcl.util :fcl.match.parser)
   (:export
-    #:match
-    #:ematch))
-(in-package :fcl.match.core)
+    #:match #:ematch
+
+    ;; common-lisp
+    #:quote #:cons #:list #:vector
+
+    ;; lazy
+    #:delay))
+(in-package :fcl.match)
 
 
 (defmacro match (data &body clauses)

@@ -1,18 +1,20 @@
 (defpackage fcl.util.list
-  (:nicknames :fcl.u.list)
   (:use :common-lisp)
   (:import-from
-    :fcl.u.type
+    :fcl.util.type
     #:index)
-  (:export
+  (:import-from
+    :fcl.util
     #:nlist?
     #:take
     #:drop
     #:enum
     #:insert-at
     #:zip
+    #:unzip
+    #:transpose
     #:group))
-(in-package :fcl.u.list)
+(in-package :fcl.util.list)
 
 
 (defun nlist? (n list)
@@ -59,10 +61,39 @@
        (rhead '() (cons (first tail) rhead)))
       ((or (zerop i) (endp tail)) (revappend rhead (cons x tail)))))
 
+(defun filter (predicate list)
+  (check-type predicate function)
+  (check-type list list)
+  (reduce (lambda (x acc)
+            (let ((x (funcall predicate x)))
+              (if x (cons x acc) acc)))
+          list
+          :initial-value '()
+          :from-end t))
+
+(defun mappend (function list &rest more-lists)
+  (check-type function function)
+  (check-type list list)
+  (mapc (lambda (lst) (check-type lst list)) more-lists)
+  (reduce (lambda (args acc) (append (apply function args) acc))
+          (zip (cons list more-lists))
+          :initial-value '()
+          :from-end t))
+
 (defun zip (list &rest more-lists)
   (check-type list list)
-  (every (lambda (lst) (check-type lst list)) more-lists)
+  (mapc (lambda (lst) (check-type lst list)) more-lists)
   (apply #'mapcar #'list list more-lists))
+
+(defun unzip (list)
+  (check-type list list)
+  (mapc (lambda (x) (check-type x list)) list)
+  (apply #'values (apply #'mapcar #'list list)))
+
+(defun transpose (lists)
+  (check-type lists list)
+  (mapc (lambda (lst) (check-type lst list)) lists)
+  (mapcar #'list lists))
 
 (defun group (n list)
   (check-type n index)
@@ -70,11 +101,3 @@
   (do ((lst list (drop n lst))
        (acc '() (cons (take n lst) acc)))
       ((endp lst) (nreverse acc))))
-
-(defun list-length= (list1 list2)
-  (check-type list1 list)
-  (check-type list2 list)
-  (do ((lst1 list1 (rest lst1))
-       (lst2 list2 (rest lst2)))
-      ((or (endp lst1) (endp lst2))
-       (and (endp lst1) (endp lst2)))))

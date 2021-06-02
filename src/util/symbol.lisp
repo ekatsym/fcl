@@ -1,9 +1,9 @@
 (defpackage fcl.util.symbol
-  (:nicknames :fcl.u.symbol)
   (:use :common-lisp)
-  (:export
+  (:import-from
+    :fcl.util
     #:symbolicate))
-(in-package :fcl.u.symbol)
+(in-package :fcl.util.symbol)
 
 
 (defun symbolicate (&rest things)

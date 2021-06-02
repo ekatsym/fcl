@@ -1,14 +1,10 @@
-(defpackage fcl.generics.applicative
-  (:nicknames :fcl.g.applicative :fcl.applicative)
-  (:use
-    :common-lisp
-    :fcl.generics.functor)
+(defpackage fcl.applicative
+  (:nicknames :fcl.generics.applicative :fcl.ap)
+  (:use :common-lisp :fcl.functor)
   (:export
-    #:fmap
-    #:unit
-    #:amap
+    #:unit #:fmap #:amap
     #:define-fmap-by-applicative))
-(in-package :fcl.generics.applicative)
+(in-package :fcl.applicative)
 
 
 (defgeneric unit (class a)

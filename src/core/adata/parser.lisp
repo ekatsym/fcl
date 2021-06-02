@@ -1,8 +1,5 @@
-(defpackage fcl.data.parser
-  (:nicknames :fcl.d.parser)
-  (:use
-    :common-lisp
-    :fcl.d.util)
+(defpackage fcl.adata.parser
+  (:use :common-lisp fcl.adata.util)
   (:import-from
     :fcl.util
     #:index
@@ -15,7 +12,7 @@
   (:export
     #:parse-constructor
     #:parse-printer))
-(in-package :fcl.d.parser)
+(in-package :fcl.adata.parser)
 
 ;;; Constructor Parser
 (defun parse-constructor (constructor data-name)

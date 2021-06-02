@@ -1,8 +1,5 @@
 (defpackage fcl.match.parser
-  (:nicknames :fcl.ma.parser)
-  (:use
-    :common-lisp
-    :fcl.match.util)
+  (:use :common-lisp :fcl.match.util)
   (:import-from
     :fcl.util
     #:nlist?
@@ -18,7 +15,7 @@
     #:force
     #:promise)
   (:import-from
-    :fcl.data
+    :fcl.adata
     #:algebraic-datatype)
   (:export
     #:parse-clause))

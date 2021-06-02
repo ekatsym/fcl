@@ -1,5 +1,4 @@
 (defpackage fcl.match.util
-  (:nicknames :fcl.ma.util)
   (:use :common-lisp)
   (:import-from
     :fcl.util
@@ -8,7 +7,7 @@
   (:export
     #:*standard-atomic-type-specifiers*
     #:make-parameters))
-(in-package :fcl.ma.util)
+(in-package :fcl.match.util)
 
 
 (defparameter *standard-atomic-type-specifiers*

@@ -1,10 +1,10 @@
 (defpackage fcl.util.function
-  (:nicknames :fcl.u.function :fcl.u.f)
   (:use :common-lisp)
   (:import-from
-    :fcl.u.list
+    :fcl.util.list
     #:insert-at)
-  (:export
+  (:import-from
+    :fcl.util
     #:compose
     #:partial
     #:rpartial

@@ -1,31 +1,22 @@
-(defpackage fcl.datatypes.maybe
-  (:nicknames :fcl.dt.maybe :fcl.maybe)
-  (:use
-    :common-lisp
-    :fcl.generics.monad-plus)
+(defpackage fcl.maybe
+  (:nicknames :fcl.data.maybe :fcl.mb)
+  (:use :common-lisp :fcl.monad-plus)
   (:import-from
-    :fcl.data
+    :fcl.adata
     #:defdata)
   (:import-from
     :fcl.match
     #:ematch)
   (:export
-    #:maybe
-    #:just
-    #:nothing
-
-    #:fmap
-    #:unit
-    #:amap
-    #:mmap
-    #:mlet
-    #:mprogn
-    #:mdo
-    #:mzero
-    #:mplus
-    #:msum
-    #:guard))
-(in-package :fcl.datatypes.maybe)
+    #:maybe #:nothing #:just
+    #:unit #:fmap #:amap #:mmap
+    #:mlet #:mprogn #:mdo
+    #:define-fmap-by-applicative
+    #:define-fmap-by-monad
+    #:define-amap-by-monad
+    #:guard
+    #:mzero #:mplus #:msum))
+(in-package :fcl.maybe)
 
 
 ;;; Definition
