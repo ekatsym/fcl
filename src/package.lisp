@@ -22,7 +22,6 @@
     :fcl.list
     :fcl.vector
     :fcl.array
-    :fcl.llist
     :fcl.queue
     :fcl.function
     :fcl.reader
@@ -54,26 +53,6 @@
     #:lc
     #:vc
     #:ac
-    #:llist #:lnil #:lcons
-    #:lapply
-    #:lconsp #:lnull #:lendp
-    #:lcar #:lcdr
-    #:lfirst #:lrest
-    #:lconsf #:ladjoin
-    #:lnth #:lnthcdr #:llast #:lbutlast
-    #:lappend #:lreverse #:lrevappend
-    #:llength
-    #:lcount #:lcount-if #:lcount-if-not
-    #:lremove #:lremove-if #:lremove-if-not
-    #:lsubstitute #:lsubstitute-if #:lsubstitute-if-not
-    #:lfind #:lfind-if #:lfind-if-not
-    #:lmember #:lmember-if #:lmember-if-not
-    #:lposition #:lposition-if #:lposition-if-not
-    #:lmapc #:lmapcar #:lmapcan
-    #:lmapl #:lmaplist #:lmapcon
-    #:lsearch #:lmismatch
-    #:lsort #:lstable-sort
-    #:llc
     #:queue
     #:enqueue
     #:dequeue))

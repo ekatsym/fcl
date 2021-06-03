@@ -5,19 +5,11 @@
     :fcl.util
     #:index)
   (:export
-    #:vc
-
-    ;; monad-plus
-    #:guard
-    #:mmap
+    #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
-    #:define-fmap-by-monad #:define-amap-by-monad
-    #:unit #:amap
-    #:define-fmap-by-applicative
-    #:fmap
     #:mzero #:mplus #:msum
-
-    ;; foldable
+    #:guard
+    #:vc
     #:foldr #:foldr+ #:unfoldr #:unfoldr+
     #:foldl #:foldl+ #:unfoldl #:unfoldl+
     #:lfoldr #:lfoldr+
@@ -26,8 +18,7 @@
 (in-package :fcl.vector)
 
 
-;;; Methods
-;; FOLDABLE
+;;; FOLDABLE
 (defmethod foldr (a&x->x x0 (as vector))
   (check-type a&x->x function)
   (do ((x x0 (funcall a&x->x (aref as i) x))
@@ -117,11 +108,9 @@
   (define-unfoldl+ simple-base-string))
 
 ;;; MONAD-PLUS
-(define-fmap-by-monad vector)
-
 (macrolet ((define-unit (classname)
              `(defmethod unit ((class (eql ',classname)) a)
-                (coerce (vector a) ',classname))))
+                (coerce (vector a) ',classname))))  
   (define-unit vector)
   (define-unit simple-vector)
   (define-unit bit-vector)
@@ -130,6 +119,8 @@
   (define-unit simple-string)
   (define-unit base-string)
   (define-unit simple-base-string))
+
+(define-fmap-by-monad vector)
 
 (define-amap-by-monad vector)
 
@@ -159,3 +150,16 @@
   (typecase monoid1
     (string (concatenate 'string monoid1 monoid2))
     (vector (concatenate 'vector monoid1 monoid2))))
+
+
+;;; Vector Comprehension
+(defmacro vc (element &body clauses)
+  `(mdo ,@(mapcar (lambda (clause)
+                    (if (listp clause)
+                        (case (first clause)
+                          ((:in :let) clause)
+                          (otherwise `(guard 'vector ,clause)))
+                        `(guard 'vector ,clause)))
+                  clauses)
+        (unit 'vector ,element)))
+

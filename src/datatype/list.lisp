@@ -14,9 +14,6 @@
   (:export
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
-    #:define-fmap-by-applicative
-    #:define-fmap-by-monad
-    #:define-amap-by-monad
     #:guard
     #:lc
     #:mzero #:mplus #:msum
@@ -136,20 +133,12 @@
     (rec as (delay x0))))
 
 ;;; MONAD-PLUS
-(defmethod fmap (a->b (a* list))
-  (check-type a->b function)
-  (mapcar a->b a*))
-
 (defmethod unit ((class (eql 'list)) a)
   (list a))
 
-(defmethod amap (a->*b (a* list))
-  (check-type a->*b list)
-  (foldr (lambda (a->b b*)
-           (check-type a->b function)
-           (foldr (lambda (a bs) (cons (funcall a->b a) bs)) b* a*))
-         '()
-         a->*b))
+(define-fmap-by-monad list)
+
+(define-amap-by-monad list)
 
 (defmethod mmap (a->b* (a* list))
   (check-type a->b* function)
@@ -175,3 +164,4 @@
                         `(guard 'list ,clause)))
                   clauses)
         (unit 'list ,element)))
+

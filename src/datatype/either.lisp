@@ -11,10 +11,8 @@
     #:either #:left #:right
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
-    #:define-fmap-by-applicative
-    #:define-fmap-by-monad #:define-amap-by-monad
-    #:guard
-    #:mzero #:mplus #:msum))
+    #:mzero #:mplus #:msum
+    #:guard))
 (in-package :fcl.either)
 
 
@@ -24,23 +22,13 @@
   (right t))
 
 
-;;; Methods
-(defmethod fmap (a->b (a* either))
-  (check-type a->b function)
-  (ematch a*
-    ((left _)  a*)
-    ((right a) (right (funcall a->b a)))))
-
+;;; MONAD-PLUS
 (defmethod unit ((class (eql 'either)) a)
   (right a))
 
-(defmethod amap (a->*b (a* either))
-  (check-type a->*b either)
-  (ematch a->*b
-    ((left _)     a->*b)
-    ((right a->b) (ematch a*
-                    ((left _)  a*)
-                    ((right a) (right (funcall a->b a)))))))
+(define-fmap-by-monad either)
+
+(define-amap-by-monad either)
 
 (defmethod mmap (a->b* (a* either))
   (check-type a->b* function)
@@ -53,8 +41,8 @@
 
 (defmethod mplus ((monoid1 either) monoid2)
   (check-type monoid2 either)
-  (ematch monoid1
-    ((left _)   monoid2)
-    ((right a1) (ematch monoid2
-                  ((left _)   monoid1)
-                  ((right a2) (right (mplus a1 a2)))))))
+  (ematch (cons monoid1 monoid2)
+    ((cons (left _) _)            monoid2)
+    ((cons _ (left _))            monoid1)
+    ((cons (right a1) (right a2)) (right (mplus a1 a2)))))
+
