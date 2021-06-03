@@ -71,8 +71,10 @@
 
 ;;; MONAD-PLUS
 (defmethod unit ((class (eql 'array)) a)
-  (let ((dims (cons 1 (array-dimensions a))))
-    (make-array dims :displaced-to a)))
+  (typecase a
+    (array (let ((dims (cons 1 (array-dimensions a))))
+             (make-array dims :displaced-to a)))
+    (otherwise (make-array 1 :initial-element a))))
 
 (define-fmap-by-monad array)
 
@@ -106,3 +108,4 @@
           (setf (row-major-aref acc (+ i j))
                 (row-major-aref monoid j)))
         (incf i (array-total-size monoid))))))
+
