@@ -146,10 +146,12 @@
   (define-mzero simple-base-string))
 
 (defmethod mplus ((monoid1 vector) monoid2)
-  (check-type monoid2 vector)
-  (typecase monoid1
-    (string (concatenate 'string monoid1 monoid2))
-    (vector (concatenate 'vector monoid1 monoid2))))
+  (check-type monoid2 array)
+  (etypecase monoid2
+    (vector (typecase monoid1
+              (string (concatenate 'string monoid1 monoid2))
+              (vector (concatenate 'vector monoid1 monoid2))))
+    (array  (call-next-method))))
 
 
 ;;; Vector Comprehension
