@@ -25,9 +25,9 @@
        (i (1- (length as)) (1- i)))
       ((<= i -1) x)))
 
-(defmethod foldr+ (as&x->x x0 (as vector))
+(defmethod foldr+ (a&as&x->x x0 (as vector))
   (check-type as&x->x function)
-  (do ((x x0 (funcall as&x->x (subseq as i) x))
+  (do ((x x0 (funcall a&as&x->x (aref as i) (subseq as (1+ i)) x))
        (i (1- (length as)) (1- i)))
       ((<= i -1) x)))
 
@@ -69,9 +69,9 @@
        (len (length as)))
       ((>= i len) x)))
 
-(defmethod foldl+ (x&as->x x0 (as vector))
+(defmethod foldl+ (x&a&as->x x0 (as vector))
   (check-type x&as->x function)
-  (do ((x x0 (funcall x&as->x x (subseq as i)))
+  (do ((x x0 (funcall x&a&as->x x (aref as i) (subseq as (1+ i))))
        (i 0 (1+ i))
        (len (length as)))
       ((>= i len) x)))
