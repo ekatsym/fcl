@@ -22,7 +22,7 @@
          (first-dim (first dims))
          (rest-dims (rest dims))
          (total-size (array-total-size as)))
-    (do ((x x0 (funcall a&x->x 
+    (do ((x x0 (funcall a&x->x
                         (make-array rest-dims
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
@@ -42,13 +42,12 @@
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
                                                                (/ i first-dim)))
-                        (make-array (cons c rest-dims)
+                        (make-array (cons (- first-dim i) rest-dims)
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
-                                                               (/ (1+ i) first-dim)))
+                                                               (/ (- first-dim i) first-dim)))
                         x))
-         (i (1- first-dim) (1- i))
-         (c 0 (1+ c)))
+         (i (1- first-dim) (1- i)))
         ((<= i -1) x))))
 
 (defmethod unfoldr ((class (eql 'array)) x->? x->a x->x x)
@@ -99,6 +98,40 @@
                   :displaced-to as0
                   :displaced-index-offset (* i (/ (array-total-size as0)
                                                   (array-dimension as0 0)))))))))
+
+(defmethod foldl (x&a->x x0 (as array))
+  (check-type x&a->x function)
+  (let* ((dims (array-dimensions as))
+         (first-dim (first dims))
+         (rest-dims (rest dims))
+         (total-size (array-total-size as)))
+    (do ((x x0 (funcall x&a->x
+                        x
+                        (make-array rest-dims
+                                    :displaced-to as
+                                    :displaced-index-offset (* total-size
+                                                               (/ i first-dim)))))
+         (i 0 (1+ i)))
+        ((>= i first-dim) x))))
+
+(defmethod foldl+ (x&a&as->x x0 (as array))
+  (check-type x&a&as->x function)
+  (let* ((dims (array-dimensions as))
+         (first-dim (first dims))
+         (rest-dims (rest dims))
+         (total-size (array-total-size as)))
+    (do ((x x0 (funcall x&a&as->x
+                        x
+                        (make-array rest-dims
+                                    :displaced-to as
+                                    :displaced-index-offset (* total-size
+                                                               (/ i first-dim)))
+                        (make-array (cons (- first-dim i) rest-dims)
+                                    :displaced-to as
+                                    :displaced-index-offset (* total-size
+                                                               (/ (- first-dim i) first-dim)))))
+         (i 0 (1+ i)))
+        ((>= i first-dim) x))))
 
 
 ;;; MONAD-PLUS
