@@ -69,6 +69,37 @@
             (incf i (array-total-size a))))
         (coerce as-list 'vector))))
 
+(defmethod unfoldr+ ((class (eql 'array)) x->? x->a x->x as0 x)
+  (check-type x->? function)
+  (check-type x->a function)
+  (check-type x->x function)
+  (check-type as0 array)
+  (let* ((as-list (unfoldr 'list x->? (compose #'%ensure-array x->a) x->x x)))
+    (if (and (every #'arrayp as-list)
+             (every (lambda (a) (equal (array-dimensions a)
+                                       (rest (array-dimensions as0))))
+                    as-list))
+        (let* ((as (make-array (cons (+ (length as-list) (array-dimension as0 0))
+                                     (array-dimensions (first as-list)))))
+               (i 0))
+          (dolist (a as-list)
+            (dotimes (j (array-total-size a))
+              (setf (row-major-aref as (+ i j))
+                    (row-major-aref a j)))
+            (incf i (array-total-size a)))
+          (dotimes (j (array-total-size as0) as)
+            (setf (row-major-aref as (+ i j))
+                  (row-major-aref as0 j))))
+        (concatenate
+          'vector
+          as-list
+          (loop for i below (array-dimension as0 0) collect
+                (make-array
+                  (rest (array-dimensions as0))
+                  :displaced-to as0
+                  :displaced-index-offset (* i (/ (array-total-size as0)
+                                                  (array-dimension as0 0)))))))))
+
 
 ;;; MONAD-PLUS
 (defmethod unit ((class (eql 'array)) a)
