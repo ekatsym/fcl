@@ -26,7 +26,7 @@
       ((<= i -1) x)))
 
 (defmethod foldr+ (a&as&x->x x0 (as vector))
-  (check-type as&x->x function)
+  (check-type a&as&x->x function)
   (do ((x x0 (funcall a&as&x->x (aref as i) (subseq as (1+ i)) x))
        (i (1- (length as)) (1- i)))
       ((<= i -1) x)))
@@ -70,7 +70,7 @@
       ((>= i len) x)))
 
 (defmethod foldl+ (x&a&as->x x0 (as vector))
-  (check-type x&as->x function)
+  (check-type x&a&as->x function)
   (do ((x x0 (funcall x&a&as->x x (aref as i) (subseq as (1+ i))))
        (i 0 (1+ i))
        (len (length as)))

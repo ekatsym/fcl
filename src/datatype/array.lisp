@@ -73,7 +73,7 @@
   (check-type x->a function)
   (check-type x->x function)
   (check-type as0 array)
-  (let* ((as-list (unfoldr 'list x->? (compose #'%ensure-array x->a) x->x x)))
+  (let* ((as-list (unfoldr 'list x->? x->a x->x x)))
     (if (and (every #'arrayp as-list)
              (every (lambda (a) (equal (array-dimensions a)
                                        (rest (array-dimensions as0))))
