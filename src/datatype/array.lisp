@@ -126,10 +126,10 @@
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
                                                                (/ i first-dim)))
-                        (make-array (cons (- first-dim i) rest-dims)
+                        (make-array (cons (- first-dim i 1) rest-dims)
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
-                                                               (/ (- first-dim i) first-dim)))))
+                                                               (/ (- first-dim i 1) first-dim)))))
          (i 0 (1+ i)))
         ((>= i first-dim) x))))
 
