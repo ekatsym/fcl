@@ -43,10 +43,10 @@
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
                                                                (/ i first-dim)))
-                        (make-array (cons (- first-dim i) rest-dims)
+                        (make-array (cons (- first-dim i 1) rest-dims)
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
-                                                               (/ (- first-dim i) first-dim)))
+                                                               (/ (1+ i) first-dim)))
                         x))
          (i (1- first-dim) (1- i)))
         ((<= i -1) x))))
@@ -130,7 +130,7 @@
                         (make-array (cons (- first-dim i 1) rest-dims)
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
-                                                               (/ (- first-dim i 1) first-dim)))))
+                                                               (/ (1+ i) first-dim)))))
          (i 0 (1+ i)))
         ((>= i first-dim) x))))
 
@@ -186,8 +186,85 @@
 
 (defmethod lfoldr (a&$x->x x0 (as array))
   (check-type a&$x->x function)
+  (let* ((dims (array-dimensions as))
+         (first-dim (first dims))
+         (rest-dims (rest dims))
+         (total-size (array-total-size as)))
+    (labels ((rec (i)
+               (if (>= i first-dim)
+                   x0
+                   (funcall a&$x->x
+                            (make-array rest-dims
+                                        :displaced-to as
+                                        :displaced-index-offset (* total-size
+                                                                   (/ i first-dim)))
+                            (delay (rec (1+ i)))))))
+      (rec 0))))
 
-  )
+(defmethod lfoldr+ (a&as&$x->x x0 (as array))
+  (check-type a&as&$x->x function)
+  (let* ((dims (array-dimensions as))
+         (first-dim (first dims))
+         (rest-dims (rest dims))
+         (total-size (array-total-size as)))
+    (labels ((rec (i)
+               (if (>= i first-dim)
+                   x0
+                   (funcall a&as&$x->x
+                            (make-array rest-dims
+                                        :displaced-to as
+                                        :displaced-index-offset (* total-size
+                                                                   (/ i first-dim)))
+                            (make-array (cons (- first-dim i 1) rest-dims)
+                                        :displaced-to as
+                                        :displaced-index-offset (* total-size
+                                                                   (/ (1+ i) first-dim)))
+                            (delay (rec (1+ i)))))))
+      (rec 0))))
+
+(defmethod lfoldl ($x&a->x x0 (as array))
+  (check-type $x&a->x function)
+  (let* ((dims (array-dimensions as))
+         (first-dim (first dims))
+         (rest-dims (rest dims))
+         (total-size (array-total-size as)))
+    (labels ((rec (i $x)
+               (if (>= i first-dim)
+                   (force $x)
+                   (rec (1+ i)
+                        (delay
+                          (funcall
+                            $x&a->x
+                            $x
+                            (make-array rest-dims
+                                        :displaced-to as
+                                        :displaced-index-offset (* total-size
+                                                                   (/ i first-dim)))))))))
+      (rec 0 (delay x0)))))
+
+(defmethod lfoldl+ ($x&a&as->x x0 (as array))
+  (check-type $x&a&as->x function)
+  (let* ((dims (array-dimensions as))
+         (first-dim (first dims))
+         (rest-dims (rest dims))
+         (total-size (array-total-size as)))
+    (labels ((rec (i $x)
+               (if (>= i first-dim)
+                   (force $x)
+                   (rec (1+ i)
+                        (delay
+                          (funcall
+                            $x&a&as->x
+                            $x
+                            (make-array rest-dims
+                                        :displaced-to as
+                                        :displaced-index-offset (* total-size
+                                                                   (/ i first-dim)))
+                            (make-array (cons (- first-dim i 1) rest-dims)
+                                        :displaced-to as
+                                        :displaced-index-offset (* total-size
+                                                                 (/ (1+ i) first-dim)))))))))
+      (rec 0 (delay x0)))))
 
 
 ;;; MONAD-PLUS
