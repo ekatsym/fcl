@@ -38,10 +38,6 @@
 
 (defgeneric lfoldl+ ($x&a&as->x x0 as))
 
-(defgeneric lfoldt (a&$xs->x x0 at))
-
-(defgeneric lfoldt+ (a&ats$xs->x x0 at))
-
 
 ;;; Scans
 (defun scanr (a&x->x x0 as)
