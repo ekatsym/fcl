@@ -1,9 +1,10 @@
 (defpackage fcl.foldable
   (:nicknames :fcl.generics.foldable :fcl.fd)
-  (:use :common-lisp)
+  (:use :common-lisp :fcl.lazy)
   (:export
     #:foldr #:foldr+ #:unfoldr #:unfoldr+
     #:foldl #:foldl+ #:unfoldl #:unfoldl+
+    #:delay #:force
     #:lfoldr #:lfoldr+
     #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+))
