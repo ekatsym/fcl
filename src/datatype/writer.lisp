@@ -10,7 +10,7 @@
     #:ematch)
   (:export
     #:writer #:get-message #:get-value
-    #:setw #:getw #:modw
+    #:setwt #:getwt #:modwt
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo))
 (in-package :fcl.writer)
@@ -133,15 +133,15 @@
     ((%queue _ value)
      value)))
 
-(defun setw (w)
+(defun setwt (w)
   (check-type w sequence)
   (%writer (list->queue (coerce w 'list)) nil))
 
-(defun getw (writer)
+(defun getwt (writer)
   (ematch writer
     ((%writer w a) (%writer w (list a (queue->list w))))))
 
-(defun modw (writer)
+(defun modwt (writer)
   (ematch writer
     ((%writer w (list f a)) (%writer (funcall f w) a))))
 

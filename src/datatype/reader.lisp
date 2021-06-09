@@ -8,7 +8,7 @@
     :fcl.match
     #:ematch)
   (:export
-    #:reader #:run-reader #:getr #:local
+    #:reader #:run-reader #:getrd #:local
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo))
 (in-package :fcl.reader)
@@ -22,7 +22,7 @@
   (check-type reader reader)
   (funcall (%reader%0 reader) r))
 
-(defun getr ()
+(defun getrd ()
   (%reader #'identity))
 
 (defun local (r->r a*)
