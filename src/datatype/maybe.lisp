@@ -39,8 +39,7 @@
 (defmethod mzero ((class (eql 'maybe)))
   (nothing))
 
-(defmethod mplus ((monoid1 maybe) monoid2)
-  (check-type monoid2 maybe)
+(defmethod mplus ((monoid1 maybe) (monoid2 maybe))
   (ematch (cons monoid1 monoid2)
     ((cons (nothing) _)         monoid2)
     ((cons _ (nothing))         monoid1)

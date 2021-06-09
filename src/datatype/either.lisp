@@ -39,8 +39,7 @@
 (defmethod mzero ((class (eql 'either)))
   (left nil))
 
-(defmethod mplus ((monoid1 either) monoid2)
-  (check-type monoid2 either)
+(defmethod mplus ((monoid1 either) (monoid2 either))
   (ematch (cons monoid1 monoid2)
     ((cons (left _) _)            monoid2)
     ((cons _ (left _))            monoid1)

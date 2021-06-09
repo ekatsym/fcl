@@ -68,8 +68,7 @@ MMAP must satisfy the rules:
        (unit ',class (funcall a->b a)))))
 
 (defmacro define-amap-by-monad (class)
-  `(defmethod amap (a->*b (a* ,class))
-     (check-type a->*b ,class)
+  `(defmethod amap ((a->*b ,class) (a* ,class))
      (mlet ((a->b a->*b)
             (a a*))
        (check-type a->b function)

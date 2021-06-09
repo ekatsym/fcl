@@ -147,8 +147,7 @@
 (defmethod mzero ((class (eql 'list)))
   '())
 
-(defmethod mplus ((monoid1 list) monoid2)
-  (check-type monoid2 list)
+(defmethod mplus ((monoid1 list) (monoid2 list))
   (append monoid1 monoid2))
 
 

@@ -294,8 +294,7 @@
 (defmethod mzero ((class (eql 'array)))
   (make-array '() :initial-element nil))
 
-(defmethod mplus ((monoid1 array) monoid2)
-  (check-type monoid2 array)
+(defmethod mplus ((monoid1 array) (monoid2 array))
   (let* ((dims1 (array-dimensions monoid1))
          (dims2 (array-dimensions monoid2)))
     (assert (equal (rest dims1) (rest dims2)) (monoid1 monoid2))
