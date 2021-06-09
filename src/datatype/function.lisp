@@ -7,7 +7,7 @@
 (in-package :fcl.function)
 
 
-;;; MONAD-PLUS
+;;; MONAD
 (defmethod unit ((class (eql 'function)) a)
   (constantly a))
 
