@@ -51,6 +51,6 @@
     #:lc
     #:vc
     #:ac
-    #:reader #:run-reader #:getr #:local
-    #:writer #:run-writer
-    #:setw #:getw #:modw))
+    #:reader #:run-reader #:getrd #:local
+    #:writer #:run-writer #:setw #:getw #:modw
+    #:state #:run-state #:getst #:setst #:dost))
