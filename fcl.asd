@@ -4,7 +4,7 @@
   :license "LLGPL"
   :components ((:module "src"
                 :components
-                ((:module "package"     :depends-on ("core" "generics" "datatype"))
+                ((:file "package"       :depends-on ("core" "generics" "datatype"))
                  (:module "core"        :depends-on ("util")
                   :components
                   ((:file "lazy")
@@ -34,7 +34,6 @@
                    (:file "list")
                    (:file "vector")
                    (:file "array")
-                   (:file "queue")
                    (:file "function")
                    (:file "reader")
                    (:file "writer")
