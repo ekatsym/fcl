@@ -3,7 +3,7 @@
     :common-lisp
     ;; core
     :fcl.adata
-    :fcl.delay
+    :fcl.lazy
     :fcl.match
 
     ;; generics
@@ -12,7 +12,6 @@
     :fcl.monad
     :fcl.monoid
     :fcl.monad-plus
-    :fcl.recursive
     :fcl.foldable
 
     ;; data
@@ -22,7 +21,6 @@
     :fcl.list
     :fcl.vector
     :fcl.array
-    :fcl.queue
     :fcl.function
     :fcl.reader
     :fcl.writer
