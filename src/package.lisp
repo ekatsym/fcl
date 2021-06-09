@@ -51,6 +51,4 @@
     #:lc
     #:vc
     #:ac
-    #:queue
-    #:enqueue
-    #:dequeue))
+    #:reader #:run-reader #:ask #:local))
