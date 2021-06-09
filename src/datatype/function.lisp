@@ -1,13 +1,20 @@
 (defpackage fcl.function
   (:nicknames :fcl.data.function :fcl.fn)
-  (:use :common-lisp :fcl.monad-plus)
+  (:use :common-lisp :fcl.monad)
   (:export
-    ;; monad-plus
     #:unit #:fmap #:amap #:mmap
-    #:mlet #:mprogn #:mdo
-    #:define-fmap-by-applicative
-    #:define-fmap-by-monad
-    #:define-amap-by-monad
-    #:guard
-    #:mzero #:mplus #:msum))
+    #:mlet #:mprogn #:mdo))
 (in-package :fcl.function)
+
+
+;;; MONAD-PLUS
+(defmethod unit ((class (eql 'function)) a)
+  (constantly a))
+
+(define-fmap-by-monad function)
+
+(define-amap-by-monad function)
+
+(defmethod mmap (a->b* (a* function))
+  (check-type a->b* function)
+  (lambda (s) (funcall (funcall a->b* (funcall a* s)) s)))
