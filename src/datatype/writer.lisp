@@ -9,7 +9,7 @@
     #:match
     #:ematch)
   (:export
-    #:writer #:get-message #:get-value
+    #:writer #:run-writer
     #:setwt #:getwt #:modwt
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo))
@@ -123,15 +123,10 @@
 (defdata writer
   (%writer queue t))
 
-(defun get-message (writer)
+(defun run-writer (writer)
   (ematch writer
-    ((%queue message _)
-     message)))
-
-(defun get-value (writer)
-  (ematch writer
-    ((%queue _ value)
-     value)))
+    ((%writer message value)
+     (values message value))))
 
 (defun setwt (w)
   (check-type w sequence)

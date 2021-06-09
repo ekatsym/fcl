@@ -52,5 +52,5 @@
     #:vc
     #:ac
     #:reader #:run-reader #:getr #:local
-    #:writer #:get-message #:get-value
+    #:writer #:run-writer
     #:setw #:getw #:modw))
