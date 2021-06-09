@@ -19,8 +19,9 @@
   (%reader function))
 
 (defun run-reader (reader r)
-  (check-type reader reader)
-  (funcall (%reader%0 reader) r))
+  (ematch reader
+    ((%reader reader)
+     (funcall reader r))))
 
 (defun getrd ()
   (%reader #'identity))
@@ -31,6 +32,10 @@
   (%reader
     (lambda (r)
       (run-reader a* (funcall r->r r)))))
+
+(defun dord (expression)
+  (declare (ignore expression))
+  (unit 'reader nil))
 
 
 ;;; MONAD
