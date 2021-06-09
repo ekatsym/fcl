@@ -10,7 +10,7 @@
     #:ematch)
   (:export
     #:writer #:run-writer
-    #:setwt #:getwt #:modwt
+    #:setwt #:getwt #:dowt
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo))
 (in-package :fcl.writer)
@@ -110,7 +110,7 @@
 (defun queue->list (queue)
   (check-type queue queue)
   (ematch queue
-    ((%queue head tail)
+    ((%queue _ head _ tail)
      (append (llist->list head) (reverse (llist->list tail))))))
 
 (defun list->queue (list)
@@ -121,30 +121,30 @@
 
 ;;; Definition
 (defdata writer
-  (%writer queue t))
+  (%writer t queue))
 
-(defun run-writer (writer)
-  (ematch writer
-    ((%writer message value)
-     (values message value))))
+(defun run-writer (writer w)
+  (ematch (mdo (setwt w) writer)
+    ((%writer value message)
+     (values value (queue->list message)))))
 
 (defun setwt (w)
   (check-type w sequence)
-  (%writer (list->queue (coerce w 'list)) nil))
+  (%writer nil (list->queue (coerce w 'list))))
 
 (defun getwt (writer)
   (ematch writer
-    ((%writer w a) (%writer w (list a (queue->list w))))))
+    ((%writer a w)
+     (%writer (list a (queue->list w)) w))))
 
-(defun modwt (writer)
-  (ematch writer
-    ((%writer w (list f a)) (%writer (funcall f w) a))))
-
+(defun dowt (writer expression)
+  (declare (ignore expression))
+  writer)
 
 
 ;;; MONAD
 (defmethod unit ((class (eql 'writer)) a)
-  (%writer (empty) a))
+  (%writer a (empty)))
 
 (define-fmap-by-monad writer)
 
@@ -153,7 +153,7 @@
 (defmethod mmap (a->b* (a* writer))
   (check-type a->b* function)
   (ematch a*
-    ((%writer w0 a)
+    ((%writer a w0)
      (ematch (funcall a->b* a)
-       ((%writer w1 b)
-        (%writer (qappend w0 w1) b))))))
+       ((%writer b w1)
+        (%writer b (qappend w0 w1)))))))
