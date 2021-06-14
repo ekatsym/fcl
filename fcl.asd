@@ -54,11 +54,12 @@
   :depends-on ("fcl" "rove")
   :components ((:module "tests"
                         :components
-                        ((:module "datatypes"
+                        ((:file "util")
+                         (:module "datatype"  :depends-on ("util")
                           :components
-                          ((:file "maybe")
+                          ((:file "promise")
+                           (:file "maybe")
                            (:file "either")
-                           (:file "package" :depends-on ("maybe" "either"))))
-                         (:file "package" :depends-on ("datatypes")))))
+                           (:file "package" :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
   :perform (test-op (op c) (symbol-call :rove :run c)))

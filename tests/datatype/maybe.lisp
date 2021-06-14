@@ -11,7 +11,7 @@
 (in-package :fcl/tests.datatypes.maybe)
 
 
-(deftest match
+(deftest matching
   (testing "NOTHING"
     (ok (match (nothing)
           ((nothing) t)
