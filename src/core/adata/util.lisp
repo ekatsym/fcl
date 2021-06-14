@@ -13,7 +13,7 @@
   "Returns a list of parameters whose size is N like (%0 %1 ... %N)."
   (check-type n index)
   (loop :for i :from 0 :below n
-        :collect (symbolicate "%" (write-to-string i))))
+        :collect (intern (concatenate 'string "%" (write-to-string i)) :fcl.adata.util)))
 
 (defun lazy-type-specifier-p (specifier)
   "Test whether SPECIFIER is (:LAZY <CL type specifier>) or not."

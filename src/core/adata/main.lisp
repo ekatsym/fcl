@@ -5,8 +5,12 @@
     :fcl.util
     #:rpartial
     #:proper-list)
+  (:import-from
+    :fcl.lazy
+    #:promise
+    #:force)
   (:export
-    #:algebraic-data
+    #:algebraic-datatype
     #:defdata
     #:data=))
 (in-package :fcl.adata)
@@ -31,6 +35,18 @@
      ',name))
 
 (defun data= (data1 data2)
-  (check-type data1 algebraic-datatype)
-  (check-type data2 algebraic-datatype)
-  (equalp data1 data2))
+  (if (eq (class-of data1) (class-of data2))
+      (typecase data1
+        (promise
+          (data= (force data1) (force data2)))
+        (algebraic-datatype
+          (let ((parameters1 (make-parameters (slot-value data1 'arity)))
+                (parameters2 (make-parameters (slot-value data2 'arity))))
+            (every (lambda (p1 p2)
+                     (data= (slot-value data1 p1)
+                            (slot-value data2 p2)))
+                   parameters1
+                   parameters2)))
+        (otherwise
+          (equal data1 data2)))
+      nil))

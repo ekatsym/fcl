@@ -26,7 +26,7 @@
     :fcl.writer
     :fcl.state)
   (:export
-    #:algebraic-data
+    #:algebraic-datatype
     #:defdata
     #:data=
     #:promise #:delay #:force

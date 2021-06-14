@@ -11,7 +11,8 @@
     #:promise)
   (:export
     #:parse-constructor
-    #:parse-printer))
+    #:parse-printer
+    #:arity))
 (in-package :fcl.adata.parser)
 
 ;;; Constructor Parser
@@ -23,9 +24,10 @@
 
 (defun parse-strict-constructor (constructor data-name)
   "PARSE-CONSTRUCTOR for strict evaluation."
-  (let ((constructor-name (first constructor))
-        (types (remove :lazy (rest constructor)))
-        (parameters (make-parameters (length (remove :lazy (rest constructor))))))
+  (let* ((constructor-name (first constructor))
+         (types (remove :lazy (rest constructor)))
+         (arity (length types))
+         (parameters (make-parameters arity)))
     `(defstruct (,constructor-name (:conc-name ,constructor-name)
                                    (:constructor ,constructor-name ,parameters)
                                    (:copier nil)
@@ -34,14 +36,16 @@
        ,@(mapcar (lambda (type parameter)
                    `(,parameter ,parameter :type ,type :read-only t))
                  types
-                 parameters))))
+                 parameters)
+       (arity ,arity :type (integer 0 *) :read-only t))))
 
 (defun parse-lazy-constructor (constructor data-name)
   "PARSE-CONSTRUCTOR for lazy evaluation."
   (let* ((constructor-name (first constructor))
          (%constructor-name (symbolicate "%" constructor-name (write-to-string (random 1000000000000))))
          (types (rest constructor))
-         (parameters (make-parameters (length (rest constructor))))
+         (arity (length types))
+         (parameters (make-parameters arity))
          (accessors (mapcar (lambda (parameter)
                               (symbolicate constructor-name parameter))
                             parameters)))
@@ -57,7 +61,8 @@
                          `(,parameter ,parameter :type promise :read-only t)
                          `(,parameter ,parameter :type ,type :read-only t)))
                    types
-                   parameters))
+                   parameters)
+         (arity ,arity :type (integer 0 *) :read-only t))
 
        ;; Define the constructor as macro for lazye evaluation.
        (defmacro ,constructor-name ,parameters
