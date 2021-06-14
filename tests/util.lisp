@@ -9,6 +9,8 @@
 (in-package :fcl/tests.util)
 
 
+(setq *default-reporter* :dot)
+
 (defun random-number (min max)
   (assert (<= min max) (min max)
           'simple-error
