@@ -5,7 +5,8 @@
     #:random-number
     #:random-character
     #:random-list
-    #:random-string))
+    #:random-string
+    #:random-object))
 (in-package :fcl/tests.util)
 
 
@@ -38,3 +39,11 @@
                        :random-fn #'random-number
                        :min-element #x20
                        :max-element #x7e)))
+
+(defun random-object ()
+  (case (random 5)
+    (0 (random-number (floor -1.0e6) (floor 1.0e6)))
+    (1 (random-number -1.0e6 1.0e6))
+    (2 (random-character))
+    (3 (random-list 0 1000))
+    (4 (random-string 0 1000))))

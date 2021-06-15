@@ -17,7 +17,7 @@
 
 (defun compose (function &rest more-functions)
   (let ((f1 (first (last more-functions)))
-        (fs (cons function (butlast more-functions))))
+        (fs (reverse (cons function (butlast more-functions)))))
     (lambda (&rest args)
       (reduce (lambda (acc f) (funcall f acc))
               fs
