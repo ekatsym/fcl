@@ -17,11 +17,12 @@ facility, when a `promise` object that has already been evaluated is applied to
   (case n
     ((0 1)     1)
     (otherwise (+ (fib (- n 1)) (fib (- n 2))))))
+;-> FIB
 
 (let (($x (time (delay (fib 40))))) ; (fib 40) is delayed and its promise is binded to $x
   (time (force $x))                 ; the evaluation of (fib 40) is forced
   (time (force $x)))                ; the cached value is returned
-
+;-> 165580141
 ;=> Evaluation took:
 ;=>   0.000 seconds of real time
 ;=>   0.000001 seconds of total run time (0.000001 user, 0.000000 system)
@@ -45,6 +46,36 @@ facility, when a `promise` object that has already been evaluated is applied to
 ```
 
 ### Algebraic Data Type
+The algebraic data type is a kind of composite type and consisting of direct
+sum, direct product, and recursion. It is often used with pattern matching in
+functional programming. In common lisp, a new composite type is defined as
+structure or class. In FCL, algebraic data type is implemented by structure and
+can be defined using `defdata`.  In addition, `defdata` can define lazy
+constructors.
+
+```lisp
+(defdata maybe
+  (nothing)
+  (just t))
+;-> MAYBE
+
+(nothing)
+;-> #.(NOTHING)
+
+(just 10)
+;-> #.(JUST 10)
+
+(defdata lazy-stream
+  (lazy-nil)
+  (lazy-cons (:lazy t) lazy-stream))
+;-> LAZY-STREAM
+
+(lazy-nil)
+;-> #.(LAZY-NIL)
+
+(lazy-cons 0 (lazy-cons 1 (lazy-nil)))
+;-> #.(LAZY-CONS #<PROMISE 0> #.(LAZY-CONS #<PROMISE 1> #.(LAZY-NIL)))
+```
 
 ### Pattern Matching
 
