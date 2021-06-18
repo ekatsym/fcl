@@ -52,8 +52,8 @@
                    (delay a))))))
   (testing "Composition"
     (dotimes (i 1000)
-      (let ((f (lambda (x) (+ x x)))
-            (g (lambda (x) (* x x)))
+      (let ((f (lambda (x) (* x x)))
+            (g (lambda (x) (+ x x)))
             (a (if (zerop (random 2))
                    (random-number -1000000 1000000)
                    (random-number -1.0e6 1.0e6))))
@@ -78,3 +78,27 @@
                    (random-number -1.0e6 1.0e6))))
         (ok (data= (amap (delay f) (delay a))
                    (amap (delay (lambda (f) (funcall f a))) (delay f))))))))
+
+(deftest monad
+  (testing "Left Identity"
+    (dotimes (i 1000)
+      (let ((f (lambda (x) (delay (* x x))))
+            (a (if (zerop (random 2))
+                   (random-number -1000000 1000000)
+                   (random-number -1.0e6 1.0e6))))
+        (ok (data= (mmap f (delay a))
+                   (funcall f a))))))
+  (testing "Right Identity"
+    (dotimes (i 1000)
+      (let ((a (random-object)))
+        (ok (data= (mmap (lambda (a) (delay a)) (delay a))
+                   (delay a))))))
+  (testing "Associativity"
+    (dotimes (i 1000)
+      (let ((f (lambda (x) (delay (* x x))))
+            (g (lambda (x) (delay (+ x x))))
+            (a (if (zerop (random 2))
+                   (random-number -1000000 1000000)
+                   (random-number -1.0e6 1.0e6))))
+        (ok (data= (mmap (lambda (a) (mmap g (funcall f a))) (delay a))
+                   (mmap g (mmap f (delay a)))))))))

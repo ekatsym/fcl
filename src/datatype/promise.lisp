@@ -8,7 +8,7 @@
 (in-package :fcl.promise)
 
 
-;;; MONAD-PLUS
+;;; MONAD
 (defmethod unit ((class (eql 'promise)) a)
   (delay a))
 
