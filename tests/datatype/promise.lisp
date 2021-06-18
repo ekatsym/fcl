@@ -3,7 +3,7 @@
   (:use :common-lisp :rove :fcl/tests.util :fcl.promise)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
-  (:import-from :fcl.util #:compose #:partial))
+  (:import-from :fcl.util #:compose #:partial #:curry))
 (in-package fcl/tests.promise)
 
 
@@ -27,10 +27,9 @@
         (ok (data= (fmap #'identity (delay a)) (delay a))))))
   (testing "Composition"
     (dotimes (i 1000)
-      (let ((a (random-number (floor -1.0e6) (floor 1.0e6))))
-        (ok (data= (fmap (lambda (x) (1+ (* x x))) (delay a))
-                   (fmap #'1+ (fmap (lambda (x) (* x x)) (delay a))))))
-      (let ((a (random-number -1.0e6 1.0e6)))
+      (let ((a (if (zerop (random 2))
+                   (random-number -1000000 1000000)
+                   (random-number -1.0e6 1.0e6))))
         (ok (data= (fmap (lambda (x) (1+ (* x x))) (delay a))
                    (fmap #'1+ (fmap (lambda (x) (* x x)) (delay a))))))
       (let ((a (random-character)))
@@ -44,3 +43,38 @@
                          (delay a))
                    (fmap #'reverse
                          (fmap (partial #'map 'string #'char-upcase) (delay a)))))))))
+
+(deftest applicative
+  (testing "Identity"
+    (dotimes (i 1000)
+      (let ((a (random-object)))
+        (ok (data= (amap (delay #'identity) (delay a))
+                   (delay a))))))
+  (testing "Composition"
+    (dotimes (i 1000)
+      (let ((f (lambda (x) (+ x x)))
+            (g (lambda (x) (* x x)))
+            (a (if (zerop (random 2))
+                   (random-number -1000000 1000000)
+                   (random-number -1.0e6 1.0e6))))
+        (ok (data= (amap (amap (amap (delay (curry #'compose))
+                                     (delay g))
+                               (delay f))
+                         (delay a))
+                   (amap (delay g) (amap (delay f) (delay a))))))))
+  (testing "Homomorphism"
+    (dotimes (i 1000)
+      (let ((f (lambda (x) (* x x)))
+            (a (if (zerop (random 2))
+                   (random-number -1000000 1000000)
+                   (random-number -1.0e6 1.0e6))))
+        (ok (data= (amap (delay f) (delay a))
+                   (delay (funcall f a)))))))
+  (testing "Interchange"
+    (dotimes (i 1000)
+      (let ((f (lambda (x) (* x x)))
+            (a (if (zerop (random 2))
+                   (random-number -1000000 1000000)
+                   (random-number -1.0e6 1.0e6))))
+        (ok (data= (amap (delay f) (delay a))
+                   (amap (delay (lambda (f) (funcall f a))) (delay f))))))))
