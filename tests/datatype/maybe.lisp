@@ -1,13 +1,9 @@
 (defpackage :fcl/tests.datatypes.maybe
   (:nicknames :fcl/t.dt.maybe :fcl/t.maybe)
-  (:use
-    :common-lisp
-    :rove
-    :fcl.util
-    :fcl.adata
-    :fcl.match
-    :fcl.maybe
-    :fcl.function))
+  (:use :common-lisp :rove :fcl/tests.util :fcl.maybe)
+  (:import-from :fcl.adata #:data=)
+  (:import-from :fcl.match #:match)
+  (:import-from :fcl.util #:compose #:partial #:curry))
 (in-package :fcl/tests.datatypes.maybe)
 
 
@@ -33,17 +29,19 @@
 
 (deftest functor
   (testing "Identity"
-    (let ((a (random 1.0e9)))
-      (ok (data= (fmap #'identity (nothing))
-                 (nothing)))
-      (ok (data= (fmap #'identity (just a))
-                 (just a)))))
+    (dotimes (i 1000)
+      (mlet ((a* (list (nothing) (just (random-object)))))
+        (ok (data= (fmap #'identity a*)
+                   a*))
+        '())))
   (testing "Composition"
-    (let ((a (random 1.0e9)))
-      (ok (data= (fmap (lambda (x) (1+ (* x x))) (nothing))
-                 (fmap #'1+ (fmap (lambda (x) (* x x)) (nothing)))))
-      (ok (data= (fmap (lambda (x) (1+ (* x x))) (just a))
-                 (fmap #'1+ (fmap (lambda (x) (* x x)) (just a))))))))
+    (dotimes (i 1000)
+      (mlet ((a* (list (nothing)
+                       (just (random-number -1000000 1000000))
+                       (just (random-number -1.0e6 1.0e6)))))
+        (ok (data= (fmap (lambda (x) (1+ (* x x))) a*)
+                   (fmap #'1+ (fmap (lambda (x) (* x x)) a*))))
+        '()))))
 
 (deftest applicative
   (testing "Identity"
