@@ -18,7 +18,7 @@ facility, when a `promise` object that has already been evaluated is applied to
     ((0 1)     1)
     (otherwise (+ (fib (- n 1)) (fib (- n 2))))))
 
-(let (($x (time (delay (fib 40))))) ; (fib 40) is delayed and its promise is binded to x
+(let (($x (time (delay (fib 40))))) ; (fib 40) is delayed and its promise is binded to $x
   (time (force $x))                 ; the evaluation of (fib 40) is forced
   (time (force $x)))                ; the cached value is returned
 
