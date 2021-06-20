@@ -46,12 +46,13 @@ facility, when a `promise` object that has already been evaluated is applied to
 ```
 
 ### Algebraic Data Type
+
 The algebraic data type is a kind of composite type and consisting of direct
 sum, direct product, and recursion. It is often used with pattern matching in
 functional programming. In common lisp, a new composite type is defined as
-structure or class. In FCL, algebraic data type is implemented by structure and
-can be defined using `defdata`.  In addition, `defdata` can define lazy
-constructors.
+structure or class. In FCL, algebraic data type is named `algebraic-datatype`
+and implemented by structure and can be defined using `defdata`. In addition,
+`defdata` can define lazy constructors.
 
 ```lisp
 (defdata maybe
@@ -78,6 +79,37 @@ constructors.
 ```
 
 ### Pattern Matching
+In FCL, pattern matching is provided by `match` and `ematch` macros. `ematch` is
+a version of `match` that an error is signalled when any patterns do not match
+the given datum. The valid match symtax is defined as follows:
+
+```text
+match datum clause* => result*
+
+clause ::= (pattern form*)
+pattern ::= cons-pattern |
+            t |
+            nil |
+            _ |
+            variable |
+            literal
+cons-pattern ::= (quote pattern) |
+                 (cons pattern pattern) |
+                 (list pattern*) |
+                 (vector pattern*) |
+                 (delay pattern) |
+                 (adata-name pattern*) |
+                 (class-name {slot-name pattern}*)
+
+datum --- an object.
+forms --- an implicit progn.
+variable --- a symbol except t, nil or _.
+literal --- an atom except symbol.
+adata-name --- a algebraic-datatype name.
+class-name --- a class name except algebraic-datatype.
+slot-name --- a slot name.
+results --- the values returned by forms in matching clause.
+```
 
 ### Generic Functions in Special Packages
 
