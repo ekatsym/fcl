@@ -12,16 +12,16 @@
 (in-package :fcl.match)
 
 
-(defmacro match (data &body clauses)
-  (let ((g!data (gensym "MATCH")))
-    `(let ((,g!data ,data))
-       (cond ,@(mapcar (lambda (clause) (parse-clause g!data clause)) clauses)))))
+(defmacro match (datum &body clauses)
+  (let ((g!datum (gensym "MATCH")))
+    `(let ((,g!datum ,datum))
+       (cond ,@(mapcar (lambda (clause) (parse-clause g!datum clause)) clauses)))))
 
-(defmacro ematch (data &body clauses)
-  `(match ,data
+(defmacro ematch (datum &body clauses)
+  `(match ,datum
      ,@clauses
      (_ (error 'ematch-error
-               :datum ,data
+               :datum ,datum
                :expected-patterns ',(mapcar #'first clauses)))))
 
 (define-condition ematch-error (type-error)
