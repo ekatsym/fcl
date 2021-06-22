@@ -10,7 +10,7 @@
 (in-package :fcl/tests.util)
 
 
-(setq *default-reporter* :dot)
+(setq *default-reporter* :none)
 
 (defun random-number (min max)
   (assert (<= min max) (min max)
