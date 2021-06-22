@@ -1,10 +1,10 @@
-(defpackage :fcl/tests.datatypes.maybe
-  (:nicknames :fcl/t.dt.maybe :fcl/t.maybe)
+(defpackage :fcl/tests.maybe
+  (:nicknames :fcl/tests.data.mb :fcl/t.mb)
   (:use :common-lisp :rove :fcl/tests.util :fcl.maybe)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
   (:import-from :fcl.util #:compose #:partial #:curry))
-(in-package :fcl/tests.datatypes.maybe)
+(in-package :fcl/tests.maybe)
 
 
 (deftest matching
@@ -13,10 +13,11 @@
           ((nothing) t)
           ((just _) nil))))
   (testing "JUST"
-    (ok (let ((a (random 1.0e9)))
-          (match (just a)
-            ((nothing) nil)
-            ((just b) (= a b)))))))
+    (dotimes (i 1000)
+      (let ((a (random-object)))
+        (ok (match (just a)
+              ((nothing) nil)
+              ((just b)  (data= a b))))))))
 
 (deftest nothing=mzero
   (testing "Equality of NOTHING and MZERO"
@@ -24,8 +25,9 @@
 
 (deftest just=unit
   (testing "Equality of JUST and UNIT"
-    (let ((a (random 1.0e9)))
-      (ok (data= (just a) (unit 'maybe a))))))
+    (dotimes (i 1000)
+      (let ((a (random-object)))
+        (ok (data= (just a) (unit 'maybe a)))))))
 
 (deftest functor
   (testing "Identity"
@@ -49,7 +51,8 @@
 (deftest applicative
   (testing "Identity"
     (dotimes (i 1000)
-      (mlet ((a* (list (nothing) (just (random-object)))))
+      (mlet ((a* (list (nothing)
+                       (just (random-object)))))
         (ok (data= (amap (just #'identity) a*)
                    a*))
         '())))
@@ -90,7 +93,7 @@
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
         (ok (data= (mmap a->b* (just a))
-                 (funcall a->b* a)))
+                   (funcall a->b* a)))
         '())))
   (testing "Right Identity"
     (dotimes (i 1000)
