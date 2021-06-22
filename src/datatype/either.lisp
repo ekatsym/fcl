@@ -41,6 +41,7 @@
 
 (defmethod mplus ((monoid1 either) (monoid2 either))
   (ematch (cons monoid1 monoid2)
+    ((cons (left a1) (left a2))   (left (mplus a1 a2)))
     ((cons (left _) _)            monoid2)
     ((cons _ (left _))            monoid1)
     ((cons (right a1) (right a2)) (right (mplus a1 a2)))))
