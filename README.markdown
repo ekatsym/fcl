@@ -81,17 +81,19 @@ and implemented by structure and can be defined using `defdata`. In addition,
 ### Pattern Matching
 In FCL, pattern matching is provided by `match` and `ematch` macros. `ematch` is
 a version of `match` that an error is signalled when any patterns do not match
-the given datum. The valid match symtax is defined as follows:
+the given datum. The valid `match` and `ematch` symtax is defined as follows
+(use CLHS style):
 
 ```text
 match datum clause* => result*
+ematch datum clause* => result*
 
 clause ::= (pattern form*)
 pattern ::= cons-pattern |
             t |
             nil |
             _ |
-            variable |
+            symbol-pattern |
             literal
 cons-pattern ::= (quote pattern) |
                  (cons pattern pattern) |
@@ -100,14 +102,17 @@ cons-pattern ::= (quote pattern) |
                  (delay pattern) |
                  (adata-name pattern*) |
                  (class-name {slot-name pattern}*)
+symbol-pattern ::= built-in-type |
+                   variable
 
 datum --- an object.
 forms --- an implicit progn.
-variable --- a symbol except t, nil or _.
 literal --- an atom except symbol.
 adata-name --- a algebraic-datatype name.
 class-name --- a class name except algebraic-datatype.
 slot-name --- a slot name.
+built-in-type --- a built-in type of common lisp standard.
+variable --- a symbol except t, nil or _.
 results --- the values returned by forms in matching clause.
 ```
 
