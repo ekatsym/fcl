@@ -1,5 +1,5 @@
-(defpackage :fcl/tests.maybe
-  (:nicknames :fcl/tests.data.mb :fcl/t.mb)
+(defpackage fcl/tests.maybe
+  (:nicknames :fcl/tests.data.maybe :fcl/t.mb)
   (:use :common-lisp :rove :fcl/tests.util :fcl.maybe)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
