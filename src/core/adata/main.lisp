@@ -1,14 +1,8 @@
 (defpackage fcl.adata
   (:nicknames :fcl.core.adata :fcl.dt)
   (:use :common-lisp :fcl.adata.util :fcl.adata.parser)
-  (:import-from
-    :fcl.util
-    #:rpartial
-    #:proper-list)
-  (:import-from
-    :fcl.lazy
-    #:promise
-    #:force)
+  (:import-from :fcl.util #:rpartial #:proper-list)
+  (:import-from :fcl.lazy #:promise #:force)
   (:export
     #:algebraic-datatype
     #:defdata
