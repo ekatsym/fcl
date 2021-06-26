@@ -51,6 +51,8 @@
        (condition (,g!c) (failure (strace ',form (condit ,g!c))))
        (:no-error (,g!c) (success ,g!c)))))
 
+(define-condition result-empty-condition (condition) ())
+
 
 ;;; Monad+
 (defmethod unit ((class (eql 'result)) a)
@@ -64,3 +66,15 @@
   (ematch a*
     ((success a)   (funcall a->b* a))
     ((failure trc) (failure (strace (list 'mmap a->b* "#FAILURE#") trc)))))
+
+(defmethod mzero ((class (eql 'result)))
+  (failure (condit (make-condition 'result-empty-condition))))
+
+(defmethod mplus ((monoid1 result) (monoid2 result))
+  (ematch (cons monoid1 monoid2)
+    ((cons (success a1) (success a2)) (success (mplus a1 a2)))
+    ((cons (success a1) _)            monoid1)
+    ((cons _ (success a2))            monoid2)
+    ((cons (failure _) (failure _))   monoid2)
+    )
+  )
