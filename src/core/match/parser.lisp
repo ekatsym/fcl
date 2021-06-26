@@ -1,22 +1,8 @@
 (defpackage fcl.match.parser
   (:use :common-lisp :fcl.match.util)
-  (:import-from
-    :fcl.util
-    #:nlist?
-    #:enum
-    #:group
-    #:mappend
-    #:zip
-    #:partial
-    #:symbolicate)
-  (:import-from
-    :fcl.lazy
-    #:delay
-    #:force
-    #:promise)
-  (:import-from
-    :fcl.adata
-    #:algebraic-datatype)
+  (:import-from :fcl.util #:nlist?  #:enum #:group #:mappend #:zip #:partial #:symbolicate)
+  (:import-from :fcl.lazy #:delay #:force #:promise)
+  (:import-from :fcl.adata #:algebraic-datatype #:data=)
   (:export
     #:parse-clause))
 (in-package :fcl.match.parser)
@@ -52,7 +38,7 @@
       't))
 
 (defun %literal-pattern->test (data pattern)
-  `(equalp ,data ,pattern))
+  `(data= ,data ,pattern))
 
 (defun %%cons-pattern->test (data pattern)
   (destructuring-bind (_ car-pat cdr-pat) pattern
@@ -122,16 +108,18 @@
 
 (defun %%%normal-class-pattern->test (data pattern)
   (destructuring-bind (name . key-pats) pattern
-    `(and (typep ,data ',name)
-          ,@(mapcar (lambda (key-pat)
-                      (destructuring-bind (key pat) key-pat
-                        (if (keywordp key)
-                            (let ((g!slot (gensym "SLOT")))
-                              `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
-                                 (declare (ignorable ,g!slot))
-                                 ,(pattern->test g!slot pat)))
-                            nil)))
-                    (group 2 key-pats)))))
+    (if key-pats
+        `(and (typep ,data ',name)
+              ,@(mapcar (lambda (key-pat)
+                          (destructuring-bind (key pat) key-pat
+                            (if (keywordp key)
+                                (let ((g!slot (gensym "SLOT")))
+                                  `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
+                                     (declare (ignorable ,g!slot))
+                                     ,(pattern->test g!slot pat)))
+                                nil)))
+                        (group 2 key-pats)))
+        `(typep ,data ',name))))
 
 
 ;;; Bind Parser
@@ -227,17 +215,19 @@
 (defun %%%normal-class-pattern->bind (data pattern body)
   (destructuring-bind (name . pats) pattern
     (declare (ignore name))
-    (reduce (lambda (key-pat body)
-              (destructuring-bind (key pat) key-pat
-                (if (keywordp key)
-                    (let ((g!slot (gensym "SLOT")))
-                      `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
-                         (declare (ignorable ,g!slot))
-                         ,(pattern->bind g!slot pat body)))
-                    `(error 'unknown-keyword-argument :name ',key))))
-            (group 2 pats)
-            :initial-value body
-            :from-end t)))
+    (if pats
+        (reduce (lambda (key-pat body)
+                  (destructuring-bind (key pat) key-pat
+                    (if (keywordp key)
+                        (let ((g!slot (gensym "SLOT")))
+                          `(let ((,g!slot (slot-value ,data ',(symbolicate key))))
+                             (declare (ignorable ,g!slot))
+                             ,(pattern->bind g!slot pat body)))
+                        `(error 'unknown-keyword-argument :name ',key))))
+                (group 2 pats)
+                :initial-value body
+                :from-end t)
+        body)))
 
 
 (define-condition unknown-keyword-argument (program-error)

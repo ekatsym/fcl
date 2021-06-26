@@ -1,9 +1,6 @@
 (defpackage fcl.match.util
   (:use :common-lisp)
-  (:import-from
-    :fcl.util
-    #:index
-    #:symbolicate)
+  (:import-from :fcl.util #:index #:symbolicate)
   (:export
     #:*standard-atomic-type-specifiers*
     #:make-parameters))
