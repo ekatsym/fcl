@@ -59,3 +59,13 @@
               ((list _)     nil)
               ((list _ _)   nil)
               ((list x y z) (and (data= a x) (data= b y) (data= c z)))))))))
+
+(deftest nil=mzero
+  (testing "Equality of NIL and MZERO")
+  (ok (data= '() (mzero 'list))))
+
+(deftest list=unit
+  (testing "Equality of LIST and UNIT")
+  (dotimes (i 1000)
+    (let ((a (random-object)))
+      (ok (data= (list a) (unit 'list a))))))
