@@ -69,3 +69,22 @@
   (dotimes (i 1000)
     (let ((a (random-object)))
       (ok (data= (list a) (unit 'list a))))))
+
+(deftest functor
+  (testing "Identity"
+    (dotimes (i 1000)
+      (mlet ((a* (list '()
+                       (random-list 1 1000))))
+        (ok (data= (fmap #'identity a*)
+                   a*))
+        '())))
+  (testing "Composition"
+    (dotimes (i 1000)
+      (mlet ((a* (list '()
+                       (random-list 1 1000))))
+        (let ((a->b (lambda (x) (* x x)))
+              (b->c (lambda (x) (+ x x))))
+          (ok (data= (fmap (compose b->c a->b) a*)
+                     (fmap b->c (fmap a->b a*))))
+          '())))))
+
