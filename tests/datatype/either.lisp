@@ -21,7 +21,7 @@
               ((left _)  nil)
               ((right b) (data= a b))))))))
 
-(deftest either=mzero
+(deftest left=mzero
   (testing "Equality of EITHER and MZERO"
     (ok (data= (left nil) (mzero 'either)))))
 
