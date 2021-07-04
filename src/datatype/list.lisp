@@ -14,6 +14,7 @@
   (:export
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
+    #:mzero #:mplus #:msum
     #:guard
     #:lc
     #:mzero #:mplus #:msum
