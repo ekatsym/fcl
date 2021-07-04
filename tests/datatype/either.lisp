@@ -22,7 +22,7 @@
               ((right b) (data= a b))))))))
 
 (deftest left=mzero
-  (testing "Equality of EITHER and MZERO"
+  (testing "Equality of LEFT and MZERO"
     (ok (data= (left nil) (mzero 'either)))))
 
 (deftest right=unit
