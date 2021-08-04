@@ -13,7 +13,7 @@ before_script:
   - cp -r . ~/quicklisp/local-projects/
 
 .test:
-  stages: test
+  stage: test
   script: $LISP --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
 
 sbcl:
