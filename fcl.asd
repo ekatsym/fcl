@@ -65,7 +65,7 @@
                    (:file "package"       :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
   :perform (test-op (op c) (unless (symbol-call :rove :run c)
-                             #+sbcl (exit :code 1)
-                             #+ccl (quit 1)
-                             #+abcl (exit :status 1)
-                             #+ecl (quit 1))))
+                             #+sbcl (sb-ext:exit :code 1)
+                             #+ccl (ccl:quit 1)
+                             #+abcl (extensions:exit :status 1)
+                             #+ecl (si:quit 1))))
