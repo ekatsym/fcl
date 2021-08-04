@@ -1,7 +1,7 @@
 (defpackage fcl.adata
   (:nicknames :fcl.core.adata :fcl.dt)
   (:use :common-lisp :fcl.adata.util :fcl.adata.parser)
-  (:import-from :fcl.util #:rpartial #:proper-list)
+  (:import-from :fcl.util #:length= #:rpartial #:proper-list)
   (:import-from :fcl.lazy #:promise #:force)
   (:export
     #:algebraic-datatype
@@ -41,6 +41,9 @@
                             (slot-value data2 p2)))
                    parameters1
                    parameters2)))
+        (sequence
+          (and (length= data1 data2)
+               (every #'data= data1 data2)))
         (otherwise
           (equal data1 data2)))
       nil))
