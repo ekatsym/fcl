@@ -35,8 +35,3 @@ ecl:
   extends: .test
   variables:
     LISP: ecl
-
-clasp:
-  extends: .test
-  variables:
-    LISP: clasp
