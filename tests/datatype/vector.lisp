@@ -2,7 +2,8 @@
   (:nicknames :fcl/tests.data.vector :fcl/t.vc)
   (:use :common-lisp :rove :fcl/tests.util :fcl.vector)
   (:import-from :fcl.adata #:data=)
-  (:import-from :fcl.match #:match))
+  (:import-from :fcl.match #:match)
+  (:import-from :fcl.util #:compose))
 (in-package :fcl/tests.vector)
 
 
@@ -109,3 +110,31 @@
                                (vector y z)))
                (and (data= a u) (data= b v) (data= c w)
                     (data= d x) (data= e y) (data= f z)))))))))
+
+(deftest empty=mzero
+  (testing "Equality of empty VECTOR and MZERO"
+    (ok (data= #() (mzero 'vector)))))
+
+(deftest vector=unit
+  (testing "Equality of single element VECTOR and unit"
+    (dotimes (i 100)
+      (let ((a (random-object)))
+        (ok (data= (vector a) (unit 'vector a)))))))
+
+(deftest functor
+  (testing "Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list '()
+                       (random-list 1 1000))))
+        (ok (data= (fmap #'identity a*)
+                   a*))
+        '())))
+  (testing "Composition"
+    (dotimes (i 100)
+      (mlet ((a* (list '()
+                       (random-list 1 1000))))
+        (let ((a->b (lambda (x) (* x x)))
+              (b->c (lambda (x) (+ x x))))
+          (ok (data= (fmap (compose b->c a->b) a*)
+                     (fmap b->c (fmap a->b a*))))
+          '())))))
