@@ -56,7 +56,15 @@
   :components ((:module "tests"
                 :components
                 ((:file "util")
-                 (:module "datatype"    :depends-on ("util")
+                 (:module "generics"    :depends-on ("util")
+                  :components
+                  ((:file "functor")
+                   (:file "applicative"   :depends-on ("functor"))
+                   (:file "monad"         :depends-on ("applicative"))
+                   (:file "monoid")
+                   (:file "monad-plus"    :depends-on ("monad" "monoid"))
+                   (:file "foldable")))
+                 (:module "datatype"    :depends-on ("util" "generics")
                   :components
                   ((:file "promise")
                    (:file "maybe")
