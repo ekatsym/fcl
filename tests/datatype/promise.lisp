@@ -9,25 +9,25 @@
 
 (deftest matching
   (testing "DELAY"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (match (delay a)
               ((delay b) (equal a b))))))))
 
 (deftest delay=unit
   (testing "Equality of DELAY and UNIT"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (data= (delay a) (unit 'promise a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a* (delay (random-object))))
         (ok (data= (fmap #'identity a*)
                    a*)))))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (delay (random-number -1000000 1000000))
                        (delay (random-number -1.0e6 1.0e6))))
              (a->b (list (lambda (x) (* x x))))
@@ -38,12 +38,12 @@
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a* (delay (random-object))))
         (ok (data= (amap (delay #'identity) a*)
                    a*)))))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->*b (list (delay (lambda (x) (* x x)))))
              (b->*c (list (delay (lambda (x) (+ x x)))))
              (a* (list (delay (random-number -1000000 1000000))
@@ -52,7 +52,7 @@
                    (amap b->*c (amap a->*b a*))))
         '())))
   (testing "Homomorphism"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b (list (lambda (x) (* x x))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -60,7 +60,7 @@
                    (delay (funcall a->b a))))
         '())))
   (testing "Interchange"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->*b (list (delay (lambda (x) (* x x)))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -70,7 +70,7 @@
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b* (list (lambda (x) (delay (* x x)))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -78,12 +78,12 @@
                    (funcall a->b* a)))
         '())))
   (testing "Right Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a* (delay (random-object))))
         (ok (data= (mmap (lambda (a) (delay a)) a*)
                    a*)))))
   (testing "Associativity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b* (list (lambda (x) (delay (* x x)))))
              (b->c* (list (lambda (x) (delay (+ x x)))))
              (a* (list (delay (random-number -1000000 1000000))

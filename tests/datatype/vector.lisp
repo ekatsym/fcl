@@ -12,7 +12,7 @@
           ((vector) t)
           (_ nil))))
   (testing "Simple Vectors"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object))
             (b (random-object))
             (c (random-object)))
@@ -32,7 +32,7 @@
               ((vector _ _)   nil)
               ((vector x y z) (and (data= a x) (data= b y) (data= c z))))))))
   (testing "Nested Vectors"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object))
             (b (random-object))
             (c (random-object))

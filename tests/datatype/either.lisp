@@ -9,13 +9,13 @@
 
 (deftest matching
   (testing "LEFT"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (match (left a)
               ((left b)  (data= a b))
               ((right b) nil))))))
   (testing "RIGHT"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (match (right a)
               ((left _)  nil)
@@ -27,20 +27,20 @@
 
 (deftest right=unit
   (testing "Equality of RIGHT and UNIT"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (data= (right a) (unit 'either a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (left (random-object))
                        (right (random-object)))))
         (ok (data= (fmap #'identity a*)
                    a*))
         '())))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (left (random-object))
                        (right (random-number -1000000 1000000))
                        (right (random-number -1.0e6 1.0e6))))
@@ -52,14 +52,14 @@
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (left (random-object))
                        (right (random-object)))))
         (ok (data= (amap (right #'identity) a*)
                    a*))
         '())))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->*b (list (left (random-object))
                           (right (lambda (x) (* x x)))))
              (b->*c (list (left (random-object))
@@ -71,7 +71,7 @@
                    (amap b->*c (amap a->*b a*))))
         '())))
   (testing "Homomorphism"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b (list (lambda (x) (* x x))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -79,7 +79,7 @@
                    (right (funcall a->b a))))
         '())))
   (testing "Interchange"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->*b (list (left (random-object))
                           (right (lambda (x) (* x x)))))
              (a (list (random-number -1000000 1000000)
@@ -90,7 +90,7 @@
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b* (list (lambda (x) (right (* x x)))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -98,12 +98,12 @@
                    (funcall a->b* a)))
         '())))
   (testing "Right Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a* (right (random-object))))
         (ok (data= (mmap #'right a*)
                    a*)))))
   (testing "Associativity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b* (list (lambda (x) (right (* x x)))))
              (b->c* (list (lambda (x) (right (+ x x)))))
              (a* (list (right (random-number -1000000 1000000))
@@ -114,14 +114,14 @@
 
 (deftest monoid
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (left (random-list 0 1000))
                        (right (random-object)))))
         (ok (and (data= (mplus (left nil) a*) a*)
                  (data= (mplus a* (left nil)) a*)))
         '())))
   (testing "Associativity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (left (random-list 0 10))
                        (right (random-list 0 1000))))
              (b* (list (left (random-list 0 10))

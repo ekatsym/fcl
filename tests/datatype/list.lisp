@@ -16,7 +16,7 @@
           (nil t)
           (_   nil))))
   (testing "CONS"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object))
             (b (random-object)))
         (ok (match (cons a b)
@@ -35,7 +35,7 @@
               ('()        nil)
               ((cons x _) (data= a x)))))))
   (testing "LIST"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object))
             (b (random-object))
             (c (random-object)))
@@ -66,20 +66,20 @@
 
 (deftest list=unit
   (testing "Equality of LIST and UNIT")
-  (dotimes (i 1000)
+  (dotimes (i 100)
     (let ((a (random-object)))
       (ok (data= (list a) (unit 'list a))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list '()
                        (random-list 1 1000))))
         (ok (data= (fmap #'identity a*)
                    a*))
         '())))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list '()
                        (random-list 1 1000))))
         (let ((a->b (lambda (x) (* x x)))
