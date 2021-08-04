@@ -54,13 +54,19 @@
   :license "LLGPL"
   :depends-on ("fcl" "rove")
   :components ((:module "tests"
-                        :components
-                        ((:file "util")
-                         (:module "datatype"  :depends-on ("util")
-                          :components
-                          ((:file "promise")
-                           (:file "maybe")
-                           (:file "either")
-                           (:file "package" :depends-on ("maybe" "either")))))))
+                :components
+                ((:file "util")
+                 (:module "datatype"    :depends-on ("util")
+                  :components
+                  ((:file "promise")
+                   (:file "maybe")
+                   (:file "either")
+                   (:file "list")
+                   (:file "vector")
+                   (:file "package"       :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
-  :perform (test-op (op c) (symbol-call :rove :run c)))
+  :perform (test-op (op c) (unless (symbol-call :rove :run c)
+                             #+sbcl (sb-ext:exit :code 1)
+                             #+ccl  (ccl:quit 1)
+                             #+abcl (extensions:exit :status 1)
+                             #+ecl  (si:quit 1))))

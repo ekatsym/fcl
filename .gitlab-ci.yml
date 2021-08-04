@@ -1,23 +1,37 @@
-image: daewok/lisp-devel
+variables:
+  IMAGE_TAG: latest
+  QUICKLISP_ADD_TO_INIT_FILE: "true"
+  QUICKLISP_DIST_VERSION: latest
 
-before_script:
-    - cp -r . /usr/local/share/common-lisp/source/fcl
+image: clfoundation/$LISP:$IMAGE_TAG
 
 stages:
-    - test
+  - test
+
+before_script:
+  - install-quicklisp
+  - cp -r . ~/quicklisp/local-projects/
+
+.test:
+  stage: test
+  script: $LISP --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
 
 sbcl:
-    stage: test
-    script: sbcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+  extends: .test
+  variables:
+    LISP: sbcl
 
 ccl:
-    stage: test
-    script: ccl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
-
-ecl:
-    stage: test
-    script: ecl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+  extends: .test
+  variables:
+    LISP: ccl
 
 abcl:
-    stage: test
-    script: abcl --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
+  extends: .test
+  variables:
+    LISP: abcl
+
+ecl:
+  extends: .test
+  variables:
+    LISP: ecl
