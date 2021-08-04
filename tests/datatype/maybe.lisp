@@ -1,5 +1,5 @@
-(defpackage :fcl/tests.maybe
-  (:nicknames :fcl/tests.data.mb :fcl/t.mb)
+(defpackage fcl/tests.maybe
+  (:nicknames :fcl/tests.data.maybe :fcl/t.mb)
   (:use :common-lisp :rove :fcl/tests.util :fcl.maybe)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
@@ -13,7 +13,7 @@
           ((nothing) t)
           ((just _) nil))))
   (testing "JUST"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (match (just a)
               ((nothing) nil)
@@ -25,20 +25,20 @@
 
 (deftest just=unit
   (testing "Equality of JUST and UNIT"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a (random-object)))
         (ok (data= (just a) (unit 'maybe a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (nothing)
                        (just (random-object)))))
         (ok (data= (fmap #'identity a*)
                    a*))
         '())))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (nothing)
                        (just (random-number -1000000 1000000))
                        (just (random-number -1.0e6 1.0e6))))
@@ -50,14 +50,14 @@
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (nothing)
                        (just (random-object)))))
         (ok (data= (amap (just #'identity) a*)
                    a*))
         '())))
   (testing "Composition"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->*b (list (nothing) 
                           (just (lambda (x) (* x x)))))
              (b->*c (list (nothing)
@@ -69,7 +69,7 @@
                    (amap b->*c (amap a->*b a*))))
         '())))
   (testing "Homomorphism"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b (list (lambda (x) (* x x))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -77,7 +77,7 @@
                    (just (funcall a->b a))))
         '())))
   (testing "Interchange"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->*b (list (nothing)
                           (just (lambda (x) (* x x)))))
              (a (list (random-number -1000000 1000000)
@@ -88,7 +88,7 @@
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b* (list (lambda (x) (just (* x x)))))
              (a (list (random-number -1000000 1000000)
                       (random-number -1.0e6 1.0e6))))
@@ -96,12 +96,12 @@
                    (funcall a->b* a)))
         '())))
   (testing "Right Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (let ((a* (just (random-object))))
         (ok (data= (mmap #'just a*)
                    a*)))))
   (testing "Associativity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a->b* (list (lambda (x) (just (* x x)))))
              (b->c* (list (lambda (x) (just (+ x x)))))
              (a* (list (just (random-number -1000000 1000000))
@@ -112,14 +112,14 @@
 
 (deftest monoid
   (testing "Identity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (nothing)
                        (just (random-object)))))
         (ok (and (data= (mplus (nothing) a*) a*)
                  (data= (mplus a* (nothing)) a*)))
         '())))
   (testing "Associativity"
-    (dotimes (i 1000)
+    (dotimes (i 100)
       (mlet ((a* (list (nothing)
                        (just (random-list 0 1000))))
              (b* (list (nothing)

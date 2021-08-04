@@ -4,6 +4,7 @@
     #:index
     #:proper-list
     #:nlist?
+    #:length=
     #:take
     #:drop
     #:sublist
