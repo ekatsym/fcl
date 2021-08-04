@@ -61,14 +61,14 @@
               ((list x y z) (and (data= a x) (data= b y) (data= c z)))))))))
 
 (deftest nil=mzero
-  (testing "Equality of NIL and MZERO")
-  (ok (data= '() (mzero 'list))))
+  (testing "Equality of NIL and MZERO"
+    (ok (data= '() (mzero 'list)))))
 
 (deftest list=unit
-  (testing "Equality of LIST and UNIT")
-  (dotimes (i 100)
-    (let ((a (random-object)))
-      (ok (data= (list a) (unit 'list a))))))
+  (testing "Equality of LIST and UNIT"
+    (dotimes (i 100)
+      (let ((a (random-object)))
+        (ok (data= (list a) (unit 'list a)))))))
 
 (deftest functor
   (testing "Identity"
