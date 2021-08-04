@@ -53,14 +53,15 @@
   :license "LLGPL"
   :depends-on ("fcl" "rove")
   :components ((:module "tests"
-                        :components
-                        ((:file "util")
-                         (:module "datatype"  :depends-on ("util")
-                          :components
-                          ((:file "promise")
-                           (:file "maybe")
-                           (:file "either")
-                           (:file "list")
-                           (:file "package" :depends-on ("maybe" "either")))))))
+                :components
+                ((:file "util")
+                 (:module "datatype"    :depends-on ("util")
+                  :components
+                  ((:file "promise")
+                   (:file "maybe")
+                   (:file "either")
+                   (:file "list")
+                   (:file "vector")
+                   (:file "package"       :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
   :perform (test-op (op c) (symbol-call :rove :run c)))
