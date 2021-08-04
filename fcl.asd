@@ -64,4 +64,5 @@
                    (:file "vector")
                    (:file "package"       :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
-  :perform (test-op (op c) (symbol-call :rove :run c)))
+  :perform (test-op (op c) (unless (symbol-call :rove :run c)
+                             (error "TEST FAILED."))))
