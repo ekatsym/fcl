@@ -15,7 +15,8 @@ before_script:
 .test:
   stage: test
   script:
-    - make test
+    - $LISP --eval "(ql:quickload '(:rove))" --quit
+    - $LISP --eval "(asdf:test-system :fcl :verbose t)" --quit
 
 sbcl:
   extends: .test
