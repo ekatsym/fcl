@@ -90,7 +90,7 @@
                        (vector _
                                (vector _ _)))
                nil)))
-        (ng (match (vector a
+        (ok (match (vector a
                            (vector b c)
                            (vector d
                                    (vector e f)))
