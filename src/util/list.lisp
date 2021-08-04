@@ -25,6 +25,21 @@
       ((or (zerop i) (endp lst))
        (and (zerop i) (endp lst)))))
 
+(defun length= (sequence1 sequence2)
+  (check-type sequence1 sequence)
+  (check-type sequence2 sequence)
+  (cond ((and (listp sequence1) (listp sequence2))
+         (do ((lst1 sequence1 (rest lst1))
+              (lst2 sequence2 (rest lst2)))
+             ((or (endp lst1) (endp lst2))
+              (and (endp lst1) (endp lst2)))))
+        ((listp sequence1)
+         (nlist? (length sequence2) sequence1))
+        ((listp sequence2)
+         (nlist? (length sequence1) sequence2))
+        (t
+         (= (length sequence1) (length sequence2)))))
+
 (defun take (n list)
   (check-type n index)
   (check-type list list)
