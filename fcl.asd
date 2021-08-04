@@ -37,7 +37,8 @@
                    (:file "function")
                    (:file "reader")
                    (:file "writer")
-                   (:file "state")))
+                   (:file "state")
+                   (:file "result")))
                  (:module "util"
                   :components
                   ((:file "package")
