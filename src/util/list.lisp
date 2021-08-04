@@ -6,6 +6,7 @@
   (:import-from
     :fcl.util
     #:nlist?
+    #:length=
     #:take
     #:drop
     #:enum
