@@ -5,7 +5,7 @@
   (:import-from :fcl.match #:ematch)
   (:export
     ;; core
-    #:action #:run-action #:run-wizard
+    #:io-action #:run-io-action #:run-wizard
     #:put-char #:put-string #:put-line #:put-object
     #:get-char #:get-string #:get-line #:get-object
     #:interact
@@ -19,40 +19,40 @@
 
 
 ;;; Definition
-(defdata action
-  (%action function))
+(defdata io-action
+  (%io-action function))
 
-(defun run-action (action)
-  (ematch action
-    ((%action act) (funcall act))))
+(defun run-io-action (io-action)
+  (ematch io-action
+    ((%io-action act) (funcall act))))
 
 
 ;;; Output functions
 (defun put-char (character)
   (check-type character character)
-  (%action (lambda () (write-char character) nil)))
+  (%io-action (lambda () (write-char character) nil)))
 
 (defun put-string (string)
   (check-type string string)
-  (%action (lambda () (write-string string) nil)))
+  (%io-action (lambda () (write-string string) nil)))
 
 (defun put-line (string)
   (check-type string string)
-  (%action (lambda () (write-line string) nil)))
+  (%io-action (lambda () (write-line string) nil)))
 
 (defun put-control-string (control-string &rest args)
   (check-type control-string string)
-  (%action (lambda () (apply #'format t control-string args) nil)))
+  (%io-action (lambda () (apply #'format t control-string args) nil)))
 
 (defun put-object (object)
-  (%action (lambda () (write object) nil)))
+  (%io-action (lambda () (write object) nil)))
 
 ;;; Input functions
 (defun get-char ()
-  (%action #'read-char))
+  (%io-action #'read-char))
 
 (defun get-string ()
-  (%action
+  (%io-action
     (lambda ()
       (coerce (loop for c = (read-char *standard-input* nil)
                     while c
@@ -60,14 +60,14 @@
               'string))))
 
 (defun get-line ()
-  (%action #'read-line))
+  (%io-action #'read-line))
 
 (defun get-object ()
-  (%action #'read))
+  (%io-action #'read))
 
 (defun interact (respondent)
   (check-type respondent function)
-  (%action
+  (%io-action
     (lambda ()
       (loop for in = (read-line)
             with out = (funcall respondent in)
@@ -76,22 +76,22 @@
 
 
 ;;; Monad Plus
-(defmethod unit ((class (eql 'action)) a)
-  (%action (lambda () a)))
+(defmethod unit ((class (eql 'io-action)) a)
+  (%io-action (lambda () a)))
 
-(define-fmap-by-monad action)
+(define-fmap-by-monad io-action)
 
-(define-amap-by-monad action)
+(define-amap-by-monad io-action)
 
-(defmethod mmap (a->b* (a* action))
-  (%action
+(defmethod mmap (a->b* (a* io-action))
+  (%io-action
     (lambda ()
-      (run-action (funcall a->b* (run-action a*))))))
+      (run-io-action (funcall a->b* (run-io-action a*))))))
 
-(defmethod mzero ((class (eql 'action)))
-  (unit 'action nil))
+(defmethod mzero ((class (eql 'io-action)))
+  (unit 'io-action nil))
 
-(defmethod mplus ((monoid1 action) (monoid2 action))
+(defmethod mplus ((monoid1 io-action) (monoid2 io-action))
   (mlet ((a1 monoid1)
          (a2 monoid2))
-    (unit 'action (mplus a1 a2))))
+    (unit 'io-action (mplus a1 a2))))
