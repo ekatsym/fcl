@@ -3,7 +3,7 @@
   (:use :common-lisp :rove :fcl/tests.util :fcl.functor)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.util #:compose)
-  (:export #:functor-testing))
+  (:export #:identity-test #:composition-test))
 (in-package :fcl/tests.functor)
 
 
