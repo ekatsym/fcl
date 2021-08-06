@@ -25,7 +25,9 @@
                    (:file "monad"         :depends-on ("applicative"))
                    (:file "monoid")
                    (:file "monad-plus"    :depends-on ("monad" "monoid"))
-                   (:file "foldable")))
+                   (:file "foldable")
+                   (:file "traversable"   :depends-on ("foldable" "monad"))
+                   ))
                  (:module "datatype"    :depends-on ("util" "core" "generics")
                   :components
                   ((:file "promise")

@@ -6,6 +6,7 @@
     #:nlist?)
   (:export
     #:unit #:fmap #:amap #:mmap
+    #:alift #:alift2
     #:mlet #:mprogn #:mdo
     #:define-fmap-by-applicative
     #:define-fmap-by-monad

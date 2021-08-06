@@ -13,6 +13,7 @@
     :fcl.monoid
     :fcl.monad-plus
     :fcl.foldable
+    :fcl.traversable
 
     ;; data
     :fcl.promise
@@ -34,6 +35,7 @@
     #:quote #:cons #:list #:vector
     #:fmap
     #:unit #:amap
+    #:alift2 #:alift
     #:define-fmap-by-applicative
     #:mmap
     #:mlet #:mprogn #:mdo
@@ -45,6 +47,7 @@
     #:foldl #:foldl+ #:unfoldl #:unfoldl+
     #:lfoldr #:lfoldr+
     #:lfoldl #:lfoldl+
+    #:empty #:add
     #:scanr #:scanr+ #:scanl #:scanl+
     #:maybe #:nothing #:just
     #:either #:left #:right
