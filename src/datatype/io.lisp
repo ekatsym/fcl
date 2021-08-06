@@ -22,6 +22,10 @@
 (defdata action
   (%action function))
 
+(defun run-action (action)
+  (ematch action
+    ((%action act) (funcall act))))
+
 
 ;;; Output functions
 (defun put-char (character)
