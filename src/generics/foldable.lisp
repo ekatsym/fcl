@@ -1,12 +1,14 @@
 (defpackage fcl.foldable
   (:nicknames :fcl.generics.foldable :fcl.fd)
   (:use :common-lisp :fcl.lazy)
+  (:import-from :fcl.util #:partial)
   (:export
     #:foldr #:foldr+ #:unfoldr #:unfoldr+
     #:foldl #:foldl+ #:unfoldl #:unfoldl+
     #:delay #:force
     #:lfoldr #:lfoldr+
     #:lfoldl #:lfoldl+
+    #:empty #:add
     #:scanr #:scanr+ #:scanl #:scanl+))
 (in-package :fcl.foldable)
 
@@ -37,6 +39,15 @@
 (defgeneric lfoldl ($x&a->x x0 as))
 
 (defgeneric lfoldl+ ($x&a&as->x x0 as))
+
+
+;;; Utility
+(defun empty (class)
+  (unfoldr class (constantly t) #'identity #'identity nil))
+
+(defun add (class x as)
+  (let ((end (gensym)))
+    (unfoldr+ class (partial #'eq end) #'identity (constantly end) as x)))
 
 
 ;;; Scans
