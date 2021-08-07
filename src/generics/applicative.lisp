@@ -32,7 +32,7 @@ AMAP must satisfy the rules:
 ;;; Lifts
 (defun lift1 (a->b a*)
   (check-type a->b function)
-  (fmap f->b a*))
+  (fmap a->b a*))
 
 (defun lift2 (a&b->c a* b*)
   (check-type a&b->c function)
