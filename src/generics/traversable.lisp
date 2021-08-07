@@ -8,7 +8,7 @@
 
     ;; Monad
     #:unit #:fmap #:amap #:mmap
-    #:alift #:alift2
+    #:lift1 #:lift2 #:liftn
     #:mlet #:mprogn #:mdo
     #:define-fmap-by-applicative
 
@@ -25,11 +25,11 @@
 
 (defun traverse (tvclass apclass a->b* as)
   (check-type a->b* function)
-  (foldr (lambda (a bs*) (alift2 (partial #'add tvclass) (funcall a->b* a) bs*))
+  (foldr (lambda (a bs*) (lift2 (partial #'add tvclass) (funcall a->b* a) bs*))
          (unit apclass (empty tvclass))
          as))
 
 (defun sequential (tvclass apclass a*s)
-  (foldr (lambda (a* as*) (alift2 (partial #'add tvclass) a* as*))
+  (foldr (lambda (a* as*) (lift2 (partial #'add tvclass) a* as*))
          (unit apclass (empty tvclass))
          a*s))

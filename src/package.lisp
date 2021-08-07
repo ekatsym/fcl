@@ -35,7 +35,7 @@
     #:quote #:cons #:list #:vector
     #:fmap
     #:unit #:amap
-    #:alift2 #:alift
+    #:lift1 #:lift2 #:liftn
     #:define-fmap-by-applicative
     #:mmap
     #:mlet #:mprogn #:mdo
