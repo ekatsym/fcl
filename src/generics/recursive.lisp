@@ -1,12 +1,11 @@
-(defpackage fcl.generics.recursive
-  (:nicknames :fcl.g.recursive :fcl.recursive)
-  (:use :common-lisp)
+(defpackage fcl.recursive
+  (:nicknames :fcl.generics.recursive :fcl.rc)
+  (:use :common-lisp :fcl.functor)
   (:export
-    #:fmap
-    #:cata
-    #:para
-    #:ana
-    #:apo))
+    #:cata #:para #:ana #:apo
+
+    ;;; Functor
+    #:fmap))
 (in-package :fcl.generics.recursive)
 
 

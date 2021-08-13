@@ -1,6 +1,6 @@
 (defpackage fcl.list
   (:nicknames :fcl.data.list :fcl.ls)
-  (:use :common-lisp :fcl.monad-plus :fcl.foldable)
+  (:use :common-lisp :fcl.monad-plus :fcl.foldable :fcl.unfoldable)
   (:import-from
     :fcl.util
     #:index)
