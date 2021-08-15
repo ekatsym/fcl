@@ -4,11 +4,8 @@
   (:export
     #:unfoldr #:unfoldr+ #:unfoldl #:unfoldl+
 
-    ;;; Functor
-    #:fmap
-
-    ;;; Recursive
-    #:cata #:para #:ana #:apo))
+    ;;; Constructible
+    #:ana #:apo))
 
 
 (defgeneric unfoldr (class x->? x->a x->x x))

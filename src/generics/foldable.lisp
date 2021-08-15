@@ -9,11 +9,8 @@
     ;;; Lazy
     #:delay #:force
 
-    ;;; Functor
-    #:fmap
-
-    ;;; Recursive
-    #:cata #:para #:ana #:apo))
+    ;;; Destructible
+    #:cata #:para))
 (in-package :fcl.foldable)
 
 
