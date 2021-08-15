@@ -1,15 +1,18 @@
 (defpackage fcl.foldable
   (:nicknames :fcl.generics.foldable :fcl.fd)
-  (:use :common-lisp :fcl.lazy)
+  (:use :common-lisp :fcl.lazy :fcl.recursive)
   (:import-from :fcl.util #:partial)
   (:export
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+    #:foldr #:foldr+ #:foldl #:foldl+
+    #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;;; Lazy
     #:delay #:force
-    #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
-    #:empty #:add
-    #:scanr #:scanr+ #:scanl #:scanl+))
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;;; Recursive
+    #:cata #:para))
 (in-package :fcl.foldable)
 
 

@@ -13,16 +13,14 @@
     #:define-fmap-by-applicative
 
     ;; Foldable
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+    #:foldr #:foldr+ #:foldl #:foldl+
     #:delay #:force
-    #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
-    #:empty #:add
+    #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+))
 (in-package :fcl.traversable)
 
 
+#|
 (defun traverse (tvclass apclass a->b* as)
   (check-type a->b* function)
   (foldr (lambda (a bs*) (lift2 (partial #'add tvclass) (funcall a->b* a) bs*))
@@ -33,3 +31,4 @@
   (foldr (lambda (a* as*) (lift2 (partial #'add tvclass) a* as*))
          (unit apclass (empty tvclass))
          a*s))
+|#

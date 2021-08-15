@@ -15,6 +15,7 @@
 (defmacro match (datum &body clauses)
   (let ((g!datum (gensym "MATCH")))
     `(let ((,g!datum ,datum))
+       (declare (ignorable ,g!datum))
        (cond ,@(mapcar (lambda (clause) (parse-clause g!datum clause)) clauses)))))
 
 (defmacro ematch (datum &body clauses)
