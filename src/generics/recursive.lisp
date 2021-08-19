@@ -6,6 +6,7 @@
   (:import-from :fcl.util #:partial #:group)
   (:export
     #:polynomial #:term
+    #:define-polynomial-convertors
     #:construct #:destruct
     #:cata #:para #:ana #:apo))
 (in-package :fcl.generics.recursive)
