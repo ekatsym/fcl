@@ -44,6 +44,8 @@
     #:define-fmap-by-monad #:define-amap-by-monad
     #:mzero #:mplus #:msum
     #:guard
+    #:polynomial #:term
+    #:construct #:destruct #:define-term-convertors
     #:cata #:para #:ana #:apo
     #:foldr #:foldr+ #:foldl #:foldl+
     #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+

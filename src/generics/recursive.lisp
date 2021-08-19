@@ -1,60 +1,62 @@
 (defpackage fcl.recursive
   (:nicknames :fcl.generics.recursive :fcl.rc)
-  (:use :common-lisp :fcl.functor)
+  (:use :common-lisp)
   (:import-from :fcl.adata #:defdata)
   (:import-from :fcl.match #:ematch)
-  (:import-from :fcl.util #:partial)
+  (:import-from :fcl.util #:partial #:group)
   (:export
-    #:polynomi
+    #:term #:tag
     #:construct #:destruct
-    #:define-polynomial-conversions
-    #:cata #:para #:ana #:apo
-
-    ;;; Functor
-    #:fmap))
+    #:cata #:para #:ana #:apo))
 (in-package :fcl.generics.recursive)
 
 
-;;; Polynomial
+;;; Term
 (defdata polynomial
-  (term symbol symbol list list))
+  (term symbol list))
 
-(defgeneric construct (class f*))
 
-(defgeneric destruct (i))
+;;; Construct and Destruct
+(defgeneric construct (class adt*))
 
-(defmacro define-polynomial-convertions (name &body clauses)
-  (let ((g!f* (gensym "F*"))
-        (g!class (gensym "CLASS"))
-        (g!i (gensym "I")))
+(defgeneric destruct (adt))
+
+(defmacro define-term-convertors (class &body pattern-pairs)
+  (let ((g!adt (gensym "ADT"))
+        (g!adt* (gensym "ADT*")))
     `(progn
-       (defmethod construct ((,g!class (eql ',name)) ,g!f*)
-         (ematch ,g!f*
-           ,@(mapcar (lambda (clause) (ematch clause
-                                        ((list f poly) `(,poly ,f))))
-                     clauses)))
-       (defmethod destruct ((,g!i ,name))
-         (ematch ,g!i ,@clauses)))))
-
-(defun cata (a*->a i)
-  (funcall a*->a (fmap (partial #'cata a*->a) (destruct i))))
-
-(defun ana (a->a* a)
-  (ematch (funcall a->a* a)
-    ((term data _ _ _)
-     (construct data (fmap (partial #'ana a->a*) (funcall a->a* a))))))
+       (defmethod construct ((class (eql ',class)) ,g!adt*)
+         (ematch ,g!adt*
+           ,@(mapcar (lambda (pairs)
+                       (assert (= (length pairs) 2))
+                       (list (second pairs) (first pairs)))
+                     pattern-pairs)))
+       (defmethod destruct ((,g!adt ,class))
+         (ematch ,g!adt
+           ,@pattern-pairs)))))
 
 
-;;; Functor
-(defmethod fmap (a->b (a* polynomial))
+;;; Catamorphisms and Anamorphisms
+(defun cata (x*->a adt)
+  (ematch (destruct adt)
+    ((term var product)
+     (funcall x*->a (fmap (partial #'cata x*->a) var t (term var product))))))
+
+(defun ana (class a->x* a)
+  (ematch (funcall a->x* a)
+    ((term var product)
+     (construct class (fmap (partial #'ana class a->x*) var var (term var product))))))
+
+(defun fmap (a->b tag-a tag-b x*)
   (check-type a->b function)
-  (ematch a*
-    ((term data constructor b+a*s types)
-     (term data
-           constructor
-           (mapcar (lambda (b+a* type)
-                     (if (eq type data)
-                         (funcall a->b b+a*)
-                         b+a*))
-                   b+a*s types)
-           types))))
+  (check-type tag-a symbol)
+  (check-type tag-b symbol)
+  (check-type x* polynomial)
+  (ematch x*
+    ((term var product)
+     (term var (mapcar (lambda (tagged)
+                         (destructuring-bind (val . tag) tagged
+                           (if (eq tag tag-a)
+                               (cons (funcall a->b val) tag-b)
+                               tagged)))
+                       product)))))
