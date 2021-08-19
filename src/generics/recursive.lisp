@@ -47,6 +47,19 @@
     ((term var product)
      (construct class (fmap (partial #'ana class a->x*) var var (term var product))))))
 
+(defun para (xx*->a adt)
+  (ematch (destruct adt)
+    ((term var product)
+     (ematch (fmap (partial #'para xx*->a) var t (term var product))
+       ((term _ product)
+        (funcall xx*->a (term var (acons adt var product))))))))
+
+(defun apo (class a->adt+x* a)
+  (ematch (funcall a->adt+x* a)
+    ((term var product)
+     (construct class (fmap (partial #'apo class a->adt+x*) var var (term var product))))
+    (adt adt)))
+
 (defun fmap (a->b tag-a tag-b x*)
   (check-type a->b function)
   (check-type tag-a symbol)
