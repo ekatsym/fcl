@@ -21,7 +21,7 @@
 
 (defgeneric destruct (adt))
 
-(defmacro define-term-convertors (class &body pattern-pairs)
+(defmacro define-polynomial-convertors (class &body pattern-pairs)
   (let ((g!adt (gensym "ADT"))
         (g!adt* (gensym "ADT*")))
     `(progn
