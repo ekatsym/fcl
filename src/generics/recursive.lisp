@@ -5,7 +5,7 @@
   (:import-from :fcl.match #:ematch)
   (:import-from :fcl.util #:partial #:group)
   (:export
-    #:term #:tag
+    #:polynomial #:term
     #:construct #:destruct
     #:cata #:para #:ana #:apo))
 (in-package :fcl.generics.recursive)
