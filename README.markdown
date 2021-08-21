@@ -19,7 +19,7 @@ facility, when a `promise` object that has already been evaluated is applied to
     (otherwise (+ (fib (- n 1)) (fib (- n 2))))))
 ;-> FIB
 
-(let (($x (time (delay (fib 40))))) ; (fib 40) is delayed and its promise is binded to $x
+(let (($x (time (delay (fib 40))))) ; (fib 40) is delayed and its promise is bound to $x
   (time (force $x))                 ; the evaluation of (fib 40) is forced
   (time (force $x)))                ; the cached value is returned
 ;-> 165580141
@@ -81,7 +81,7 @@ and implemented by structure and can be defined using `defdata`. In addition,
 ### Pattern Matching
 In FCL, pattern matching is provided by `match` and `ematch` macros. `ematch` is
 a version of `match` that an error is signalled when any patterns do not match
-the given datum. The valid `match` and `ematch` symtax is defined as follows
+the given datum. The valid `match` and `ematch` syntax is defined as follows
 (use CLHS style):
 
 ```text
