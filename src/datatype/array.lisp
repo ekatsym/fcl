@@ -1,6 +1,6 @@
 (defpackage fcl.array
   (:nicknames :fcl.data.array :fcl.ar)
-  (:use :common-lisp :fcl.monad-plus :fcl.foldable)
+  (:use :common-lisp :fcl.monad-plus :fcl.foldable :fcl.unfoldable)
   (:export
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo

@@ -6,6 +6,8 @@
     #:nlist?)
   (:export
     #:unit #:fmap #:amap #:mmap
+    #:lift1 #:lift2 #:liftn
+    #:flatten
     #:mlet #:mprogn #:mdo
     #:define-fmap-by-applicative
     #:define-fmap-by-monad
@@ -58,6 +60,9 @@ MMAP must satisfy the rules:
                 `(mprogn ,clause ,body)))
           clauses
           :from-end t))
+
+(defun mflatten (a**)
+  (mmap #'identity a**))
 
 
 ;;; Shorthand for Functor or Applicative

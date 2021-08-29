@@ -1,13 +1,18 @@
 (defpackage fcl.foldable
   (:nicknames :fcl.generics.foldable :fcl.fd)
-  (:use :common-lisp :fcl.lazy)
+  (:use :common-lisp :fcl.lazy :fcl.recursive)
+  (:import-from :fcl.util #:partial)
   (:export
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+    #:foldr #:foldr+ #:foldl #:foldl+
+    #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;;; Lazy
     #:delay #:force
-    #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
-    #:scanr #:scanr+ #:scanl #:scanl+))
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;;; Recursive
+    #:cata #:para))
 (in-package :fcl.foldable)
 
 
@@ -37,6 +42,15 @@
 (defgeneric lfoldl ($x&a->x x0 as))
 
 (defgeneric lfoldl+ ($x&a&as->x x0 as))
+
+
+;;; Utility
+(defun empty (class)
+  (unfoldr class (constantly t) #'identity #'identity nil))
+
+(defun add (class x as)
+  (let ((end (gensym)))
+    (unfoldr+ class (partial #'eq end) #'identity (constantly end) as x)))
 
 
 ;;; Scans

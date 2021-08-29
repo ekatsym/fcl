@@ -3,6 +3,7 @@
   (:use :common-lisp :fcl.monad :fcl.monoid)
   (:export
     #:unit #:fmap #:amap #:mmap
+    #:lift1 #:lift2 #:liftn
     #:mlet #:mprogn #:mdo
     #:define-fmap-by-applicative
     #:define-fmap-by-monad

@@ -45,7 +45,5 @@
 (defmethod mmap (a->b* (a* state))
   (%state
     (lambda (s0)
-      (ematch a*
-        ((%state s->a&s)
-         (multiple-value-bind (a s1) (funcall s->a&s s0)
-           (run-state (funcall a->b* a) s1)))))))
+      (multiple-value-bind (a s1) (run-state a* s0)
+        (run-state (funcall a->b* a) s1)))))

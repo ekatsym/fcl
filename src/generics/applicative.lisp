@@ -1,12 +1,15 @@
 (defpackage fcl.applicative
   (:nicknames :fcl.generics.applicative :fcl.ap)
   (:use :common-lisp :fcl.functor)
+  (:import-from :fcl.util #:partial #:curry)
   (:export
     #:unit #:fmap #:amap
+    #:lift1 #:lift2 #:liftn
     #:define-fmap-by-applicative))
 (in-package :fcl.applicative)
 
 
+;;; Core
 (defgeneric unit (class a)
   (:documentation
 "Returns a minimal unit value of CLASS including A."))
@@ -25,6 +28,25 @@ AMAP must satisfy the rules:
   Interchange:  (amap a->*b (unit class a))
              == (amap (unit class (lambda (a->b) (funcall a->b a))) a->*b)"))
 
+
+;;; Lifts
+(defun lift1 (a->b a*)
+  (check-type a->b function)
+  (fmap a->b a*))
+
+(defun lift2 (a&b->c a* b*)
+  (check-type a&b->c function)
+  (amap (fmap (curry a&b->c) a*) b*))
+
+(defun liftn (a1&-&an->b a1* &rest a2*-an*)
+  (check-type a1&-&an->b function)
+  (fmap #'funcall
+        (reduce (lambda (ai&-&an->*b ai*) (lift2 #'partial ai&-&an->*b ai*))
+                a2*-an*
+                :initial-value (fmap (curry a1&-&an->b) a1*))))
+
+
+;;; Shorthand for Functor
 (defmacro define-fmap-by-applicative (class)
   `(defmethod fmap (a->b (a* ,class))
      (amap (unit ',class a->b) a*)))

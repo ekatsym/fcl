@@ -12,7 +12,10 @@
     :fcl.monad
     :fcl.monoid
     :fcl.monad-plus
+    :fcl.recursive
     :fcl.foldable
+    :fcl.unfoldable
+    :fcl.traversable
 
     ;; data
     :fcl.promise
@@ -34,18 +37,20 @@
     #:quote #:cons #:list #:vector
     #:fmap
     #:unit #:amap
+    #:lift1 #:lift2 #:liftn
     #:define-fmap-by-applicative
     #:mmap
     #:mlet #:mprogn #:mdo
     #:define-fmap-by-monad #:define-amap-by-monad
     #:mzero #:mplus #:msum
     #:guard
+    #:polynomial #:term
+    #:construct #:destruct #:define-polynomial-convertors
     #:cata #:para #:ana #:apo
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
-    #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
+    #:foldr #:foldr+ #:foldl #:foldl+
+    #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+
+    #:unfoldr #:unfoldr+ #:unfoldl #:unfoldl+
     #:maybe #:nothing #:just
     #:either #:left #:right
     #:lc
