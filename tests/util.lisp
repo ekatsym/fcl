@@ -6,7 +6,8 @@
     #:random-character
     #:random-list
     #:random-string
-    #:random-object))
+    #:random-object
+    #:random-function))
 (in-package :fcl/tests.util)
 
 
@@ -42,8 +43,17 @@
 
 (defun random-object ()
   (case (random 5)
-    (0 (random-number (floor -1.0e6) (floor 1.0e6)))
-    (1 (random-number -1.0e6 1.0e6))
+    (0 (random-number (floor -1.0d6) (floor 1.0d6)))
+    (1 (random-number -1.0d6 1.0d6))
     (2 (random-character))
     (3 (random-list 0 1000))
     (4 (random-string 0 1000))))
+
+(defun random-function ()
+  (case (random 5)
+    (0 (lambda (x) (+ x x)))
+    (1 (lambda (x) (+ x x x)))
+    (2 (lambda (x) (* x x)))
+    (3 (lambda (x) (* x x x)))
+    (4 #'sin)
+    (5 #'cos)))
