@@ -66,7 +66,6 @@
                    (:file "applicative"   :depends-on ("functor"))
                    (:file "monad"         :depends-on ("applicative"))
                    (:file "monoid")
-                   (:file "monad-plus"    :depends-on ("monad" "monoid"))
                    (:file "foldable")))
                  (:module "datatype"    :depends-on ("util" "generics")
                   :components

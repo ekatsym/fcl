@@ -1,6 +1,6 @@
 (defpackage fcl/tests.functor
   (:nicknames :fcl/tests.generics.functor :fcl/t.ft)
-  (:use :common-lisp :rove :fcl/tests.util :fcl.functor)
+  (:use :common-lisp :rove :fcl.functor)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.util #:compose)
   (:export #:identity-test #:composition-test))
@@ -13,4 +13,3 @@
 (defmacro composition-test (b->c a->b a*)
   `(ok (data= (fmap (compose ,b->c ,a->b) ,a*)
               (fmap ,b->c (fmap ,a->b ,a*)))))
-
