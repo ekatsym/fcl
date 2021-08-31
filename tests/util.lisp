@@ -7,6 +7,7 @@
     #:random-list
     #:random-string
     #:random-object
+    #:functions
     #:random-function))
 (in-package :fcl/tests.util)
 
@@ -48,11 +49,13 @@
     (3 (random-list 0 1000))
     (4 (random-string 0 1000))))
 
+(defun functions ()
+  (list (lambda (x) (+ x x))
+        (lambda (x) (+ x x x))
+        (lambda (x) (* x x))
+        (lambda (x) (* x x x))
+        #'sin
+        #'cos))
+
 (defun random-function ()
-  (case (random 6)
-    (0 (lambda (x) (+ x x)))
-    (1 (lambda (x) (+ x x x)))
-    (2 (lambda (x) (* x x)))
-    (3 (lambda (x) (* x x x)))
-    (4 #'sin)
-    (5 #'cos)))
+  (nth (random 6) (functions)))
