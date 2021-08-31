@@ -7,6 +7,7 @@
 (in-package :fcl/tests.vector)
 
 
+#|
 (deftest matching
   (testing "Empty Vector"
     (ok (match #()
@@ -138,3 +139,4 @@
           (ok (data= (fmap (compose b->c a->b) a*)
                      (fmap b->c (fmap a->b a*))))
           '())))))
+|#
