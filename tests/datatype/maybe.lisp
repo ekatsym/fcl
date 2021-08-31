@@ -100,10 +100,7 @@
         (fcl/tests.monoid:right-identity-test 'maybe a*))))
   (testing "Associativity"
     (dotimes (i 100)
-      (mlet ((a* (list (nothing)
-                       (just (random-list 0 1000))))
-             (b* (list (nothing)
-                       (just (random-list 0 1000))))
-             (c* (list (nothing)
-                       (just (random-list 0 1000)))))
+      (mlet ((a* (list (nothing) (just (random-list 0 1000))))
+             (b* (list (nothing) (just (random-list 0 1000))))
+             (c* (list (nothing) (just (random-list 0 1000)))))
         (fcl/tests.monoid:associativity-test a* b* c*)))))

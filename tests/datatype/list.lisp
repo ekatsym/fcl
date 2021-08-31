@@ -73,18 +73,85 @@
 (deftest functor
   (testing "Identity"
     (dotimes (i 100)
-      (mlet ((a* (list '()
-                       (random-list 1 1000))))
-        (ok (data= (fmap #'identity a*)
-                   a*))
-        '())))
+      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+        (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
     (dotimes (i 100)
-      (mlet ((a* (list '()
-                       (random-list 1 1000))))
-        (let ((a->b (lambda (x) (* x x)))
-              (b->c (lambda (x) (+ x x))))
-          (ok (data= (fmap (compose b->c a->b) a*)
-                     (fmap b->c (fmap a->b a*))))
-          '())))))
+      (let ((a->b (random-function))
+            (b->c (random-function)))
+        (mlet ((a* (list '() (random-list 1 1000))))
+          (fcl/tests.functor:composition-test b->c a->b a*))))))
+
+(deftest applicative
+  (testing "Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+        (fcl/tests.applicative:identity-test 'list a*))))
+  (testing "Composition"
+    (dotimes (i 100)
+      (mlet ((a*    (list '() (random-list 1 1000)))
+             (a->*b (list '()
+                          (random-list 1 5 :random-fn #'random-function)
+                          (functions)))
+             (b->*c (list '()
+                          (random-list 1 5 :random-fn #'random-function)
+                          (functions))))
+        (fcl/tests.applicative:composition-test 'list b->*c a->*b a*))))
+  (testing "Homomorphism"
+    (dotimes (i 100)
+      (let ((a    (random-number -1.0d6 1.0d6))
+            (a->b (random-function)))
+        (fcl/tests.applicative:homomorphism-test 'list a->b a))))
+  (testing "Interchange"
+    (dotimes (i 100)
+      (let ((a (random-number -1.0d6 1.0d6)))
+        (mlet ((a->*b (list '()
+                            (random-list 1 5 :random-fn #'random-function)
+                            (functions))))
+          (fcl/tests.applicative:interchange-test 'list a->*b a))))))
+
+(deftest monad
+  (testing "Left Identity"
+    (dotimes (i 100)
+      (let ((a      (random-number -1.0d6 1.0d6)))
+        (mlet ((a->*b (list (random-list 1 5 :random-fn #'random-function)
+                            (functions)))
+               (a->b* (list (constantly '())
+                            (lambda (a)
+                              (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
+          (fcl/tests.monad:left-identity-test 'list a->b* a)))))
+  (testing "Right Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list '() (random-list 1 1000))))
+        (fcl/tests.monad:right-identity-test 'list a*))))
+  (testing "Associativity"
+    (dotimes (i 100)
+      (mlet ((a*    (list '() (random-list 1 1000)))
+             (a->*b (list (random-list 1 5 :random-fn #'random-function)
+                          (functions)))
+             (b->*c (list (random-list 1 5 :random-fn #'random-function)
+                          (functions)))
+             (a->b* (list (constantly '())
+                          (lambda (a)
+                            (fmap (lambda (a->b) (funcall a->b a)) a->*b))))
+             (b->c* (list (constantly '())
+                          (lambda (b)
+                            (fmap (lambda (b->c) (funcall b->c b)) b->*c)))))
+        (fcl/tests.monad:associativity-test a->b* b->c* a*)))))
+
+(deftest monoid
+  (testing "Left Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+        (fcl/tests.monoid:left-identity-test 'list a*))))
+  (testing "Right Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+        (fcl/tests.monoid:right-identity-test 'list a*))))
+  (testing "Associativity"
+    (dotimes (i 100)
+      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object)))
+             (b* (list '() (random-list 1 1000 :random-fn #'random-object)))
+             (c* (list '() (random-list 1 1000 :random-fn #'random-object))))
+        (fcl/tests.monoid:associativity-test a* b* c*)))))
 
