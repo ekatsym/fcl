@@ -10,12 +10,18 @@
 
 
 (defmacro left-identity-test (class a->b* a)
-  `(ok (data= (mmap ,a->b* (unit ,class ,a)) (funcall ,a->b* ,a))))
+  `(progn
+     (ok (data= (mmap ,a->b* (unit ,class ,a)) (funcall ,a->b* ,a)))
+     nil))
 
 (defmacro right-identity-test (class a*)
-  `(ok (data= (mmap (partial #'unit ,class) ,a*) ,a*)))
+  `(progn
+     (ok (data= (mmap (partial #'unit ,class) ,a*) ,a*))
+     nil))
 
 (defmacro associativity-test (a->b* b->c* a*)
   (let ((g!a (gensym "A")))
-    `(ok (data= (mmap (lambda (,g!a) (mmap ,b->c* (funcall ,a->b* ,g!a))) ,a*)
-                (mmap ,b->c* (mmap ,a->b* ,a*))))))
+    `(progn
+       (ok (data= (mmap (lambda (,g!a) (mmap ,b->c* (funcall ,a->b* ,g!a))) ,a*)
+                  (mmap ,b->c* (mmap ,a->b* ,a*))))
+       nil)))

@@ -10,11 +10,17 @@
 
 
 (defmacro left-identity-test (class a*)
-  `(ok (data= (mplus (mzero ,class) ,a*) ,a*)))
+  `(progn
+     (ok (data= (mplus (mzero ,class) ,a*) ,a*))
+     nil))
 
 (defmacro right-identity-test (class a*)
-  `(ok (data= (mplus ,a* (mzero ,class)) ,a*)))
+  `(progn
+     (ok (data= (mplus ,a* (mzero ,class)) ,a*))
+     nil))
 
 (defmacro associativity-test (a* b* c*)
-  `(ok (data= (mplus (mplus ,a* ,b*) ,c*)
-              (mplus ,a* (mplus ,b* ,c*)))))
+  `(progn
+     (ok (data= (mplus (mplus ,a* ,b*) ,c*)
+                (mplus ,a* (mplus ,b* ,c*))))
+     nil))

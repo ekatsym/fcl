@@ -8,8 +8,12 @@
 
 
 (defmacro identity-test (a*)
-  `(ok (data= (fmap #'identity ,a*) ,a*)))
+  `(progn
+     (ok (data= (fmap #'identity ,a*) ,a*))
+     nil))
 
 (defmacro composition-test (b->c a->b a*)
-  `(ok (data= (fmap (compose ,b->c ,a->b) ,a*)
-              (fmap ,b->c (fmap ,a->b ,a*)))))
+  `(progn
+     (ok (data= (fmap (compose ,b->c ,a->b) ,a*)
+                (fmap ,b->c (fmap ,a->b ,a*))))
+     nil))
