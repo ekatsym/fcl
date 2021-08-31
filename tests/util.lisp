@@ -50,7 +50,7 @@
     (4 (random-string 0 1000))))
 
 (defun random-function ()
-  (case (random 5)
+  (case (random 6)
     (0 (lambda (x) (+ x x)))
     (1 (lambda (x) (+ x x x)))
     (2 (lambda (x) (* x x)))
