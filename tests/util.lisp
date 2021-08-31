@@ -29,17 +29,16 @@
           :format-args (list min max))
   (code-char (random-number (char-code min) (char-code max))))
 
-(defun random-list (min-length max-length &key (random-fn #'random-number) (min-element 0) (max-element 1000))
-  (loop repeat (random-number min-length max-length) collect
-        (funcall random-fn min-element max-element)))
+(defun random-list (min-length max-length &key random-fn)
+  (let ((random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6)))))
+    (loop repeat (random-number min-length max-length) collect
+          (funcall random-fn))))
 
 (defun random-string (min-length max-length)
   (map 'string
        #'code-char
        (random-list min-length max-length
-                       :random-fn #'random-number
-                       :min-element #x20
-                       :max-element #x7e)))
+                    :random-fn (lambda () (random-number #x20 #x7e)))))
 
 (defun random-object ()
   (case (random 5)
