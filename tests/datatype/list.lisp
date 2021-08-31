@@ -88,7 +88,7 @@
       (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
         (fcl/tests.applicative:identity-test 'list a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 50)
       (mlet ((a*    (list '() (random-list 1 1000)))
              (a->*b (list '()
                           (random-list 1 5 :random-fn #'random-function)
@@ -125,8 +125,8 @@
       (mlet ((a* (list '() (random-list 1 1000))))
         (fcl/tests.monad:right-identity-test 'list a*))))
   (testing "Associativity"
-    (dotimes (i 100)
-      (mlet ((a*    (list '() (random-list 1 1000)))
+    (dotimes (i 40)
+      (mlet ((a*    (list '() (random-list 1 800)))
              (a->*b (list (random-list 1 5 :random-fn #'random-function)
                           (functions)))
              (b->*c (list (random-list 1 5 :random-fn #'random-function)
@@ -149,9 +149,8 @@
       (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
         (fcl/tests.monoid:right-identity-test 'list a*))))
   (testing "Associativity"
-    (dotimes (i 100)
+    (dotimes (i 50)
       (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object)))
              (b* (list '() (random-list 1 1000 :random-fn #'random-object)))
              (c* (list '() (random-list 1 1000 :random-fn #'random-object))))
         (fcl/tests.monoid:associativity-test a* b* c*)))))
-

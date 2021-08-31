@@ -35,12 +35,8 @@
   (check-type min-length (integer 0 *))
   (check-type max-length (integer 0 *))
   (assert (<= min-length max-length))
-  (let* ((random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6))))
-         (sub (- max-length min-length))
-         (len (+ min-length
-                 (truncate
-                   (loop repeat 10 sum (/ (* sub (/ (random 1000) 1000)) 10))))))
-    (loop repeat len collect (funcall random-fn))))
+  (let ((random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6)))))
+    (loop repeat (random-number min-length max-length) collect (funcall random-fn))))
 
 (defun random-string (min-length max-length)
   (map 'string
