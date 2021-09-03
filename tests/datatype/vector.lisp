@@ -7,7 +7,6 @@
 (in-package :fcl/tests.vector)
 
 
-#|
 (deftest matching
   (testing "Empty Vector"
     (ok (match #()
@@ -52,10 +51,12 @@
                        (vector _ _)
                        (vector _ _))
                nil)
-              ((vector _
-                       (vector _ _)
-                       (vector _
-                               (vector _ _)))
+              ((vector (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _))
                nil)))
         (ok (match (vector (vector a b c)
                            (vector d e f))
@@ -69,10 +70,12 @@
                        (vector _ _)
                        (vector _ _))
                nil)
-              ((vector _
-                       (vector _ _)
-                       (vector _
-                               (vector _ _)))
+              ((vector (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _))
                nil)))
         (ok (match (vector (vector a b)
                            (vector c d)
@@ -87,15 +90,19 @@
                        (vector y z))
                (and (data= a u) (data= b v) (data= c w)
                     (data= d x) (data= e y) (data= f z)))
-              ((vector _
-                       (vector _ _)
-                       (vector _
-                               (vector _ _)))
+              ((vector (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _))
                nil)))
-        (ok (match (vector a
-                           (vector b c)
-                           (vector d
-                                   (vector e f)))
+        (ok (match (vector (vector a)
+                           (vector b)
+                           (vector c)
+                           (vector d)
+                           (vector e)
+                           (vector f))
               ((vector (vector _ _ _ _ _ _))
                nil)
               ((vector (vector _ _ _)
@@ -105,10 +112,12 @@
                        (vector _ _)
                        (vector _ _))
                nil)
-              ((vector u
-                       (vector v w)
-                       (vector x
-                               (vector y z)))
+              ((vector (vector u)
+                       (vector v)
+                       (vector w)
+                       (vector x)
+                       (vector y)
+                       (vector z))
                (and (data= a u) (data= b v) (data= c w)
                     (data= d x) (data= e y) (data= f z)))))))))
 
@@ -139,4 +148,3 @@
           (ok (data= (fmap (compose b->c a->b) a*)
                      (fmap b->c (fmap a->b a*))))
           '())))))
-|#
