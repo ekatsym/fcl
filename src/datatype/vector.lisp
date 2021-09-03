@@ -173,7 +173,7 @@
                 (string 'string)
                 (vector 'vector))))
     (foldr (lambda (a b*) (concatenate type (funcall a->b* a) b*))
-           '()
+           #()
            a*)))
 
 (macrolet ((define-mzero (classname)
