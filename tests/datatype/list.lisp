@@ -122,7 +122,7 @@
           (fcl/tests.monad:left-identity-test 'list a->b* a)))))
   (testing "Right Identity"
     (dotimes (i 100)
-      (mlet ((a* (list '() (random-list 1 1000))))
+      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-function))))
         (fcl/tests.monad:right-identity-test 'list a*))))
   (testing "Associativity"
     (dotimes (i 40)

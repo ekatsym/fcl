@@ -5,6 +5,7 @@
     #:random-number
     #:random-character
     #:random-list
+    #:random-vector
     #:random-string
     #:random-object
     #:functions
@@ -38,7 +39,21 @@
   (let ((random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6)))))
     (loop repeat (random-number min-length max-length) collect (funcall random-fn))))
 
+(defun random-vector (min-length max-length &key random-fn)
+  (check-type min-length (integer 0 *))
+  (check-type max-length (integer 0 *))
+  (assert (<= min-length max-length))
+  (let* ((len (random-number min-length max-length))
+         (vec (make-array len))
+         (random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6)))))
+    (dotimes (i len)
+      (setf (svref vec i) (funcall random-fn)))
+    vec))
+
 (defun random-string (min-length max-length)
+  (check-type min-length (integer 0 *))
+  (check-type max-length (integer 0 *))
+  (assert (<= min-length max-length))
   (map 'string
        #'code-char
        (random-list min-length max-length
