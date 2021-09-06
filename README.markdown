@@ -47,12 +47,24 @@ facility, when a `promise` object that has already been evaluated is applied to
 
 ### Algebraic Data Type
 
-The algebraic data type is a kind of composite type and consisting of direct
-sum, direct product, and recursion. It is often used with pattern matching in
-functional programming. In common lisp, a new composite type is defined as
-structure or class. In FCL, algebraic data type is named `algebraic-datatype`
-and implemented by structure and can be defined using `defdata`. In addition,
-`defdata` can define lazy constructors.
+The algebraic data type is a kind of composite type
+and a direct sum of direct products with recursion allowed.
+It is often used with pattern matching in functional programming.
+In common lisp, a new composite type is defined as structure or class.
+In FCL, algebraic data type is named `algebraic-datatype`
+and implemented by structure and can be defined using `defdata`.
+In addition, `defdata` can define lazy constructors. `defdata` syntax is as follows:
+
+```text
+<defdata-syntax> ::= (defdata <name> <clause>*)
+<clause>         ::= (<constructor> <type-argument>*)
+<type-argument>  ::= <type> | (:lazy <type>)
+
+<name>           --- a symbol.
+<type>           --- a symbol of type name.
+```
+
+`defdata` examples are as follows:
 
 ```lisp
 (defdata maybe
@@ -79,41 +91,34 @@ and implemented by structure and can be defined using `defdata`. In addition,
 ```
 
 ### Pattern Matching
-In FCL, pattern matching is provided by `match` and `ematch` macros. `ematch` is
-a version of `match` that an error is signalled when any patterns do not match
-the given datum. The valid `match` and `ematch` syntax is defined as follows
-(use CLHS style):
+In FCL, pattern matching is provided by `match` and `ematch` macros.
+`ematch` is a variant of `match`
+that an error is signalled when any patterns do not match the given datum.
+The valid `match` and `ematch` syntax is defined as follows:
 
 ```text
-match datum clause* => result*
-ematch datum clause* => result*
+<match-syntax>      ::= (<match-macro> <datum> <clause>*)
+<match-macro>       ::= match | ematch
+<clause>            ::= (<pattern> <body>*)
+<pattern>           ::= t | nil | _
+                      | <built-in-type>
+                      | <variable>
+                      | (quote <pattern>) | '<pattern>
+                      | (cons <pattern> <pattern>)
+                      | (list <pattern>*)
+                      | (vector <pattern>*)
+                      | (delay <pattern>)
+                      | (<adata-constructor> <pattern>*)
+                      | (<class> <slot>*)
+<slot>              ::= <slot-key> <pattern>
 
-clause ::= (pattern form*)
-pattern ::= cons-pattern |
-            t |
-            nil |
-            _ |
-            symbol-pattern |
-            literal
-cons-pattern ::= (quote pattern) |
-                 (cons pattern pattern) |
-                 (list pattern*) |
-                 (vector pattern*) |
-                 (delay pattern) |
-                 (adata-name pattern*) |
-                 (class-name {slot-name pattern}*)
-symbol-pattern ::= built-in-type |
-                   variable
-
-datum --- an object.
-forms --- an implicit progn.
-literal --- an atom except symbol.
-adata-name --- a algebraic-datatype name.
-class-name --- a class name except algebraic-datatype.
-slot-name --- a slot name.
-built-in-type --- a built-in type of common lisp standard.
-variable --- a symbol except t, nil or _.
-results --- the values returned by forms in matching clause.
+<datum>             --- an expression.
+<body>              --- an expression.
+<built-in-type>     --- a symbol of built in type.
+<variable>          --- a symbol.
+<adata-constructor> --- a constructor of algebraic-datatype defined by defdata.
+<class>             --- a symbol of class name.
+<slot-key>          --- a keyword of a class slot.
 ```
 
 ### Generic Functions in Special Packages
