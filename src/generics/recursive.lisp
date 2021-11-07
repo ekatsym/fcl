@@ -3,7 +3,7 @@
   (:use :common-lisp)
   (:import-from :fcl.adata #:defdata)
   (:import-from :fcl.match #:ematch)
-  (:import-from :fcl.util #:partial #:group)
+  (:import-from :fcl.util #:index #:partial #:group)
   (:export
     #:polynomial #:term
     #:cata #:para #:ana #:apo))
@@ -12,7 +12,7 @@
 
 ;;; Polynomial
 (defdata polynomial
-  (term symbol list))
+  (term index list))
 
 ;;; Catamorphisms
 (defgeneric cata (ax->x a*)
