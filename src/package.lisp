@@ -45,7 +45,6 @@
     #:mzero #:mplus #:msum
     #:guard
     #:polynomial #:term
-    #:construct #:destruct #:define-polynomial-convertors
     #:cata #:para #:ana #:apo
     #:foldr #:foldr+ #:foldl #:foldl+
     #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
