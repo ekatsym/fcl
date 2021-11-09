@@ -32,22 +32,22 @@
          (i (1- first-dim) (1- i)))
         ((<= i -1) x))))
 
-(defmethod foldr+ (a&as&x->x x0 (as array))
-  (check-type a&as&x->x function)
+(defmethod foldr+ (a&x&as->x x0 (as array))
+  (check-type a&x&as->x function)
   (let* ((dims (array-dimensions as))
          (first-dim (first dims))
          (rest-dims (rest dims))
          (total-size (array-total-size as)))
-    (do ((x x0 (funcall a&as&x->x
+    (do ((x x0 (funcall a&x&as->x
                         (make-array rest-dims
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
                                                                (/ i first-dim)))
+                        x
                         (make-array (cons (- first-dim i 1) rest-dims)
                                     :displaced-to as
                                     :displaced-index-offset (* total-size
-                                                               (/ (1+ i) first-dim)))
-                        x))
+                                                               (/ (1+ i) first-dim)))))
          (i (1- first-dim) (1- i)))
         ((<= i -1) x))))
 
@@ -201,8 +201,8 @@
                             (delay (rec (1+ i)))))))
       (rec 0))))
 
-(defmethod lfoldr+ (a&as&$x->x x0 (as array))
-  (check-type a&as&$x->x function)
+(defmethod lfoldr+ (a&$x&as->x x0 (as array))
+  (check-type a&$x&as->x function)
   (let* ((dims (array-dimensions as))
          (first-dim (first dims))
          (rest-dims (rest dims))
@@ -210,16 +210,16 @@
     (labels ((rec (i)
                (if (>= i first-dim)
                    x0
-                   (funcall a&as&$x->x
+                   (funcall a&$x&as->x
                             (make-array rest-dims
                                         :displaced-to as
                                         :displaced-index-offset (* total-size
                                                                    (/ i first-dim)))
+                            (delay (rec (1+ i)))
                             (make-array (cons (- first-dim i 1) rest-dims)
                                         :displaced-to as
                                         :displaced-index-offset (* total-size
-                                                                   (/ (1+ i) first-dim)))
-                            (delay (rec (1+ i)))))))
+                                                                   (/ (1+ i) first-dim)))))))
       (rec 0))))
 
 (defmethod lfoldl ($x&a->x x0 (as array))

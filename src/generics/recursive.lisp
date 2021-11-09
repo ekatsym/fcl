@@ -17,11 +17,11 @@
 ;;; Catamorphisms
 (defgeneric cata (ax->x a*)
   (:documentation
-"Catamorphism CATA destructures A* to polynomial AX of X on A, applies AX to AX->X and returns the result X."))
+"Catamorphism CATA destructs A* to polynomial AX of X on A, applies AX to AX->X and returns the result X."))
 
 (defgeneric para (ax&a*->x a*)
   (:documentation
-"Paramorphism PARA destructures A* to polynomial AX of X on A, applies AX and A*, to AX&A*->X and returns the result X."))
+"Paramorphism PARA destructs A* to polynomial AX of X on A, applies AX and A*, to AX&A*->X and returns the result X."))
 
 (defgeneric ana (class x->ax x)
   (:documentation
@@ -29,4 +29,4 @@
 
 (defgeneric apo (class x->ax+a0 x)
   (:documentation
-"Apomorphism APO appliec X to X->AX+A0 and constructs a value of algebraic data type on A from the result polynomial AX of X on A or A0."))
+"Apomorphism APO applies X to X->AX+A0 and constructs a value of algebraic data type on A from the result polynomial AX of X on A or A0."))

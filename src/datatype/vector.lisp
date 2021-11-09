@@ -25,9 +25,9 @@
        (i (1- (length as)) (1- i)))
       ((<= i -1) x)))
 
-(defmethod foldr+ (a&as&x->x x0 (as vector))
-  (check-type a&as&x->x function)
-  (do ((x x0 (funcall a&as&x->x (elt as i) (subseq as (1+ i)) x))
+(defmethod foldr+ (a&x&as->x x0 (as vector))
+  (check-type a&x&as->x function)
+  (do ((x x0 (funcall a&x&as->x (elt as i) x (subseq as (1+ i))))
        (i (1- (length as)) (1- i)))
       ((<= i -1) x)))
 
@@ -116,16 +116,16 @@
                    (funcall a&$x->x (elt as i) (delay (rec (1+ i)))))))
       (rec 0))))
 
-(defmethod lfoldr+ (a&as&$x->x x0 (as vector))
-  (check-type a&as&$x->x function)
+(defmethod lfoldr+ (a&$x&as->x x0 (as vector))
+  (check-type a&$x&as->x function)
   (let ((len (length as)))
     (labels ((rec (i)
                (if (>= i len)
                    x0
-                   (funcall a&as&$x->x
+                   (funcall a&$x&as->x
                             (elt as i)
-                            (subseq as (1+ i))
-                            (delay (rec (1+ i)))))))
+                            (delay (rec (1+ i)))
+                            (subseq as (1+ i))))))
       (rec 0))))
 
 (defmethod lfoldl ($x&a->x x0 (as vector))
