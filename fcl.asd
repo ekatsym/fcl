@@ -76,8 +76,4 @@
                    (:file "vector")
                    (:file "package"       :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
-  :perform (test-op (op c) (unless (symbol-call :rove :run c)
-                             #+sbcl (sb-ext:exit :code 1)
-                             #+ccl  (ccl:quit 1)
-                             #+abcl (extensions:exit :status 1)
-                             #+ecl  (si:quit 1))))
+  :perform (test-op (op c) (symbol-call :rove :run c)))
