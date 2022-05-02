@@ -1,6 +1,6 @@
 (defpackage fcl.foldable
   (:nicknames :fcl.generics.foldable :fcl.fd)
-  (:use :common-lisp :fcl.lazy :fcl.recursive)
+  (:use :common-lisp :fcl.lazy)
   (:import-from :fcl.util #:partial)
   (:import-from :fcl.match #:match #:ematch)
   (:export
