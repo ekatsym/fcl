@@ -13,7 +13,10 @@
   (cache nil))
 
 (defmethod print-object ((object promise) stream)
-  (format stream "#<PROMISE ~S>" (force object)))
+  (with-slots (forced? cache) object
+    (if forced?
+        (format stream "#<PROMISE ~S>" cache)
+        (format stream "#<PROMISE UNFORCED>"))))
 
 (defmacro delay (expression)
   `(make-promise (lambda () ,expression)))

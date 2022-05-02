@@ -2,10 +2,7 @@
   (:nicknames :fcl.generics.unfoldable :fcl.uf)
   (:use :common-lisp)
   (:export
-    #:unfoldr #:unfoldr+ #:unfoldl #:unfoldl+
-
-    ;;; Constructible
-    #:ana #:apo))
+    #:unfoldr #:unfoldr+ #:unfoldl #:unfoldl+))
 
 
 (defgeneric unfoldr (class x->? x->a x->x x))

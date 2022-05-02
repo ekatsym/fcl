@@ -10,14 +10,10 @@
 
     ;;; Lazy
     #:delay #:force
-    #:scanr #:scanr+ #:scanl #:scanl+
-
-    ;;; Recursive
-    #:cata #:para))
+    #:scanr #:scanr+ #:scanl #:scanl+))
 (in-package :fcl.foldable)
 
 
-;;; Folds for "List".
 (defgeneric foldr (a&x->x x0 as))
 
 (defgeneric foldr+ (a&x&as->x x0 as))
