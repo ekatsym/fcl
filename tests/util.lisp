@@ -5,8 +5,11 @@
     #:random-number
     #:random-character
     #:random-list
+    #:random-vector
     #:random-string
-    #:random-object))
+    #:random-object
+    #:functions
+    #:random-function))
 (in-package :fcl/tests.util)
 
 
@@ -28,22 +31,55 @@
           :format-args (list min max))
   (code-char (random-number (char-code min) (char-code max))))
 
-(defun random-list (min-length max-length &key (random-fn #'random-number) (min-element 0) (max-element 1000))
-  (loop repeat (random-number min-length max-length) collect
-        (funcall random-fn min-element max-element)))
+
+(defun random-list (min-length max-length &key random-fn)
+  (check-type min-length (integer 0 *))
+  (check-type max-length (integer 0 *))
+  (assert (<= min-length max-length))
+  (let ((random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6)))))
+    (loop repeat (random-number min-length max-length) collect (funcall random-fn))))
+
+(defun random-vector (min-length max-length &key random-fn)
+  (check-type min-length (integer 0 *))
+  (check-type max-length (integer 0 *))
+  (assert (<= min-length max-length))
+  (let* ((len (random-number min-length max-length))
+         (vec (make-array len))
+         (random-fn (or random-fn (lambda () (random-number -1.0d6 1.0d6)))))
+    (dotimes (i len)
+      (setf (svref vec i) (funcall random-fn)))
+    vec))
 
 (defun random-string (min-length max-length)
+  (check-type min-length (integer 0 *))
+  (check-type max-length (integer 0 *))
+  (assert (<= min-length max-length))
   (map 'string
        #'code-char
        (random-list min-length max-length
-                       :random-fn #'random-number
-                       :min-element #x20
-                       :max-element #x7e)))
+                    :random-fn (lambda () (random-number #x20 #x7e)))))
 
 (defun random-object ()
-  (case (random 5)
-    (0 (random-number (floor -1.0e6) (floor 1.0e6)))
-    (1 (random-number -1.0e6 1.0e6))
-    (2 (random-character))
-    (3 (random-list 0 1000))
-    (4 (random-string 0 1000))))
+  (let ((p (random 10000)))
+    (cond ((< p 3000) (random-number -1000000 1000000))
+          ((< p 6000) (random-number -1.0d6 1.0d6))
+          ((< p 9000) (random-character))
+          ((< p 9600) (random-string 0 10))
+          ((< p 9660) (random-string 0 100))
+          ((< p 9666) (random-string 0 1000))
+          ((< p 9966) (random-list 0 1    :random-fn #'random-object))
+          ((< p 9996) (random-list 0 10   :random-fn #'random-object))
+          ((< p 9999) (random-list 0 100  :random-fn #'random-object))
+          (t          (random-list 0 1000 :random-fn #'random-object)))))
+
+(defun functions ()
+  (list (lambda (x) (+ x x))
+        (lambda (x) (+ x x x))
+        (lambda (x) (* x x))
+        (lambda (x) (* x x x))
+        #'sin
+        #'cos))
+
+(defun random-function ()
+  (let ((fs (functions)))
+    (nth (random (length fs)) fs)))

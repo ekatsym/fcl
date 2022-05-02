@@ -1,19 +1,32 @@
-(defpackage fcl.generics.recursive
-  (:nicknames :fcl.g.recursive :fcl.recursive)
+(defpackage fcl.recursive
+  (:nicknames :fcl.generics.recursive :fcl.rc)
   (:use :common-lisp)
+  (:import-from :fcl.adata #:defdata)
+  (:import-from :fcl.match #:ematch)
+  (:import-from :fcl.util #:partial #:group)
   (:export
-    #:fmap
-    #:cata
-    #:para
-    #:ana
-    #:apo))
+    #:polynomial #:term
+    #:cata #:para #:ana #:apo))
 (in-package :fcl.generics.recursive)
 
 
-(defgeneric cata (x*->x i))
+;;; Polynomial
+(defdata polynomial
+  (term symbol list))
 
-(defgeneric para (i&*x->x i))
+;;; Catamorphisms
+(defgeneric cata (ax->x a*)
+  (:documentation
+"Catamorphism CATA destructs A* to polynomial AX of X on A, applies AX to AX->X and returns the result X."))
 
-(defgeneric ana (class x->x* x))
+(defgeneric para (ax&a*->x a*)
+  (:documentation
+"Paramorphism PARA destructs A* to polynomial AX of X on A, applies AX and A*, to AX&A*->X and returns the result X."))
 
-(defgeneric apo (class x->f+*x x))
+(defgeneric ana (class x->ax x)
+  (:documentation
+"Anamorphism ANA applies X to X->AX and constructs a value of algebraic data type on A from the result polynomial AX of X on A."))
+
+(defgeneric apo (class x->ax+a0 x)
+  (:documentation
+"Apomorphism APO applies X to X->AX+A0 and constructs a value of algebraic data type on A from the result polynomial AX of X on A or A0."))

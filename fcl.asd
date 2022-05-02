@@ -25,9 +25,10 @@
                    (:file "monad"         :depends-on ("applicative"))
                    (:file "monoid")
                    (:file "monad-plus"    :depends-on ("monad" "monoid"))
-                   (:file "foldable")
-                   (:file "traversable"   :depends-on ("foldable" "monad"))
-                   ))
+                   (:file "recursive"     :depends-on ("functor"))
+                   (:file "foldable"      :depends-on ("recursive"))
+                   (:file "unfoldable"    :depends-on ("recursive"))
+                   (:file "traversable"   :depends-on ("foldable" "monad"))))
                  (:module "datatype"    :depends-on ("util" "core" "generics")
                   :components
                   ((:file "promise")
@@ -59,7 +60,14 @@
   :components ((:module "tests"
                 :components
                 ((:file "util")
-                 (:module "datatype"    :depends-on ("util")
+                 (:module "generics"    :depends-on ("util")
+                  :components
+                  ((:file "functor")
+                   (:file "applicative"   :depends-on ("functor"))
+                   (:file "monad"         :depends-on ("applicative"))
+                   (:file "monoid")
+                   (:file "foldable")))
+                 (:module "datatype"    :depends-on ("util" "generics")
                   :components
                   ((:file "promise")
                    (:file "maybe")

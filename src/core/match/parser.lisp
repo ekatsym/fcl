@@ -67,7 +67,7 @@
           (= ,(length pats) (length ,data))
           ,@(mapcar (lambda (pat i)
                       (let ((g!vi (gensym "VI")))
-                        `(let ((,g!vi (svref ,data ,i)))
+                        `(let ((,g!vi (aref ,data ,i)))
                            (declare (ignorable ,g!vi))
                            ,(pattern->test g!vi pat))))
                     pats
@@ -173,7 +173,7 @@
     (reduce (lambda (i-pat body)
               (destructuring-bind (i pat) i-pat
                 (let ((g!vi (gensym "VI")))
-                  `(let ((,g!vi (svref ,data ,i)))
+                  `(let ((,g!vi (aref ,data ,i)))
                      (declare (ignorable ,g!vi))
                      ,(pattern->bind g!vi pat body)))))
             (zip (enum 0 (length pats)) pats)

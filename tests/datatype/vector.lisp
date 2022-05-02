@@ -51,10 +51,12 @@
                        (vector _ _)
                        (vector _ _))
                nil)
-              ((vector _
-                       (vector _ _)
-                       (vector _
-                               (vector _ _)))
+              ((vector (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _))
                nil)))
         (ok (match (vector (vector a b c)
                            (vector d e f))
@@ -68,10 +70,12 @@
                        (vector _ _)
                        (vector _ _))
                nil)
-              ((vector _
-                       (vector _ _)
-                       (vector _
-                               (vector _ _)))
+              ((vector (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _))
                nil)))
         (ok (match (vector (vector a b)
                            (vector c d)
@@ -86,15 +90,19 @@
                        (vector y z))
                (and (data= a u) (data= b v) (data= c w)
                     (data= d x) (data= e y) (data= f z)))
-              ((vector _
-                       (vector _ _)
-                       (vector _
-                               (vector _ _)))
+              ((vector (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _)
+                       (vector _))
                nil)))
-        (ok (match (vector a
-                           (vector b c)
-                           (vector d
-                                   (vector e f)))
+        (ok (match (vector (vector a)
+                           (vector b)
+                           (vector c)
+                           (vector d)
+                           (vector e)
+                           (vector f))
               ((vector (vector _ _ _ _ _ _))
                nil)
               ((vector (vector _ _ _)
@@ -104,10 +112,12 @@
                        (vector _ _)
                        (vector _ _))
                nil)
-              ((vector u
-                       (vector v w)
-                       (vector x
-                               (vector y z)))
+              ((vector (vector u)
+                       (vector v)
+                       (vector w)
+                       (vector x)
+                       (vector y)
+                       (vector z))
                (and (data= a u) (data= b v) (data= c w)
                     (data= d x) (data= e y) (data= f z)))))))))
 
@@ -124,17 +134,87 @@
 (deftest functor
   (testing "Identity"
     (dotimes (i 100)
-      (mlet ((a* (list '()
-                       (random-list 1 1000))))
-        (ok (data= (fmap #'identity a*)
-                   a*))
-        '())))
+      (mlet ((a* (list #()
+                       (random-vector 1 1000 :random-fn #'random-object))))
+        (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
     (dotimes (i 100)
-      (mlet ((a* (list '()
-                       (random-list 1 1000))))
-        (let ((a->b (lambda (x) (* x x)))
-              (b->c (lambda (x) (+ x x))))
-          (ok (data= (fmap (compose b->c a->b) a*)
-                     (fmap b->c (fmap a->b a*))))
-          '())))))
+      (mlet ((a* (list #() (random-vector 1 1000))))
+        (let ((a->b (random-function))
+              (b->c (random-function)))
+          (fcl/tests.functor:composition-test b->c a->b a*))))))
+
+(deftest applicative
+  (testing "Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+        (fcl/tests.applicative:identity-test 'vector a*))))
+  (testing "Composition"
+    (dotimes (i 50)
+      (mlet ((a*    (list #()
+                          (random-vector 1 200)))
+             (a->*b (list #()
+                          (random-vector 1 5 :random-fn #'random-function)
+                          (coerce (functions) 'vector)))
+             (b->*c (list #()
+                          (random-vector 1 5 :random-fn #'random-function)
+                          (coerce (functions) 'vector))))
+        (fcl/tests.applicative:composition-test 'vector b->*c a->*b a*))))
+  (testing "Homomorphism"
+    (dotimes (i 100)
+      (let ((a    (random-number -1.0d6 1.0d6))
+            (a->b (random-function)))
+        (fcl/tests.applicative:homomorphism-test 'vector a->b a))))
+  (testing "Interchange"
+    (dotimes (i 100)
+      (let ((a (random-number -1.0d6 1.0d6)))
+        (mlet ((a->*b (list #()
+                            (coerce (random-list 1 5 :random-fn #'random-function)
+                                    'simple-vector)
+                            (coerce (functions) 'simple-vector))))
+          (fcl/tests.applicative:interchange-test 'vector a->*b a))))))
+
+(deftest monad
+  (testing "Left Identity"
+    (dotimes (i 100)
+      (let ((a (random-number -1.0d6 1.0d6)))
+        (mlet ((a->*b (list (random-vector 1 5 :random-fn #'random-function)
+                            (coerce (functions) 'vector)))
+               (a->b* (list (constantly #())
+                            (lambda (a)
+                              (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
+          (fcl/tests.monad:left-identity-test 'vector a->b* a)))))
+  (testing "Right Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-function))))
+        (fcl/tests.monad:right-identity-test 'vector a*))))
+  (testing "Associativity"
+    (dotimes (i 50)
+      (mlet ((a*    (list #() (random-vector 1 200)))
+             (a->*b (list (random-vector 1 5 :random-fn #'random-function)
+                          (coerce (functions) 'vector)))
+             (b->*c (list (random-vector 1 5 :random-fn #'random-function)
+                          (coerce (functions) 'vector)))
+             (a->b* (list (constantly #())
+                          (lambda (a)
+                            (fmap (lambda (a->b) (funcall a->b a)) a->*b))))
+             (b->c* (list (constantly #())
+                          (lambda (b)
+                            (fmap (lambda (b->c) (funcall b->c b)) b->*c)))))
+        (fcl/tests.monad:associativity-test a->b* b->c* a*)))))
+
+(deftest monoid
+  (testing "Left Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+        (fcl/tests.monoid:left-identity-test 'vector a*))))
+  (testing "Right Identity"
+    (dotimes (i 100)
+      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+        (fcl/tests.monoid:right-identity-test 'vector a*))))
+  (testing "Associativity"
+    (dotimes (i 100)
+      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object)))
+             (b* (list #() (random-vector 1 1000 :random-fn #'random-object)))
+             (c* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+        (fcl/tests.monoid:associativity-test a* b* c*)))))

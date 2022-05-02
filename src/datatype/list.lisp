@@ -1,6 +1,6 @@
 (defpackage fcl.list
   (:nicknames :fcl.data.list :fcl.ls)
-  (:use :common-lisp :fcl.monad-plus :fcl.foldable)
+  (:use :common-lisp :fcl.monad-plus :fcl.foldable :fcl.unfoldable)
   (:import-from
     :fcl.util
     #:index)
@@ -33,8 +33,8 @@
        (x x0 (funcall a&x->x (first as) x)))
       ((endp as) x)))
 
-(defmethod foldr+ (a&as&x->x x0 (as list))
-  (check-type a&as&x->x function)
+(defmethod foldr+ (a&x&as->x x0 (as list))
+  (check-type a&x&as->x function)
   (flet ((rev+ (lst)
            (do ((lst lst (rest lst))
                 (acc '() (cons lst acc)))
@@ -42,7 +42,7 @@
     (do ((as-s (rev+ as) (rest as-s))
          (x x0 (ematch as-s
                  ((cons (cons a as) _)
-                  (funcall a&as&x->x a as x)))))
+                  (funcall a&x&as->x a x as)))))
         ((endp as-s) x))))
 
 (defmethod unfoldr ((class (eql 'list)) x->? x->a x->x x)
@@ -101,14 +101,14 @@
                  (funcall a&$x->x (first as) (delay (rec (rest as)))))))
     (rec as)))
 
-(defmethod lfoldr+ (a&as&$x->x x0 (as list))
-  (check-type a&as&$x->x function)
+(defmethod lfoldr+ (a&$x&as->x x0 (as list))
+  (check-type a&$x&as->x function)
   (labels ((rec (as)
              (if (endp as)
                  x0
                  (let ((a (first as))
                        (as (rest as)))
-                   (funcall a&as&$x->x a as (delay (rec as)))))))
+                   (funcall a&$x&as->x a (delay (rec as)) as)))))
     (rec as)))
 
 (defmethod lfoldl ($x&a->x x0 (as list))
@@ -130,6 +130,7 @@
                        (as (rest as)))
                    (rec as (delay (funcall $x&a&as->x (force $x) a as)))))))
     (rec as (delay x0))))
+
 
 ;;; MONAD-PLUS
 (defmethod unit ((class (eql 'list)) a)
