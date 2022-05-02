@@ -12,10 +12,8 @@
     :fcl.monad
     :fcl.monoid
     :fcl.monad-plus
-    :fcl.recursive
     :fcl.foldable
     :fcl.unfoldable
-    :fcl.traversable
 
     ;; data
     :fcl.promise
@@ -44,8 +42,6 @@
     #:define-fmap-by-monad #:define-amap-by-monad
     #:mzero #:mplus #:msum
     #:guard
-    #:polynomial #:term
-    #:cata #:para #:ana #:apo
     #:foldr #:foldr+ #:foldl #:foldl+
     #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+

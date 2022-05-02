@@ -1,6 +1,6 @@
 (defpackage fcl.unfoldable
   (:nicknames :fcl.generics.unfoldable :fcl.uf)
-  (:use :common-lisp :fcl.recursive)
+  (:use :common-lisp)
   (:export
     #:unfoldr #:unfoldr+ #:unfoldl #:unfoldl+
 
