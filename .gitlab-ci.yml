@@ -1,37 +1,19 @@
+include:
+  project: 'clci/gitlab-ci'
+  ref: release/v2-dev
+  file:
+    - definitions.gitlab-ci.yml
+    - test-pipeline.gitlab-ci.yml
+
 variables:
-  IMAGE_TAG: latest
-  QUICKLISP_ADD_TO_INIT_FILE: "true"
-  QUICKLISP_DIST_VERSION: latest
+  CLCI_INSTALL_QUICKLISP_CLIENT: "yes"
 
-image: clfoundation/$LISP:$IMAGE_TAG
 
-stages:
-  - test
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - if: '$CI_COMMIT_TAG'
 
-before_script:
-  - install-quicklisp
-  - cp -r . ~/quicklisp/local-projects/
-
-.test:
-  stage: test
-  script: $LISP --eval "(progn (ql:quickload '(:rove)) (asdf:test-system :fcl) (quit))"
-
-sbcl:
-  extends: .test
-  variables:
-    LISP: sbcl
-
-ccl:
-  extends: .test
-  variables:
-    LISP: ccl
-
-abcl:
-  extends: .test
-  variables:
-    LISP: abcl
-
-ecl:
-  extends: .test
-  variables:
-    LISP: ecl
