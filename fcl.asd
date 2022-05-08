@@ -40,7 +40,8 @@
                    (:file "writer")
                    (:file "state")
                    (:file "result")
-                   (:file "io")))
+                   (:file "io")
+                   (:file "queue"         :depends-on ("list"))))
                  (:module "util"
                   :components
                   ((:file "package")

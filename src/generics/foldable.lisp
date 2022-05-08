@@ -18,17 +18,9 @@
 
 (defgeneric foldr+ (a&x&as->x x0 as))
 
-(defgeneric unfoldr (class x->? x->a x->x x))
-
-(defgeneric unfoldr+ (class x->? x->a x->x as0 x))
-
 (defgeneric foldl (x&a->x x0 as))
 
 (defgeneric foldl+ (x&a&as->x x0 as))
-
-(defgeneric unfoldl (class x->? x->x x->a x))
-
-(defgeneric unfoldl+ (class x->? x->x x->a as0 x))
 
 
 ;;; Lazy Folds
