@@ -92,3 +92,68 @@
     #:ll-map-derangements
     #:ll-map-permutations))
 (in-package :fcl.llist)
+
+
+;;; Core
+(defdata llist
+  (ll-nil)
+  (ll-cons (:lazy t) (:lazy llist)))
+
+(defun ll-null (object)
+  (typep object 'll-nil))
+
+(defun ll-endp (llist)
+  (check-type llist llist)
+  (typep llist 'll-nil))
+
+(defun ll-first (ll-cons)
+  (check-type ll-cons ll-cons)
+  (ematch ll-cons
+    ((ll-cons x _) x)))
+
+(defun ll-car (ll-cons)
+  (declare (inline))
+  (ll-first ll-cons))
+
+(defun ll-rest (ll-cons)
+  (check-type ll-cons ll-cons)
+  (ematch ll-cons
+    ((ll-cons _ x) x)))
+
+(defun ll-cdr (ll-cons)
+  (declare (inline))
+  (ll-rest ll-cons))
+
+(defun ll-list (&rest args)
+  (list->llist args))
+
+(defun llist? (object)
+  (typep object 'llist))
+
+(defun ll-listp (object)
+  (declare (inline))
+  (llist? object))
+
+
+;;; LIST Convertions
+(defun llist->list (llist)
+  (check-type llist llist)
+  (do ((llst llist (ll-rest llst))
+       (acc '() (cons (ll-first llst) acc)))
+      ((ll-endp llst) (nreverse acc))))
+
+(defun list->llist (list)
+  (check-type list list)
+  (if (endp list)
+      (ll-nil)
+      (ll-cons (first list) (list->llist (rest list)))))
+
+
+;;; Printer
+(defmethod print-object ((object ll-nil) stream)
+  (format stream "#<LLIST ~S>" (llist->list object)))
+
+(defmethod print-object ((object ll-cons) stream)
+  (format stream "#<LLIST ~S>" (llist->list object)))
+
+
