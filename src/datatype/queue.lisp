@@ -1,12 +1,13 @@
 (defpackage fcl.queue
   (:nicknames :fcl.data.queue :fcl.qu)
   (:use :common-lisp :fcl.monad-plus :fcl.foldable :fcl.unfoldable)
-  (:import-from :fcl.adata #:defdata)
+  (:import-from :fcl.adata #:defdata #:data=)
   (:import-from :fcl.match #:match #:ematch)
   (:export
     #:queue
     #:empty #:empty?
     #:add #:head #:tail
+    #:data=
 
     ;; LIST convertions
     #:queue->list
@@ -69,6 +70,17 @@
   (ematch queue
     ((%queue '() _)           (error 'queue-empty))
     ((%queue (cons _ l1-) l2) (check (%queue l1- l2)))))
+
+
+;;; Equality
+(defmethod data= ((data1 queue) (data2 queue))
+  (labels ((rec (d1 d2)
+             (declare (optimize (space 3)))
+             (cond ((empty? d1) (empty? d2))
+                   ((empty? d2) nil)
+                   ((data= (head d1) (head d2)) (rec (tail d1) (tail d2)))
+                   (t nil))))
+    (rec data1 data2)))
 
 
 ;;; LIST Convertions
