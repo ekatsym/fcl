@@ -4,27 +4,28 @@
   (:import-from :fcl.adata #:defdata #:data=)
   (:import-from :fcl.match #:match #:ematch)
   (:export
+    ;; Core
     #:queue
     #:empty #:empty?
     #:add #:head #:tail
     #:data=
 
-    ;; LIST convertions
+    ;; LIST Convertions
     #:queue->list
     #:list->queue
 
-    ;; foldable
+    ;; Foldable
     #:foldr #:foldr+
     #:foldl #:foldl+
     #:lfoldr #:lfoldr+
     #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+
 
-    ;; unfoldable
+    ;; Unfoldable
     #:unfoldr #:unfoldr+
     #:unfoldl #:unfoldl+
 
-    ;; monad+
+    ;; Monad Plus
     #:unit #:fmap #:amap #:mmap
     #:lift1 #:lift2 #:liftn
     #:mlet #:mprogn #:mdo

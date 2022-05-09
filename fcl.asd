@@ -41,7 +41,8 @@
                    (:file "state")
                    (:file "result")
                    (:file "io")
-                   (:file "queue"         :depends-on ("list"))))
+                   (:file "queue"         :depends-on ("list"))
+                   (:file "llist"         :depends-on ("list"))))
                  (:module "util"
                   :components
                   ((:file "package")
