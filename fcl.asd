@@ -40,7 +40,8 @@
                    (:file "writer")
                    (:file "state")
                    (:file "result")
-                   (:file "io")))
+                   (:file "io")
+                   (:file "queue"         :depends-on ("list"))))
                  (:module "util"
                   :components
                   ((:file "package")
@@ -72,6 +73,7 @@
                    (:file "either")
                    (:file "list")
                    (:file "vector")
+                   (:file "queue")
                    (:file "package"       :depends-on ("maybe" "either")))))))
   :description "Test system for fcl"
   :perform (test-op (op c) (symbol-call :rove :run c)))

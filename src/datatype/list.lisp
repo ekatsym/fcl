@@ -50,8 +50,8 @@
   (check-type x->a function)
   (check-type x->x function)
   (do ((x x (funcall x->x x))
-       (ras '() (cons (funcall x->a x) ras)))
-      ((funcall x->? x) (nreverse ras))))
+       (as '() (cons (funcall x->a x) as)))
+      ((funcall x->? x) (nreverse as))))
 
 (defmethod unfoldr+ ((class (eql 'list)) x->? x->a x->x as0 x)
   (check-type x->? function)
@@ -59,8 +59,8 @@
   (check-type x->x function)
   (check-type as0 list)
   (do ((x x (funcall x->x x))
-       (ras '() (cons (funcall x->a x) ras)))
-      ((funcall x->? x) (revappend ras as0))))
+       (as '() (cons (funcall x->a x) as)))
+      ((funcall x->? x) (revappend as as0))))
 
 (defmethod foldl (x&a->x x0 (as list))
   (check-type x&a->x function)

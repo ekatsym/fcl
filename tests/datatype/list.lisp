@@ -113,7 +113,7 @@
 (deftest monad
   (testing "Left Identity"
     (dotimes (i 100)
-      (let ((a      (random-number -1.0d6 1.0d6)))
+      (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list (random-list 1 5 :random-fn #'random-function)
                             (functions)))
                (a->b* (list (constantly '())

@@ -35,7 +35,7 @@
 
 (defun llist->list (llist)
   (check-type llist llist)
-  (fcl.foldable::unfoldr 'list #'lendp #'lfirst #'lrest llist))
+  (fcl.unfoldable::unfoldr 'list #'lendp #'lfirst #'lrest llist))
 
 (defmethod print-object ((object lnil) stream)
   (format stream "#.(LNIL)"))
