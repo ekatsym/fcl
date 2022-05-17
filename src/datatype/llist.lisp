@@ -160,7 +160,7 @@
   (labels ((rec (as)
              (ematch as
                ((ll-nil) x0)
-               ((ll-cons a as) (funcall a (rec as))))))
+               ((ll-cons a as) (funcall a&x->x a (rec as))))))
     (rec as)))
 
 (defmethod foldl (x&a->x x0 (as llist))
