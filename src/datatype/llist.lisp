@@ -13,8 +13,7 @@
     #:data=
 
     ;; LIST Convertions
-    #:llist->list
-    #:list->llist
+    #:llist->list #:list->llist
 
     ;; Foldable
     #:foldr #:foldr+
@@ -108,8 +107,7 @@
 
 (defun ll-first (ll-cons)
   (check-type ll-cons ll-cons)
-  (ematch ll-cons
-    ((ll-cons x _) x)))
+  (ll-cons%0 ll-cons))
 
 (defun ll-car (ll-cons)
   (declare (inline))
@@ -117,8 +115,7 @@
 
 (defun ll-rest (ll-cons)
   (check-type ll-cons ll-cons)
-  (ematch ll-cons
-    ((ll-cons _ x) x)))
+  (ll-cons%1 ll-cons))
 
 (defun ll-cdr (ll-cons)
   (declare (inline))
@@ -157,3 +154,17 @@
   (format stream "#<LLIST ~S>" (llist->list object)))
 
 
+;;; Foldable
+(defmethod foldr (a&x->x x0 (as llist))
+  (check-type a&x->x function)
+  (labels ((rec (as)
+             (ematch as
+               ((ll-nil) x0)
+               ((ll-cons a as) (funcall a (rec as))))))
+    (rec as)))
+
+(defmethod foldl (x&a->x x0 (as llist))
+  (check-type x&a->x function)
+  (do ((as as (ll-rest as))
+       (x x0 (funcall x&a->x x (ll-first as))))
+      ((ll-endp as) x)))
