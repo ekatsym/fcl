@@ -5,16 +5,25 @@
     :fcl.util
     #:index)
   (:export
+    ;; Monad Plus
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
     #:mzero #:mplus #:msum
     #:guard
     #:vc
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+
+    ;; Foldable
+    #:foldr #:foldr+
+    #:foldl #:foldl+
     #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
-    #:scanr #:scanr+ #:scanl #:scanl+))
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;; Unfoldable
+     #:unfoldr #:unfoldr+
+     #:unfoldl #:unfoldl+
+
+     ;; Lazy Evaluation
+     #:delay #:force))
 (in-package :fcl.vector)
 
 

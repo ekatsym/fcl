@@ -18,7 +18,6 @@
     #:foldr #:foldr+
     #:foldl #:foldl+
     #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+
 
     ;; Unfoldable
@@ -31,7 +30,6 @@
     #:mlet #:mprogn #:mdo
     #:mzero #:mplus #:msum
     #:guard
-
     #:qc))
 (in-package :fcl.queue)
 
@@ -134,30 +132,6 @@
   (ematch as
     ((%queue l1 l2)
      (foldr+ (lambda (a x as) (funcall x&a&as->x x a as)) (foldl+ x&a&as->x x0 l1) l2))))
-
-(defmethod lfoldr (a&$x->x x0 (as queue))
-  (check-type a&$x->x function)
-  (ematch as
-    ((%queue l1 l2)
-     (lfoldr a&$x->x (lfoldl (lambda ($x a) (funcall a&$x->x a $x)) x0 l2) l1))))
-
-(defmethod lfoldr+ (a&$x&as->x x0 (as queue))
-  (check-type a&$x&as->x function)
-  (ematch as
-    ((%queue l1 l2)
-     (lfoldr+ a&$x&as->x (lfoldl+ (lambda ($x a as) (funcall a&$x&as->x a $x as)) x0 l2) l1))))
-
-(defmethod lfoldl ($x&a->x x0 (as queue))
-  (check-type $x&a->x function)
-  (ematch as
-    ((%queue l1 l2)
-     (lfoldr (lambda (a $x) (funcall $x&a->x $x a)) (lfoldl $x&a->x x0 l1) l2))))
-
-(defmethod lfoldl+ ($x&a&as->x x0 (as queue))
-  (check-type $x&a&as->x function)
-  (ematch as
-    ((%queue l1 l2)
-     (lfoldr+ (lambda (a $x as) (funcall $x&a&as->x $x a as)) (lfoldl+ $x&a&as->x x0 l1) l2))))
 
 
 ;;; Unfoldable

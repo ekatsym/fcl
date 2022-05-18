@@ -5,7 +5,7 @@
   (:import-from :fcl.match #:match #:ematch)
   (:export
     #:foldr #:foldr+ #:foldl #:foldl+
-    #:lfoldr #:lfoldr+ #:lfoldl #:lfoldl+
+    #:lfoldr #:lfoldr+
     #:scanr #:scanr+ #:scanl #:scanl+
 
     ;;; Lazy
@@ -27,10 +27,6 @@
 (defgeneric lfoldr (a&$x->x x0 as))
 
 (defgeneric lfoldr+ (a&$x&as->x x0 as))
-
-(defgeneric lfoldl ($x&a->x x0 as))
-
-(defgeneric lfoldl+ ($x&a&as->x x0 as))
 
 
 ;;; Scans

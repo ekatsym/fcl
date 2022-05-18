@@ -19,7 +19,6 @@
     #:foldr #:foldr+
     #:foldl #:foldl+
     #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
     #:scanr #:scanr+ #:scanl #:scanl+
 
     ;; Unfoldable
@@ -154,17 +153,47 @@
   (format stream "#<LLIST ~S>" (llist->list object)))
 
 
+;;; Utility
+(defun reverse-to-list (llist)
+  (check-type llist llist)
+  (do ((llst llist (ll-rest llst))
+       (acc '() (cons (ll-first llst) acc)))
+      ((ll-endp llst) acc)))
+
+
 ;;; Foldable
 (defmethod foldr (a&x->x x0 (as llist))
   (check-type a&x->x function)
-  (labels ((rec (as)
-             (ematch as
-               ((ll-nil) x0)
-               ((ll-cons a as) (funcall a&x->x a (rec as))))))
-    (rec as)))
+  (foldl (lambda (x a) (funcall a&x->x a x)) x0 (reverse-to-list as)))
+
+(defmethod foldr+ (a&x&as->x x0 (as llist))
+  (check-type a&x&as->x function)
+  (foldl+ (lambda (x a as) (funcall a&x&as->x a x as)) x0 (reverse-to-list as)))
 
 (defmethod foldl (x&a->x x0 (as llist))
   (check-type x&a->x function)
   (do ((as as (ll-rest as))
        (x x0 (funcall x&a->x x (ll-first as))))
       ((ll-endp as) x)))
+
+(defmethod foldl+ (x&a&as->x x0 (as llist))
+  (check-type x&a&as->x function)
+  (do ((as as (ll-rest as))
+       (x x0 (funcall x&a&as->x x (ll-first as) (ll-rest as))))
+      ((ll-endp as) x)))
+
+(defmethod lfoldr (a&$x->x x0 (as llist))
+  (check-type a&$x->x function)
+  (labels ((rec (as)
+             (ematch as
+               ((ll-nil)        x0)
+               ((ll-cons a as-) (funcall a&$x->x a (delay (rec as-)))))))
+    (rec as)))
+
+(defmethod lfoldr+ (a&$x&as->x x0 (as llist))
+  (check-type a&$x&as->x function)
+  (labels ((rec (as)
+             (ematch as
+               ((ll-nil)        x0)
+               ((ll-cons a as-) (funcall a&$x&as->x a (delay (rec as-)) as-)))))
+    (rec as)))

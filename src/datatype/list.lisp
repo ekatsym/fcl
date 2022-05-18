@@ -12,17 +12,26 @@
     :fcl.match
     #:ematch)
   (:export
+    ;; Monad Plus
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
     #:mzero #:mplus #:msum
     #:guard
     #:lc
     #:mzero #:mplus #:msum
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
+
+    ;; Foldable
+    #:foldr #:foldr+
+    #:foldl #:foldl+
     #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
-    #:scanr #:scanr+ #:scanl #:scanl+))
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;; Unfoldable
+    #:unfoldr #:unfoldr+
+    #:unfoldl #:unfoldl+
+
+    ;; Lazy Evaluation
+    #:delay #:force))
 (in-package :fcl.list)
 
 
@@ -110,26 +119,6 @@
                        (as (rest as)))
                    (funcall a&$x&as->x a (delay (rec as)) as)))))
     (rec as)))
-
-(defmethod lfoldl ($x&a->x x0 (as list))
-  (check-type $x&a->x function)
-  (labels ((rec (as $x)
-             (declare (optimize (space 3)))
-             (if (endp as)
-                 (force $x)
-                 (rec (rest as) (delay (funcall $x&a->x (force $x) (first as)))))))
-    (rec as (delay x0))))
-
-(defmethod lfoldl+ ($x&a&as->x x0 (as list))
-  (check-type $x&a&as->x function)
-  (labels ((rec (as $x)
-             (declare (optimize (space 3)))
-             (if (endp as)
-                 (force $x)
-                 (let ((a (first as))
-                       (as (rest as)))
-                   (rec as (delay (funcall $x&a&as->x (force $x) a as)))))))
-    (rec as (delay x0))))
 
 
 ;;; MONAD-PLUS
