@@ -16,7 +16,7 @@
           (nil t)
           (_   nil))))
   (testing "CONS"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object))
             (b (random-object)))
         (ok (match (cons a b)
@@ -35,7 +35,7 @@
               ('()        nil)
               ((cons x _) (data= a x)))))))
   (testing "LIST"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object))
             (b (random-object))
             (c (random-object)))
@@ -66,30 +66,30 @@
 
 (deftest list=unit
   (testing "Equality of LIST and UNIT"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (data= (list a) (unit 'list a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
         (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a->b (random-function))
             (b->c (random-function)))
-        (mlet ((a* (list '() (random-list 1 1000))))
+        (mlet ((a* (list '() (random-list 1 500))))
           (fcl/tests.functor:composition-test b->c a->b a*))))))
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
         (fcl/tests.applicative:identity-test 'list a*))))
   (testing "Composition"
-    (dotimes (i 50)
-      (mlet ((a*    (list '() (random-list 1 1000)))
+    (dotimes (i 10)
+      (mlet ((a*    (list '() (random-list 1 500)))
              (a->*b (list '()
                           (random-list 1 5 :random-fn #'random-function)
                           (functions)))
@@ -98,12 +98,12 @@
                           (functions))))
         (fcl/tests.applicative:composition-test 'list b->*c a->*b a*))))
   (testing "Homomorphism"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a    (random-number -1.0d6 1.0d6))
             (a->b (random-function)))
         (fcl/tests.applicative:homomorphism-test 'list a->b a))))
   (testing "Interchange"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list '()
                             (random-list 1 5 :random-fn #'random-function)
@@ -112,7 +112,7 @@
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list (random-list 1 5 :random-fn #'random-function)
                             (functions)))
@@ -121,12 +121,12 @@
                               (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
           (fcl/tests.monad:left-identity-test 'list a->b* a)))))
   (testing "Right Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-function))))
+    (dotimes (i 10)
+      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-function))))
         (fcl/tests.monad:right-identity-test 'list a*))))
   (testing "Associativity"
-    (dotimes (i 40)
-      (mlet ((a*    (list '() (random-list 1 800)))
+    (dotimes (i 10)
+      (mlet ((a*    (list '() (random-list 1 500)))
              (a->*b (list (random-list 1 5 :random-fn #'random-function)
                           (functions)))
              (b->*c (list (random-list 1 5 :random-fn #'random-function)
@@ -141,16 +141,16 @@
 
 (deftest monoid
   (testing "Left Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
         (fcl/tests.monoid:left-identity-test 'list a*))))
   (testing "Right Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
         (fcl/tests.monoid:right-identity-test 'list a*))))
   (testing "Associativity"
-    (dotimes (i 50)
-      (mlet ((a* (list '() (random-list 1 1000 :random-fn #'random-object)))
-             (b* (list '() (random-list 1 1000 :random-fn #'random-object)))
-             (c* (list '() (random-list 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object)))
+             (b* (list '() (random-list 1 500 :random-fn #'random-object)))
+             (c* (list '() (random-list 1 500 :random-fn #'random-object))))
         (fcl/tests.monoid:associativity-test a* b* c*)))))
