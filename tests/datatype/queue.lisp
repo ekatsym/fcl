@@ -15,7 +15,7 @@
              (declare (ignore _))
              (random-object))
            #'1-
-           (random 30)))
+           (random 50)))
 
 (defun random-number-queue ()
   (unfoldr 'queue
@@ -24,7 +24,7 @@
              (declare (ignore _))
              (random-number -1.0d6 1.0d6))
            #'1-
-           (random 30)))
+           (random 50)))
 
 (defun random-function-queue ()
   (unfoldr 'queue
@@ -46,17 +46,17 @@
 
 (deftest add+empty=unit
   (testing "Equality of composition of ADD and EMPTY and UNIT"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (data= (add a (empty)) (unit 'queue a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (empty) (random-queue))))
         (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a->b (random-function))
             (b->c (random-function)))
         (mlet ((a* (list (empty) (random-number-queue))))
@@ -64,29 +64,29 @@
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (empty) (random-number-queue))))
         (fcl/tests.applicative:identity-test 'queue a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a*    (list (empty) (random-number-queue)))
              (a->*b (list (empty) (random-function-queue) (queue-functions)))
              (b->*c (list (empty) (random-function-queue) (queue-functions))))
         (fcl/tests.applicative:composition-test 'queue b->*c a->*b a*))))
   (testing "Homomorphism"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a    (random-number -1.0d6 1.0d6))
             (a->b (random-function)))
         (fcl/tests.applicative:homomorphism-test 'queue a->b a))))
   (testing "Interchange"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list (empty) (random-function-queue) (queue-functions))))
           (fcl/tests.applicative:interchange-test 'queue a->*b a))))))
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list (empty) (random-function-queue) (queue-functions)))
                (a->b* (list (constantly (empty))
@@ -94,11 +94,11 @@
                               (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
           (fcl/tests.monad:left-identity-test 'queue a->b* a)))))
   (testing "Right Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (empty) (random-queue))))
         (fcl/tests.monad:right-identity-test 'queue a*))))
   (testing "Associativity"
-    (dotimes (i 40)
+    (dotimes (i 10)
       (mlet ((a*    (list (empty) (random-number-queue)))
              (a->*b (list (empty) (random-function-queue) (queue-functions)))
              (b->*c (list (empty) (random-function-queue) (queue-functions)))
@@ -112,15 +112,15 @@
 
 (deftest monoid
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (empty) (random-queue))))
         (fcl/tests.monoid:left-identity-test 'queue a*))))
   (testing "Right Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (empty) (random-queue))))
         (fcl/tests.monoid:right-identity-test 'queue a*))))
   (testing "Associativity"
-    (dotimes (i 50)
+    (dotimes (i 10)
       (mlet ((a* (list (empty) (random-queue)))
              (b* (list (empty) (random-queue)))
              (c* (list (empty) (random-queue))))

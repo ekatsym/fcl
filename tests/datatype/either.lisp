@@ -9,13 +9,13 @@
 
 (deftest matching
   (testing "LEFT"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (match (left a)
               ((left b)  (data= a b))
               ((right b) nil))))))
   (testing "RIGHT"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (match (right a)
               ((left _)  nil)
@@ -27,18 +27,18 @@
 
 (deftest right=unit
   (testing "Equality of RIGHT and UNIT"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (data= (right a) (unit 'either a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (left (random-object))
                        (right (random-object)))))
         (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a->b (random-function))
             (b->c (random-function)))
         (mlet ((a* (list (left (random-object))
@@ -47,12 +47,12 @@
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a*    (list (left (random-object))
                           (right (random-object)))))
         (fcl/tests.applicative:identity-test 'either a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a*    (list (left (random-object))
                           (right (random-number -1.0d6 1.0d6))))
              (a->*b (list (left (random-object))
@@ -61,12 +61,12 @@
                           (right (random-function)))))
         (fcl/tests.applicative:composition-test 'either b->*c a->*b a*))))
   (testing "Homomorphism"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a    (random-number -1.0d6 1.0d6))
             (a->b (random-function)))
         (fcl/tests.applicative:homomorphism-test 'either a->b a))))
   (testing "Interchange"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list (left (random-object))
                             (right (random-function)))))
@@ -74,19 +74,19 @@
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a    (random-number -1.0d6 1.0d6))
             (a->b (random-function)))
         (mlet ((a->b* (list (constantly (left (random-object)))
                             (lambda (a) (right (funcall a->b a))))))
           (fcl/tests.monad:left-identity-test 'either a->b* a)))))
   (testing "Right Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (left (random-object))
                        (right (random-object)))))
         (fcl/tests.monad:right-identity-test 'either a*))))
   (testing "Associativity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a->b (random-function))
             (b->c (random-function)))
         (mlet ((a*    (list (left (random-object))
@@ -99,17 +99,17 @@
 
 (deftest monoid
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (left (random-object))
                        (right (random-object)))))
         (fcl/tests.monoid:left-identity-test 'either a*))))
   (testing "Right Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (left (random-object))
                        (right (random-object)))))
         (fcl/tests.monoid:right-identity-test 'either a*))))
   (testing "Associativity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list (left (random-list 0 100))
                        (right (random-list 0 100))))
              (b* (list (left (random-list 0 100))

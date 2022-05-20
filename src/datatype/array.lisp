@@ -2,17 +2,25 @@
   (:nicknames :fcl.data.array :fcl.ar)
   (:use :common-lisp :fcl.monad-plus :fcl.foldable :fcl.unfoldable)
   (:export
+    ;; Monad Plus
     #:unit #:fmap #:amap #:mmap
     #:mlet #:mprogn #:mdo
     #:guard
     #:ac
     #:mzero #:mplus #:msum
-    #:foldr #:foldr+ #:unfoldr #:unfoldr+
-    #:foldl #:foldl+ #:unfoldl #:unfoldl+
-    #:delay #:force
+
+    ;; Foldable
+    #:foldr #:foldr+
+    #:foldl #:foldl+
     #:lfoldr #:lfoldr+
-    #:lfoldl #:lfoldl+
-    #:scanr #:scanr+ #:scanl #:scanl+))
+    #:scanr #:scanr+ #:scanl #:scanl+
+
+    ;; Unfoldable
+    #:unfoldr #:unfoldr+
+    #:unfoldl #:unfoldl+
+
+    ;; Lazy Evaluation
+    #:delay #:force))
 (in-package :fcl.array)
 
 
@@ -221,50 +229,6 @@
                                         :displaced-index-offset (* total-size
                                                                    (/ (1+ i) first-dim)))))))
       (rec 0))))
-
-(defmethod lfoldl ($x&a->x x0 (as array))
-  (check-type $x&a->x function)
-  (let* ((dims (array-dimensions as))
-         (first-dim (first dims))
-         (rest-dims (rest dims))
-         (total-size (array-total-size as)))
-    (labels ((rec (i $x)
-               (if (>= i first-dim)
-                   (force $x)
-                   (rec (1+ i)
-                        (delay
-                          (funcall
-                            $x&a->x
-                            $x
-                            (make-array rest-dims
-                                        :displaced-to as
-                                        :displaced-index-offset (* total-size
-                                                                   (/ i first-dim)))))))))
-      (rec 0 (delay x0)))))
-
-(defmethod lfoldl+ ($x&a&as->x x0 (as array))
-  (check-type $x&a&as->x function)
-  (let* ((dims (array-dimensions as))
-         (first-dim (first dims))
-         (rest-dims (rest dims))
-         (total-size (array-total-size as)))
-    (labels ((rec (i $x)
-               (if (>= i first-dim)
-                   (force $x)
-                   (rec (1+ i)
-                        (delay
-                          (funcall
-                            $x&a&as->x
-                            $x
-                            (make-array rest-dims
-                                        :displaced-to as
-                                        :displaced-index-offset (* total-size
-                                                                   (/ i first-dim)))
-                            (make-array (cons (- first-dim i 1) rest-dims)
-                                        :displaced-to as
-                                        :displaced-index-offset (* total-size
-                                                                 (/ (1+ i) first-dim)))))))))
-      (rec 0 (delay x0)))))
 
 
 ;;; MONAD-PLUS

@@ -13,7 +13,7 @@
           ((vector) t)
           (_ nil))))
   (testing "Simple Vectors"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object))
             (b (random-object))
             (c (random-object)))
@@ -33,7 +33,7 @@
               ((vector _ _)   nil)
               ((vector x y z) (and (data= a x) (data= b y) (data= c z))))))))
   (testing "Nested Vectors"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object))
             (b (random-object))
             (c (random-object))
@@ -127,30 +127,30 @@
 
 (deftest vector=unit
   (testing "Equality of single element VECTOR and unit"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (data= (vector a) (unit 'vector a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (mlet ((a* (list #()
-                       (random-vector 1 1000 :random-fn #'random-object))))
+                       (random-vector 1 500 :random-fn #'random-object))))
         (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
-    (dotimes (i 100)
-      (mlet ((a* (list #() (random-vector 1 1000))))
+    (dotimes (i 10)
+      (mlet ((a* (list #() (random-vector 1 500))))
         (let ((a->b (random-function))
               (b->c (random-function)))
           (fcl/tests.functor:composition-test b->c a->b a*))))))
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list #() (random-vector 1 500 :random-fn #'random-object))))
         (fcl/tests.applicative:identity-test 'vector a*))))
   (testing "Composition"
-    (dotimes (i 50)
+    (dotimes (i 10)
       (mlet ((a*    (list #()
                           (random-vector 1 200)))
              (a->*b (list #()
@@ -161,12 +161,12 @@
                           (coerce (functions) 'vector))))
         (fcl/tests.applicative:composition-test 'vector b->*c a->*b a*))))
   (testing "Homomorphism"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a    (random-number -1.0d6 1.0d6))
             (a->b (random-function)))
         (fcl/tests.applicative:homomorphism-test 'vector a->b a))))
   (testing "Interchange"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list #()
                             (coerce (random-list 1 5 :random-fn #'random-function)
@@ -176,7 +176,7 @@
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-number -1.0d6 1.0d6)))
         (mlet ((a->*b (list (random-vector 1 5 :random-fn #'random-function)
                             (coerce (functions) 'vector)))
@@ -185,11 +185,11 @@
                               (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
           (fcl/tests.monad:left-identity-test 'vector a->b* a)))))
   (testing "Right Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-function))))
+    (dotimes (i 10)
+      (mlet ((a* (list #() (random-vector 1 500 :random-fn #'random-function))))
         (fcl/tests.monad:right-identity-test 'vector a*))))
   (testing "Associativity"
-    (dotimes (i 50)
+    (dotimes (i 10)
       (mlet ((a*    (list #() (random-vector 1 200)))
              (a->*b (list (random-vector 1 5 :random-fn #'random-function)
                           (coerce (functions) 'vector)))
@@ -205,16 +205,16 @@
 
 (deftest monoid
   (testing "Left Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list #() (random-vector 1 500 :random-fn #'random-object))))
         (fcl/tests.monoid:left-identity-test 'vector a*))))
   (testing "Right Identity"
-    (dotimes (i 100)
-      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list #() (random-vector 1 500 :random-fn #'random-object))))
         (fcl/tests.monoid:right-identity-test 'vector a*))))
   (testing "Associativity"
-    (dotimes (i 100)
-      (mlet ((a* (list #() (random-vector 1 1000 :random-fn #'random-object)))
-             (b* (list #() (random-vector 1 1000 :random-fn #'random-object)))
-             (c* (list #() (random-vector 1 1000 :random-fn #'random-object))))
+    (dotimes (i 10)
+      (mlet ((a* (list #() (random-vector 1 500 :random-fn #'random-object)))
+             (b* (list #() (random-vector 1 500 :random-fn #'random-object)))
+             (c* (list #() (random-vector 1 500 :random-fn #'random-object))))
         (fcl/tests.monoid:associativity-test a* b* c*)))))

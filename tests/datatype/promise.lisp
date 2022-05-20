@@ -8,24 +8,24 @@
 
 (deftest matching
   (testing "DELAY"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (match (delay a)
               ((delay b) (equal a b))))))))
 
 (deftest delay=unit
   (testing "Equality of DELAY and UNIT"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a (random-object)))
         (ok (data= (delay a) (unit 'promise a)))))))
 
 (deftest functor
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a* (delay (random-object))))
         (fcl/tests.functor:identity-test a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a*   (delay (random-number -1.0d6 1.0d6)))
             (a->b (random-function))
             (b->c (random-function)))
@@ -33,39 +33,39 @@
 
 (deftest applicative
   (testing "Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a* (delay (random-object))))
         (fcl/tests.applicative:identity-test 'promise a*))))
   (testing "Composition"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a*    (delay (random-number -1.0d6 1.0d6)))
             (a->*b (delay (random-function)))
             (b->*c (delay (random-function))))
         (fcl/tests.applicative:composition-test 'promise b->*c a->*b a*))))
   (testing "Homomorphism"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a    (random-number -1.0d6 1.0d6))
             (a->b (random-function)))
         (fcl/tests.applicative:homomorphism-test 'promise a->b a))))
   (testing "Interchange"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a     (random-number -1.0d6 1.0d6))
             (a->*b (delay (random-function))))
         (fcl/tests.applicative:interchange-test 'promise a->*b a)))))
 
 (deftest monad
   (testing "Left Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let* ((a     (random-number -1.0d6 1.0d6))
              (a->b  (random-function))
              (a->b* (lambda (a) (delay (funcall a->b a)))))
         (fcl/tests.monad:left-identity-test 'promise a->b* a))))
   (testing "Right Identity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let ((a* (delay (random-object))))
         (fcl/tests.monad:right-identity-test 'promise a*))))
   (testing "Associativity"
-    (dotimes (i 100)
+    (dotimes (i 10)
       (let* ((a*    (delay (random-number -1.0d6 1.0d6)))
              (a->b  (random-function))
              (b->c  (random-function))
