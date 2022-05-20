@@ -116,26 +116,3 @@
     (let ((a->b* (lambda (a) (unit 'promise (funcall a->b a))))
           (b->c* (lambda (b) (unit 'promise (funcall b->c b)))))
       (fcl/tests.monad:associativity-test a->b* b->c* a*))))
-
-
-#|
-(deftest monad
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (let* ((a     (random-number -1.0d6 1.0d6))
-             (a->b  (random-function))
-             (a->b* (lambda (a) (delay (funcall a->b a)))))
-        (fcl/tests.monad:left-identity-test 'promise a->b* a))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (let ((a* (delay (random-object))))
-        (fcl/tests.monad:right-identity-test 'promise a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (let* ((a*    (delay (random-number -1.0d6 1.0d6)))
-             (a->b  (random-function))
-             (b->c  (random-function))
-             (a->b* (lambda (a) (delay (funcall a->b a))))
-             (b->c* (lambda (b) (delay (funcall b->c b)))))
-        (fcl/tests.monad:associativity-test a->b* b->c* a*)))))
-|#
