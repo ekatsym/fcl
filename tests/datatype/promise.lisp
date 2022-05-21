@@ -50,12 +50,12 @@
   (gen-promise)
   (gen-one-element
     (lambda (a) (delay a))
-    (lambda (a) (delay (make-list 5 :initial-element a)))
-    (lambda (a) (delay (make-array 7 :initial-element a))))
+    (lambda (a) (delay (make-list 3 :initial-element a)))
+    (lambda (a) (delay (make-array 4 :initial-element a))))
   (gen-one-element
     (lambda (b) (delay b))
-    (lambda (b) (delay (make-list 3 :initial-element b)))
-    (lambda (b) (delay (make-array 4 :initial-element b)))))
+    (lambda (b) (delay (make-list 5 :initial-element b)))
+    (lambda (b) (delay (make-array 6 :initial-element b)))))
 
 (fcl/tests.monad:monad-test
   promise2

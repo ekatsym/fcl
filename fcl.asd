@@ -71,7 +71,7 @@
                  (:module "datatype"    :depends-on ("main" "generics")
                   :components
                   ((:file "promise")
-                 ;  (:file "maybe")
+                   (:file "maybe")
                  ;  (:file "either")
                  ;  (:file "list")
                  ;  (:file "vector")
