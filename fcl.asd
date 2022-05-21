@@ -72,7 +72,7 @@
                   :components
                   ((:file "promise")
                    (:file "maybe")
-                 ;  (:file "either")
+                   (:file "either")
                  ;  (:file "list")
                  ;  (:file "vector")
                  ;  (:file "queue")

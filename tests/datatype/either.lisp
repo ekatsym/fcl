@@ -1,119 +1,86 @@
 (defpackage :fcl/tests.either
   (:nicknames :fcl/tests.data.either :fcl/t.et)
-  (:use :common-lisp :rove :fcl/tests.util :fcl.either)
+  (:use :common-lisp :fiveam :fcl/tests.util :fcl.either)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
   (:import-from :fcl.util #:compose #:partial #:curry))
 (in-package :fcl/tests.either)
 
 
-(deftest matching
-  (testing "LEFT"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (match (left a)
-              ((left b)  (data= a b))
-              ((right b) nil))))))
-  (testing "RIGHT"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (match (right a)
-              ((left _)  nil)
-              ((right b) (data= a b))))))))
+(defun gen-either (&optional element)
+  (gen-one-element
+    (left nil)
+    (left (funcall (or element (gen-object))))
+    (right (funcall (or element (gen-object))))))
 
-(deftest left=mzero
-  (testing "Equality of LEFT and MZERO"
-    (ok (data= (left nil) (mzero 'either)))))
 
-(deftest right=unit
-  (testing "Equality of RIGHT and UNIT"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (data= (right a) (unit 'either a)))))))
+(def-suite* fcl/tests.either :in :fcl/tests)
 
-(deftest functor
-  (testing "Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (left (random-object))
-                       (right (random-object)))))
-        (fcl/tests.functor:identity-test a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (let ((a->b (random-function))
-            (b->c (random-function)))
-        (mlet ((a* (list (left (random-object))
-                         (right (random-number -1.0d6 1.0d6)))))
-          (fcl/tests.functor:composition-test b->c a->b a*))))))
 
-(deftest applicative
-  (testing "Identity"
-    (dotimes (i 10)
-      (mlet ((a*    (list (left (random-object))
-                          (right (random-object)))))
-        (fcl/tests.applicative:identity-test 'either a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (mlet ((a*    (list (left (random-object))
-                          (right (random-number -1.0d6 1.0d6))))
-             (a->*b (list (left (random-object))
-                          (right (random-function))))
-             (b->*c (list (left (random-object))
-                          (right (random-function)))))
-        (fcl/tests.applicative:composition-test 'either b->*c a->*b a*))))
-  (testing "Homomorphism"
-    (dotimes (i 10)
-      (let ((a    (random-number -1.0d6 1.0d6))
-            (a->b (random-function)))
-        (fcl/tests.applicative:homomorphism-test 'either a->b a))))
-  (testing "Interchange"
-    (dotimes (i 10)
-      (let ((a (random-number -1.0d6 1.0d6)))
-        (mlet ((a->*b (list (left (random-object))
-                            (right (random-function)))))
-          (fcl/tests.applicative:interchange-test 'either a->*b a))))))
+(fcl/tests.functor:functor-test
+  either1
+  (gen-either)
+  (gen-function)
+  (gen-function))
 
-(deftest monad
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (let ((a    (random-number -1.0d6 1.0d6))
-            (a->b (random-function)))
-        (mlet ((a->b* (list (constantly (left (random-object)))
-                            (lambda (a) (right (funcall a->b a))))))
-          (fcl/tests.monad:left-identity-test 'either a->b* a)))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (left (random-object))
-                       (right (random-object)))))
-        (fcl/tests.monad:right-identity-test 'either a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (let ((a->b (random-function))
-            (b->c (random-function)))
-        (mlet ((a*    (list (left (random-object))
-                            (right (random-number -1.0d6 1.0d6))))
-               (a->b* (list (constantly (left (random-object)))
-                            (lambda (a) (right (funcall a->b a)))))
-               (b->c* (list (constantly (left (random-object)))
-                            (lambda (b) (right (funcall b->c b))))))
-          (fcl/tests.monad:associativity-test a->b* b->c* a*))))))
+(fcl/tests.functor:functor-test
+  either2
+  (gen-either (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
 
-(deftest monoid
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (left (random-object))
-                       (right (random-object)))))
-        (fcl/tests.monoid:left-identity-test 'either a*))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (left (random-object))
-                       (right (random-object)))))
-        (fcl/tests.monoid:right-identity-test 'either a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (mlet ((a* (list (left (random-list 0 100))
-                       (right (random-list 0 100))))
-             (b* (list (left (random-list 0 100))
-                       (right (random-list 0 100))))
-             (c* (list (left (random-list 0 100))
-                       (right (random-list 0 100)))))
-        (fcl/tests.monoid:associativity-test a* b* c*)))))
+(fcl/tests.applicative:applicative-test
+  either1
+  either
+  (gen-object)
+  (gen-either)
+  (gen-function)
+  (gen-function))
+
+(fcl/tests.applicative:applicative-test
+  either2
+  either
+  (gen-integer :min -100 :max 100)
+  (gen-either (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
+
+(fcl/tests.monad:monad-test
+  either1
+  either
+  (gen-object)
+  (gen-either)
+  (gen-one-element
+    (constantly (left nil))
+    #'left
+    (lambda (a) (left (format nil "~S" a)))
+    #'right
+    (lambda (a) (right (make-list 3 :initial-element a)))
+    (lambda (a) (right (make-array 4 :initial-element a))))
+  (gen-one-element
+    (constantly (left nil))
+    #'left
+    (lambda (a) (left (format nil "~S" a)))
+    #'right
+    (lambda (a) (right (make-list 5 :initial-element a)))
+    (lambda (a) (right (make-array 6 :initial-element a)))))
+
+(fcl/tests.monad:monad-test
+  either2
+  either
+  (gen-integer :min -100 :max 100)
+  (gen-either (gen-integer :min -100 :max 100))
+  (gen-one-element
+    (constantly (left nil))
+    #'left
+    (lambda (a) (left (format nil "~S" a)))
+    #'right
+    (lambda (a) (right (+ a a)))
+    (lambda (a) (right (* a a))))
+  (gen-one-element
+    (constantly (left nil))
+    #'left
+    (lambda (a) (left (format nil "~S" a)))
+    #'right
+    (lambda (a) (right (+ a a a)))
+    (lambda (a) (right (* a a a)))))

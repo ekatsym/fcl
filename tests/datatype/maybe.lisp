@@ -16,6 +16,25 @@
 (def-suite* fcl/tests.maybe :in :fcl/tests)
 
 
+(test pattern-match
+  "Pattern Match"
+  (match (nothing)
+    ((nothing) (pass))
+    (_ (fail)))
+  (for-all ((a (gen-object)))
+    (match (just a)
+      ((just b) (is (data= a b)))
+      (_ (fail)))))
+
+(test unit=just
+  "Equality of UNIT and JUST"
+  (for-all ((a (gen-object)))
+    (is (data= (unit 'maybe a) (just a)))))
+
+(test mzero=nothing
+  "Equality of MZERO and NOTHING"
+  (is (data= (mzero 'maybe) (nothing))))
+
 (fcl/tests.functor:functor-test
   maybe1
   (gen-maybe)

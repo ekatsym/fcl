@@ -15,6 +15,18 @@
 
 (def-suite* fcl/tests.promise :in :fcl/tests)
 
+(test pattern-match
+  "Pattern Match"
+  (for-all ((a (gen-object)))
+    (match (delay a)
+      ((delay b) (is (data= a b)))
+      (_ (fail)))))
+
+(test unit=delay
+  "Equality of UNIT and DELAY"
+  (for-all ((a (gen-object)))
+    (is (data= (unit 'promise a) (delay a)))))
+
 (fcl/tests.functor:functor-test
   promise1
   (gen-promise)

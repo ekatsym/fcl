@@ -1,7 +1,6 @@
 (defpackage fcl/tests.util
   (:use :common-lisp :fiveam)
-  (:export #:gen-number
-           #:gen-object
+  (:export #:gen-object
            #:gen-function
            #:gen-num-function))
 (in-package :fcl/tests.util)
