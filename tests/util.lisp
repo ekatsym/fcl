@@ -7,11 +7,6 @@
 (in-package :fcl/tests.util)
 
 
-(defun gen-number ()
-  (if (zerop (random 2))
-      (gen-integer :min -100 :max 100)
-      (gen-float :bound 100.0)))
-
 (defun gen-object (&rest more-elements)
   (funcall
     (apply #'gen-one-element

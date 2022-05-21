@@ -6,113 +6,67 @@
 (in-package fcl/tests.promise)
 
 
-(defun gen-promise (&optional elements)
+(defun gen-promise (&optional element)
   (lambda ()
-    (if elements
-        (delay (funcall elements))
+    (if element
+        (delay (funcall element))
         (delay (funcall (gen-object))))))
 
 
 (def-suite* fcl/tests.promise :in :fcl/tests)
 
-(test matching
-  "DELAY Matching"
-  (for-all ((a (gen-object)))
-    (match (delay a)
-      ((delay b)
-       (is (equal a b))))))
+(fcl/tests.functor:functor-test
+  promise1
+  (gen-promise)
+  (gen-function)
+  (gen-function))
 
-(test delay=unit
-  "Equality of DELAY and UNIT"
-  (for-all ((a (gen-object)))
-    (is (data= (delay a) (unit 'promise a)))))
+(fcl/tests.functor:functor-test
+  promise2
+  (gen-promise (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
 
+(fcl/tests.applicative:applicative-test
+  promise1
+  promise
+  (gen-object)
+  (gen-promise)
+  (gen-function)
+  (gen-function))
 
-(def-suite* fcl/tests.promise.functor :in fcl/tests.promise)
+(fcl/tests.applicative:applicative-test
+  promise2
+  promise
+  (gen-integer :min -100 :max 100)
+  (gen-promise (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
 
-(test identity-of-functor
-  "Identity of Functor"
-  (for-all ((a* (gen-promise)))
-    (fcl/tests.functor:identity-test a*)))
+(fcl/tests.monad:monad-test
+  promise1
+  promise
+  (gen-object)
+  (gen-promise)
+  (gen-one-element
+    (lambda (a) (delay a))
+    (lambda (a) (delay (make-list 5 :initial-element a)))
+    (lambda (a) (delay (make-array 7 :initial-element a))))
+  (gen-one-element
+    (lambda (b) (delay b))
+    (lambda (b) (delay (make-list 3 :initial-element b)))
+    (lambda (b) (delay (make-array 4 :initial-element b)))))
 
-(test composition-of-functor
-  "Composition of Functor"
-  (for-all ((a* (gen-promise))
-            (a->b (gen-function))
-            (b->c (gen-function)))
-    (fcl/tests.functor:composition-test b->c a->b a*))
-  (for-all ((a* (gen-promise (gen-integer :min -100 :max 100)))
-            (a->b (gen-num-function))
-            (b->c (gen-num-function)))
-    (fcl/tests.functor:composition-test b->c a->b a*)))
-
-
-(def-suite* fcl/tests.promise.applicative :in fcl/tests.promise)
-
-(test identity-of-applicative
-  "Identity of Applicative"
-  (for-all ((a* (gen-promise)))
-    (fcl/tests.applicative:identity-test 'promise a*)))
-
-(test composition-of-applicative
-  "Composition of Applicative"
-  (for-all ((a* (gen-promise))
-            (a->*b (gen-promise (gen-function)))
-            (b->*c (gen-promise (gen-function))))
-    (fcl/tests.applicative:composition-test 'promise b->*c a->*b a*))
-  (for-all ((a* (gen-promise (gen-integer :min -100 :max 100)))
-            (a->*b (gen-promise (gen-num-function)))
-            (b->*c (gen-promise (gen-num-function))))
-    (fcl/tests.applicative:composition-test 'promise b->*c a->*b a*)))
-
-(test homomorphism-of-applicative
-  "Homomorphism of Applicative"
-  (for-all ((a (gen-object))
-            (a->b (gen-function)))
-    (fcl/tests.applicative:homomorphism-test 'promise a->b a))
-  (for-all ((a (gen-integer :min -100 :max 100))
-            (a->b (gen-num-function)))
-    (fcl/tests.applicative:homomorphism-test 'promise a->b a)))
-
-(test interchange-of-applicative
-  "Interchange of Applicative"
-  (for-all ((a (gen-object))
-            (a->*b (gen-promise (gen-function))))
-    (fcl/tests.applicative:interchange-test 'promise a->*b a))
-  (for-all ((a (gen-integer :min -100 :max 100))
-            (a->*b (gen-promise (gen-num-function))))
-    (fcl/tests.applicative:interchange-test 'promise a->*b a)))
-
-
-(def-suite* fcl/tests.promise.monad :in fcl/tests.promise)
-
-(test left-identity-of-monad
-  "Left Identity of Monad"
-  (for-all ((a (gen-object))
-            (a->b (gen-function)))
-    (let ((a->b* (lambda (a) (unit 'promise (funcall a->b a)))))
-      (fcl/tests.monad:left-identity-test 'promise a->b* a)))
-  (for-all ((a (gen-integer :min -100 :max 100))
-            (a->b (gen-num-function)))
-    (let ((a->b* (lambda (a) (unit 'promise (funcall a->b a)))))
-      (fcl/tests.monad:left-identity-test 'promise a->b* a))))
-
-(test right-identity-of-monad
-  "Right Identity of Monad"
-  (for-all ((a* (gen-promise)))
-    (fcl/tests.monad:right-identity-test 'promise a*)))
-
-(test associativity-of-monad
-  "Associativity of Monad"
-  (for-all ((a* (gen-promise))
-            (a->b (gen-function))
-            (b->c (gen-function)))
-    (let ((a->b* (lambda (a) (unit 'promise (funcall a->b a))))
-          (b->c* (lambda (b) (unit 'promise (funcall b->c b)))))
-      (fcl/tests.monad:associativity-test a->b* b->c* a*)))
-  (for-all ((a* (gen-promise (gen-integer :min -100 :max 100)))
-            (a->b (gen-num-function))
-            (b->c (gen-num-function)))
-    (let ((a->b* (lambda (a) (unit 'promise (funcall a->b a))))
-          (b->c* (lambda (b) (unit 'promise (funcall b->c b)))))
-      (fcl/tests.monad:associativity-test a->b* b->c* a*))))
+(fcl/tests.monad:monad-test
+  promise2
+  promise
+  (gen-integer :min -100 :max 100)
+  (gen-promise (gen-integer :min -100 :max 100))
+  (gen-one-element
+    (lambda (a) (delay a))
+    (lambda (a) (delay (+ a a)))
+    (lambda (a) (delay (* a a))))
+  (gen-one-element
+    (lambda (b) (delay b))
+    (lambda (b) (delay (+ b b b)))
+    (lambda (b) (delay (* b b b)))))
