@@ -84,3 +84,9 @@
     #'right
     (lambda (a) (right (+ a a a)))
     (lambda (a) (right (* a a a)))))
+
+(fcl/tests.monoid:monoid-test
+  either
+  either
+  (gen-either (gen-list :length (gen-integer :min 0 :max 30)
+                        :elements (gen-object))))

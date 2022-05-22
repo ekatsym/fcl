@@ -73,7 +73,7 @@
                   ((:file "promise")
                    (:file "maybe")
                    (:file "either")
-                 ;  (:file "list")
+                   (:file "list")
                  ;  (:file "vector")
                  ;  (:file "queue")
                  ;  (:file "package"       :depends-on ("maybe" "either"))

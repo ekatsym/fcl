@@ -94,3 +94,9 @@
     #'just
     (lambda (a) (just (+ a a a)))
     (lambda (a) (just (* a a a)))))
+
+(fcl/tests.monoid:monoid-test
+  maybe
+  maybe
+  (gen-maybe (gen-list :length (gen-integer :min 0 :max 30)
+                       :elements (gen-object))))
