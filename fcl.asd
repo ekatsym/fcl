@@ -75,8 +75,6 @@
                    (:file "either")
                    (:file "list")
                    (:file "vector")
-                   (:file "queue")
-                 ;  (:file "package"       :depends-on ("maybe" "either"))
-                 )))))
+                   (:file "queue"))))))
   :description "Test system for fcl"
   :perform (test-op (o c) (symbol-call :fiveam :run! :fcl/tests)))
