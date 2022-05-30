@@ -7,20 +7,28 @@
 (in-package :fcl/tests.list)
 
 
-(def-suite* fcl/tests.list :in :fcl/tests)
+(def-suite* list-tests :in :fcl/tests)
 
+(def-suite* pattern-match :in list-tests)
 
-(test pattern-match
-  "Pattern Match"
+(test match-nil
+  "Pattern Match for NIL"
   ;; nil
+  (match '()
+    (() (pass))
+    (_   (fail)))
   (match '()
     ('() (pass))
     (_   (fail)))
   (match '()
     (nil (pass))
     (_   (fail)))
+  (match '()
+    ('nil (pass))
+    (_   (fail))))
 
-  ;; cons
+(test match-cons
+  "Pattern Match for CONS"
   (for-all ((a (gen-object))
             (b (gen-object)))
     (match (cons a b)
@@ -42,9 +50,10 @@
     (match (cons a (cons b '()))
       ('()        (fail))
       ((cons x _) (is (data= a x)))
-      (_          (fail))))
+      (_          (fail)))))
 
-  ;; list
+(test match-list
+  "Pattern Match for LIST"
   (for-all ((a (gen-object))
             (b (gen-object))
             (c (gen-object)))
@@ -72,6 +81,8 @@
       ((list _ _)   (fail))
       ((list x y z) (is (and (data= a x) (data= b y) (data= c z))))
       (_            (fail)))))
+
+(def-suite* monad-plus :in list-tests)
 
 (fcl/tests.functor:functor-test
   list1

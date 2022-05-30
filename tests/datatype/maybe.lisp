@@ -13,18 +13,25 @@
     (just (funcall (or element (gen-object))))))
 
 
-(def-suite* fcl/tests.maybe :in :fcl/tests)
+(def-suite* maybe-tests :in :fcl/tests)
 
+(def-suite* pattern-match :in maybe-tests)
 
-(test pattern-match
-  "Pattern Match"
+(test match-nothing
+  "Pattern Match for NOTHING"
   (match (nothing)
     ((nothing) (pass))
     (_ (fail)))
+  )
+
+(test match-just
+  "Pattern Match for JUST"
   (for-all ((a (gen-object)))
     (match (just a)
       ((just b) (is (data= a b)))
       (_ (fail)))))
+
+(def-suite* monad-plus :in maybe-tests)
 
 (test unit=just
   "Equality of UNIT and JUST"

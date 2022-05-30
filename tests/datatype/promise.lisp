@@ -12,8 +12,7 @@
         (delay (funcall element))
         (delay (funcall (gen-object))))))
 
-
-(def-suite* fcl/tests.promise :in :fcl/tests)
+(def-suite* promise-tests :in :fcl/tests)
 
 (test pattern-match
   "Pattern Match"
@@ -21,6 +20,8 @@
     (match (delay a)
       ((delay b) (is (data= a b)))
       (_ (fail)))))
+
+(def-suite* monad-plus :in promise-tests)
 
 (test unit=delay
   "Equality of UNIT and DELAY"

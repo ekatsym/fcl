@@ -20,6 +20,7 @@
 (def-suite* patten-match :in vector-tests)
 
 (test empty-vector
+  "Pattern Match for the Empty Vector"
   (match #()
     (#() (pass))
     (_ (fail)))
@@ -28,6 +29,7 @@
     (_ (fail))))
 
 (test simple-vectors
+  "Pattern Match for simple vectors"
   (for-all ((a (gen-object))
             (b (gen-object))
             (c (gen-object)))
@@ -48,6 +50,7 @@
       ((vector x y z) (is (and (data= a x) (data= b y) (data= c z)))))))
 
 (test nested-vectors
+  "Pattern Match for Nested Vectors"
   (for-all ((a (gen-object))
             (b (gen-object))
             (c (gen-object))

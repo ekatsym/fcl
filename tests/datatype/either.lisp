@@ -14,8 +14,25 @@
     (right (funcall (or element (gen-object))))))
 
 
-(def-suite* fcl/tests.either :in :fcl/tests)
+(def-suite* either-tests :in :fcl/tests)
 
+(def-suite* pattern-match :in either-tests)
+
+(test match-left
+  "Pattern Match for LEFT"
+  (for-all ((a (gen-object)))
+    (match (left a)
+      ((left x)  (is (data= x a)))
+      (_ (fail)))))
+
+(test match-right
+  "Pattern Match for RIGHT"
+  (for-all ((a (gen-object)))
+    (match (right a)
+      ((right x) (is (data= x a)))
+      (_ (fail)))))
+
+(def-suite* monad-plus :in either-tests)
 
 (fcl/tests.functor:functor-test
   either1
