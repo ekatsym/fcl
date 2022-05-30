@@ -75,7 +75,7 @@
                    (:file "either")
                    (:file "list")
                    (:file "vector")
-                 ;  (:file "queue")
+                   (:file "queue")
                  ;  (:file "package"       :depends-on ("maybe" "either"))
                  )))))
   :description "Test system for fcl"

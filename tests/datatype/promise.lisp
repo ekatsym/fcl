@@ -12,6 +12,7 @@
         (delay (funcall element))
         (delay (funcall (gen-object))))))
 
+
 (def-suite* promise-tests :in :fcl/tests)
 
 (test pattern-match

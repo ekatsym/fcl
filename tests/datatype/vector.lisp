@@ -15,6 +15,7 @@
         (setf (svref vec i) (funcall elements)))
       vec)))
 
+
 (def-suite* vector-tests :in :fcl/tests)
 
 (def-suite* patten-match :in vector-tests)
