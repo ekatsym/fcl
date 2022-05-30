@@ -74,7 +74,7 @@
                    (:file "maybe")
                    (:file "either")
                    (:file "list")
-                 ;  (:file "vector")
+                   (:file "vector")
                  ;  (:file "queue")
                  ;  (:file "package"       :depends-on ("maybe" "either"))
                  )))))
