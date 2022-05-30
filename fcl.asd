@@ -56,25 +56,25 @@
 (defsystem "fcl/tests"
   :author "ekatsym"
   :license "LLGPL"
-  :depends-on ("fcl" "rove")
+  :depends-on ("fcl" "fiveam")
   :components ((:module "tests"
                 :components
-                ((:file "util")
-                 (:module "generics"    :depends-on ("util")
+                ((:file "main")
+                 (:file "util")
+                 (:module "generics"
                   :components
                   ((:file "functor")
                    (:file "applicative"   :depends-on ("functor"))
                    (:file "monad"         :depends-on ("applicative"))
                    (:file "monoid")
                    (:file "foldable")))
-                 (:module "datatype"    :depends-on ("util" "generics")
+                 (:module "datatype"    :depends-on ("main" "generics")
                   :components
                   ((:file "promise")
                    (:file "maybe")
                    (:file "either")
                    (:file "list")
                    (:file "vector")
-                   (:file "queue")
-                   (:file "package"       :depends-on ("maybe" "either")))))))
+                   (:file "queue"))))))
   :description "Test system for fcl"
-  :perform (test-op (op c) (symbol-call :rove :run c)))
+  :perform (test-op (o c) (symbol-call :fiveam :run! :fcl/tests)))

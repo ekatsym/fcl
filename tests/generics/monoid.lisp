@@ -1,26 +1,25 @@
 (defpackage fcl/tests.monoid
   (:nicknames :fcl/tests.generics.monoid :fcl/t.mo)
-  (:use :common-lisp :rove :fcl.monoid)
+  (:use :common-lisp :fiveam :fcl.monoid)
   (:import-from :fcl.adata #:data=)
-  (:import-from :fcl.util #:partial)
-  (:export #:left-identity-test
-           #:right-identity-test
-           #:associativity-test))
+  (:import-from :fcl.util #:partial #:symbolicate)
+  (:export #:monoid-test))
 (in-package :fcl/tests.monoid)
 
 
-(defmacro left-identity-test (class a*)
+(defmacro monoid-test (name class gen-a*)
   `(progn
-     (ok (data= (mplus (mzero ,class) ,a*) ,a*))
-     nil))
-
-(defmacro right-identity-test (class a*)
-  `(progn
-     (ok (data= (mplus ,a* (mzero ,class)) ,a*))
-     nil))
-
-(defmacro associativity-test (a* b* c*)
-  `(progn
-     (ok (data= (mplus (mplus ,a* ,b*) ,c*)
-                (mplus ,a* (mplus ,b* ,c*))))
-     nil))
+     (test ,(symbolicate 'left-identity-of-monoid/ name)
+       "Left Identity of Monoid"
+       (for-all ((a* ,gen-a*))
+         (is (data= (mplus (mzero ',class) a*) a*))))
+     (test ,(symbolicate 'right-identity-of-monoid/ name)
+       "Right Identity of Monoid"
+       (for-all ((a* ,gen-a*))
+         (is (data= (mplus a* (mzero ',class)) a*))))
+     (test ,(symbolicate 'associativity-of-monoid/ name)
+       (for-all ((a* ,gen-a*)
+                 (b* ,gen-a*)
+                 (c* ,gen-a*))
+         (is (data= (mplus a* (mplus b* c*))
+                    (mplus (mplus a* b*) c*)))))))

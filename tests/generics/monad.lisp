@@ -1,27 +1,28 @@
 (defpackage fcl/tests.monad
   (:nicknames :fcl/tests.generics.monad :fcl/t.ma)
-  (:use :common-lisp :rove :fcl.monad)
+  (:use :common-lisp :fiveam :fcl.monad :fcl/tests.util)
   (:import-from :fcl.adata #:data=)
-  (:import-from :fcl.util #:partial)
-  (:export #:left-identity-test
-           #:right-identity-test
-           #:associativity-test))
+  (:import-from :fcl.util #:partial #:symbolicate)
+  (:export #:monad-test))
 (in-package :fcl/tests.monad)
 
 
-(defmacro left-identity-test (class a->b* a)
+(defmacro monad-test (name class gen-a gen-a* gen-a->b* gen-b->c*)
   `(progn
-     (ok (data= (mmap ,a->b* (unit ,class ,a)) (funcall ,a->b* ,a)))
-     nil))
-
-(defmacro right-identity-test (class a*)
-  `(progn
-     (ok (data= (mmap (partial #'unit ,class) ,a*) ,a*))
-     nil))
-
-(defmacro associativity-test (a->b* b->c* a*)
-  (let ((g!a (gensym "A")))
-    `(progn
-       (ok (data= (mmap (lambda (,g!a) (mmap ,b->c* (funcall ,a->b* ,g!a))) ,a*)
-                  (mmap ,b->c* (mmap ,a->b* ,a*))))
-       nil)))
+     (test ,(symbolicate 'left-identity-of-monad/ name)
+       "Left Identity of Monad"
+       (for-all ((a ,gen-a)
+                 (a->b* ,gen-a->b*))
+         (is (data= (mmap a->b* (unit ',class a))
+                    (funcall a->b* a)))))
+     (test ,(symbolicate 'right-identity-of-monad/ name)
+       "Right Identity of Monad"
+       (for-all ((a* ,gen-a*))
+         (is (data= (mmap (partial #'unit ',class) a*) a*))))
+     (test ,(symbolicate 'associativity-of-monad/ name)
+       "Associativity of Monad"
+       (for-all ((a* ,gen-a*)
+                 (a->b* ,gen-a->b*)
+                 (b->c* ,gen-b->c*))
+         (is (data= (mmap (lambda (a) (mmap b->c* (funcall a->b* a))) a*)
+                    (mmap b->c* (mmap a->b* a*))))))))

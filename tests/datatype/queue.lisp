@@ -1,127 +1,98 @@
 (defpackage fcl/tests.queue
   (:nicknames :fcl/tests.data.queue :fcl/t.qu)
-  (:use :common-lisp :rove :fcl/tests.util :fcl.queue)
+  (:use :common-lisp :fiveam :fcl/tests.util :fcl.queue)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
   (:import-from :fcl.util #:compose #:partial #:curry))
 (in-package :fcl/tests.queue)
 
 
-;;; Utility for Property Tests
-(defun random-queue ()
-  (unfoldr 'queue
-           #'zerop
-           (lambda (_)
-             (declare (ignore _))
-             (random-object))
-           #'1-
-           (random 50)))
-
-(defun random-number-queue ()
-  (unfoldr 'queue
-           #'zerop
-           (lambda (_)
-             (declare (ignore _))
-             (random-number -1.0d6 1.0d6))
-           #'1-
-           (random 50)))
-
-(defun random-function-queue ()
-  (unfoldr 'queue
-           #'zerop
-           (lambda (_)
-             (declare (ignore _))
-             (random-function))
-           #'1-
-           (random 10)))
-
-(defun queue-functions ()
-  (list->queue (functions)))
+(defun gen-queue (&key (length (gen-integer :min 0 :max 10)) (elements (gen-integer :min -10 :max 10)))
+  (lambda ()
+    (unfoldl 'queue
+             #'zerop
+             #'1-
+             (lambda (_)
+               (declare (ignore _))
+               (funcall elements))
+             (funcall length))))
 
 
-;;; Tests
-(deftest empty=mzero
-  (testing "Equality of EMPTY and MZERO"
-    (ok (data= (empty) (mzero 'queue)))))
+(def-suite* queue-tests :in :fcl/tests)
 
-(deftest add+empty=unit
-  (testing "Equality of composition of ADD and EMPTY and UNIT"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (data= (add a (empty)) (unit 'queue a)))))))
+(def-suite* monad-plus :in queue-tests)
 
-(deftest functor
-  (testing "Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (empty) (random-queue))))
-        (fcl/tests.functor:identity-test a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (let ((a->b (random-function))
-            (b->c (random-function)))
-        (mlet ((a* (list (empty) (random-number-queue))))
-          (fcl/tests.functor:composition-test b->c a->b a*))))))
+(fcl/tests.functor:functor-test
+  queue1
+  (gen-queue :length (gen-integer :min 0 :max 30)
+             :elements (gen-object))
+  (gen-function)
+  (gen-function))
 
-(deftest applicative
-  (testing "Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (empty) (random-number-queue))))
-        (fcl/tests.applicative:identity-test 'queue a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (mlet ((a*    (list (empty) (random-number-queue)))
-             (a->*b (list (empty) (random-function-queue) (queue-functions)))
-             (b->*c (list (empty) (random-function-queue) (queue-functions))))
-        (fcl/tests.applicative:composition-test 'queue b->*c a->*b a*))))
-  (testing "Homomorphism"
-    (dotimes (i 10)
-      (let ((a    (random-number -1.0d6 1.0d6))
-            (a->b (random-function)))
-        (fcl/tests.applicative:homomorphism-test 'queue a->b a))))
-  (testing "Interchange"
-    (dotimes (i 10)
-      (let ((a (random-number -1.0d6 1.0d6)))
-        (mlet ((a->*b (list (empty) (random-function-queue) (queue-functions))))
-          (fcl/tests.applicative:interchange-test 'queue a->*b a))))))
+(fcl/tests.functor:functor-test
+  queue2
+  (gen-queue :length (gen-integer :min 0 :max 30)
+             :elements (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
 
-(deftest monad
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (let ((a (random-number -1.0d6 1.0d6)))
-        (mlet ((a->*b (list (empty) (random-function-queue) (queue-functions)))
-               (a->b* (list (constantly (empty))
-                            (lambda (a)
-                              (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
-          (fcl/tests.monad:left-identity-test 'queue a->b* a)))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (empty) (random-queue))))
-        (fcl/tests.monad:right-identity-test 'queue a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (mlet ((a*    (list (empty) (random-number-queue)))
-             (a->*b (list (empty) (random-function-queue) (queue-functions)))
-             (b->*c (list (empty) (random-function-queue) (queue-functions)))
-             (a->b* (list (constantly (empty))
-                          (lambda (a)
-                            (fmap (lambda (a->b) (funcall a->b a)) a->*b))))
-             (b->c* (list (constantly (empty))
-                          (lambda (a)
-                            (fmap (lambda (b->c) (funcall b->c a)) b->*c)))))
-        (fcl/tests.monad:associativity-test a->b* b->c* a*)))))
+(fcl/tests.applicative:applicative-test
+  queue1
+  queue
+  (gen-object)
+  (gen-queue :length (gen-integer :min 0 :max 30)
+             :elements (gen-object))
+  (gen-function)
+  (gen-function))
 
-(deftest monoid
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (empty) (random-queue))))
-        (fcl/tests.monoid:left-identity-test 'queue a*))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list (empty) (random-queue))))
-        (fcl/tests.monoid:right-identity-test 'queue a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (mlet ((a* (list (empty) (random-queue)))
-             (b* (list (empty) (random-queue)))
-             (c* (list (empty) (random-queue))))
-        (fcl/tests.monoid:associativity-test a* b* c*)))))
+(fcl/tests.applicative:applicative-test
+  queue2
+  queue
+  (gen-integer :min -100 :max 100)
+  (gen-queue :length (gen-integer :min 0 :max 30)
+             :elements (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
+
+(fcl/tests.monad:monad-test
+  queue1
+  queue
+  (gen-object)
+  (gen-queue :length (gen-integer :min 0 :max 30)
+             :elements (gen-object))
+  (gen-one-element
+    (constantly (empty))
+    #'queue
+    (lambda (a) (unfoldl 'queue #'zerop #'1- (constantly a) 10))
+    (lambda (a) (queue a (list a) (vector a))))
+  (gen-one-element
+    (constantly (empty))
+    #'queue
+    (lambda (b) (unfoldl 'queue #'zerop #'1- (constantly b) 20))
+    (lambda (b) (queue (queue b b b) (queue (queue b b b))))))
+
+(fcl/tests.monad:monad-test
+  queue2
+  queue
+  (gen-integer :min -100 :max 100)
+  (gen-queue :length (gen-integer :min 0 :max 30)
+             :elements (gen-integer :min -100 :max 100))
+  (gen-one-element
+    (constantly (empty))
+    #'queue
+    (lambda (a) (unfoldr 'queue #'zerop (lambda (x) (+ a x -5)) #'1- 10))
+    (lambda (a) (qu-append (unfoldr 'queue #'zerop (lambda (x) (* a x)) #'1- 5)
+                          (unfoldr 'queue #'zerop (lambda (x) (- (* a x))) #'1- 5))))
+  (gen-one-element
+    (constantly '())
+    #'queue
+    (lambda (b) (unfoldr 'queue #'zerop (lambda (x) (+ b x -5)) #'1- 10))
+    (lambda (b) (qu-append (unfoldr 'queue #'zerop (lambda (x) (* b x)) #'1- 5)
+                           (unfoldr 'queue #'zerop (lambda (x) (- (* b x))) #'1- 5)))))
+
+(fcl/tests.monoid:monoid-test
+  queue
+  queue
+  (gen-queue :length (gen-integer :min 0 :max 30)
+            :elements (gen-object)))
+

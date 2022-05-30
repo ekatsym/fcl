@@ -1,156 +1,159 @@
 (defpackage fcl/tests.list
   (:nicknames :fcl/tests.data.list :fcl/t.ls)
-  (:use :common-lisp :rove :fcl/tests.util :fcl.list)
+  (:use :common-lisp :fiveam :fcl/tests.util :fcl.list)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match)
   (:import-from :fcl.util #:compose #:partial #:curry))
 (in-package :fcl/tests.list)
 
 
-(deftest matching
-  (testing "NIL"
-    (ok (match '()
-          ('() t)
-          (_   nil)))
-    (ok (match '()
-          (nil t)
-          (_   nil))))
-  (testing "CONS"
-    (dotimes (i 10)
-      (let ((a (random-object))
-            (b (random-object)))
-        (ok (match (cons a b)
-              ('()        nil)
-              ((cons x y) (and (data= a x) (data= b y)))))
-        (ok (match (cons a '())
-              ('()          nil)
-              ((cons x '()) (data= a x))))
-        (ok (match (cons a (cons b '()))
-              ('()                   nil)
-              ((cons x (cons y '())) (and (data= a x) (data= b y)))))
-        (ok (match (cons a '())
-              ('()        nil)
-              ((cons x _) (data= a x))))
-        (ok (match (cons a (cons b '()))
-              ('()        nil)
-              ((cons x _) (data= a x)))))))
-  (testing "LIST"
-    (dotimes (i 10)
-      (let ((a (random-object))
-            (b (random-object))
-            (c (random-object)))
-        (ok (match (list)
-              ((list)       t)
-              ((list _)     nil)
-              ((list _ _)   nil)
-              ((list _ _ _) nil)))
-        (ok (match (list a)
-              ((list)       nil)
-              ((list x)     (data= a x))
-              ((list _ _)   nil)
-              ((list _ _ _) nil)))
-        (ok (match (list a b)
-              ((list)       nil)
-              ((list _)     nil)
-              ((list x y)   (and (data= a x) (data= b y)))
-              ((list _ _ _) nil)))
-        (ok (match (list a b c)
-              ((list)       nil)
-              ((list _)     nil)
-              ((list _ _)   nil)
-              ((list x y z) (and (data= a x) (data= b y) (data= c z)))))))))
+(def-suite* list-tests :in :fcl/tests)
 
-(deftest nil=mzero
-  (testing "Equality of NIL and MZERO"
-    (ok (data= '() (mzero 'list)))))
+(def-suite* pattern-match :in list-tests)
 
-(deftest list=unit
-  (testing "Equality of LIST and UNIT"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (data= (list a) (unit 'list a)))))))
+(test match-nil
+  "Pattern Match for NIL"
+  ;; nil
+  (match '()
+    (() (pass))
+    (_   (fail)))
+  (match '()
+    ('() (pass))
+    (_   (fail)))
+  (match '()
+    (nil (pass))
+    (_   (fail)))
+  (match '()
+    ('nil (pass))
+    (_   (fail))))
 
-(deftest functor
-  (testing "Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
-        (fcl/tests.functor:identity-test a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (let ((a->b (random-function))
-            (b->c (random-function)))
-        (mlet ((a* (list '() (random-list 1 500))))
-          (fcl/tests.functor:composition-test b->c a->b a*))))))
+(test match-cons
+  "Pattern Match for CONS"
+  (for-all ((a (gen-object))
+            (b (gen-object)))
+    (match (cons a b)
+      ('()        (fail))
+      ((cons x y) (is (and (data= a x) (data= b y))))
+      (_          (fail)))
+    (match (cons a '())
+      ('()          (fail))
+      ((cons x '()) (is (data= a x)))
+      (_            (fail)))
+    (match (cons a (cons b '()))
+      ('()                   (fail))
+      ((cons x (cons y '())) (is (and (data= a x) (data= b y))))
+      (_                     (fail)))
+    (match (cons a '())
+      ('()        (fail))
+      ((cons x _) (is (data= a x)))
+      (_          (fail)))
+    (match (cons a (cons b '()))
+      ('()        (fail))
+      ((cons x _) (is (data= a x)))
+      (_          (fail)))))
 
-(deftest applicative
-  (testing "Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
-        (fcl/tests.applicative:identity-test 'list a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (mlet ((a*    (list '() (random-list 1 500)))
-             (a->*b (list '()
-                          (random-list 1 5 :random-fn #'random-function)
-                          (functions)))
-             (b->*c (list '()
-                          (random-list 1 5 :random-fn #'random-function)
-                          (functions))))
-        (fcl/tests.applicative:composition-test 'list b->*c a->*b a*))))
-  (testing "Homomorphism"
-    (dotimes (i 10)
-      (let ((a    (random-number -1.0d6 1.0d6))
-            (a->b (random-function)))
-        (fcl/tests.applicative:homomorphism-test 'list a->b a))))
-  (testing "Interchange"
-    (dotimes (i 10)
-      (let ((a (random-number -1.0d6 1.0d6)))
-        (mlet ((a->*b (list '()
-                            (random-list 1 5 :random-fn #'random-function)
-                            (functions))))
-          (fcl/tests.applicative:interchange-test 'list a->*b a))))))
+(test match-list
+  "Pattern Match for LIST"
+  (for-all ((a (gen-object))
+            (b (gen-object))
+            (c (gen-object)))
+    (match (list)
+      ((list)       (pass))
+      ((list _)     (fail))
+      ((list _ _)   (fail))
+      ((list _ _ _) (fail))
+      (_            (fail)))
+    (match (list a)
+      ((list)       (fail))
+      ((list x)     (is (data= a x)))
+      ((list _ _)   (fail))
+      ((list _ _ _) (fail))
+      (_            (fail)))
+    (match (list a b)
+      ((list)       (fail))
+      ((list _)     (fail))
+      ((list x y)   (is (and (data= a x) (data= b y))))
+      ((list _ _ _) (fail))
+      (_            (fail)))
+    (match (list a b c)
+      ((list)       (fail))
+      ((list _)     (fail))
+      ((list _ _)   (fail))
+      ((list x y z) (is (and (data= a x) (data= b y) (data= c z))))
+      (_            (fail)))))
 
-(deftest monad
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (let ((a (random-number -1.0d6 1.0d6)))
-        (mlet ((a->*b (list (random-list 1 5 :random-fn #'random-function)
-                            (functions)))
-               (a->b* (list (constantly '())
-                            (lambda (a)
-                              (fmap (lambda (a->b) (funcall a->b a)) a->*b)))))
-          (fcl/tests.monad:left-identity-test 'list a->b* a)))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-function))))
-        (fcl/tests.monad:right-identity-test 'list a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (mlet ((a*    (list '() (random-list 1 500)))
-             (a->*b (list (random-list 1 5 :random-fn #'random-function)
-                          (functions)))
-             (b->*c (list (random-list 1 5 :random-fn #'random-function)
-                          (functions)))
-             (a->b* (list (constantly '())
-                          (lambda (a)
-                            (fmap (lambda (a->b) (funcall a->b a)) a->*b))))
-             (b->c* (list (constantly '())
-                          (lambda (b)
-                            (fmap (lambda (b->c) (funcall b->c b)) b->*c)))))
-        (fcl/tests.monad:associativity-test a->b* b->c* a*)))))
+(def-suite* monad-plus :in list-tests)
 
-(deftest monoid
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
-        (fcl/tests.monoid:left-identity-test 'list a*))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object))))
-        (fcl/tests.monoid:right-identity-test 'list a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (mlet ((a* (list '() (random-list 1 500 :random-fn #'random-object)))
-             (b* (list '() (random-list 1 500 :random-fn #'random-object)))
-             (c* (list '() (random-list 1 500 :random-fn #'random-object))))
-        (fcl/tests.monoid:associativity-test a* b* c*)))))
+(fcl/tests.functor:functor-test
+  list1
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-object))
+  (gen-function)
+  (gen-function))
+
+(fcl/tests.functor:functor-test
+  list2
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
+
+(fcl/tests.applicative:applicative-test
+  list1
+  list
+  (gen-object)
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-object))
+  (gen-function)
+  (gen-function))
+
+(fcl/tests.applicative:applicative-test
+  list2
+  list
+  (gen-integer :min -100 :max 100)
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
+
+(fcl/tests.monad:monad-test
+  list1
+  list
+  (gen-object)
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-object))
+  (gen-one-element
+    (constantly '())
+    #'list
+    (lambda (a) (make-list 10 :initial-element a))
+    (lambda (a) (list a (list a) (vector a))))
+  (gen-one-element
+    (constantly '())
+    #'list
+    (lambda (b) (make-list 20 :initial-element b))
+    (lambda (b) (list b (list b b) (list b b b)))))
+
+(fcl/tests.monad:monad-test
+  list2
+  list
+  (gen-integer :min -100 :max 100)
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-integer :min -100 :max 100))
+  (gen-one-element
+    (constantly '())
+    #'list
+    (lambda (a) (unfoldr 'list #'zerop (lambda (x) (+ a x -5)) #'1- 10))
+    (lambda (a) (append (unfoldr 'list #'zerop (lambda (x) (* a x)) #'1- 5)
+                        (unfoldr 'list #'zerop (lambda (x) (- (* a x))) #'1- 5))))
+  (gen-one-element
+    (constantly '())
+    #'list
+    (lambda (b) (unfoldr 'list #'zerop (lambda (x) (+ b x -5)) #'1- 10))
+    (lambda (b) (append (unfoldr 'list #'zerop (lambda (x) (* b x)) #'1- 5)
+                        (unfoldr 'list #'zerop (lambda (x) (- (* b x))) #'1- 5)))))
+
+(fcl/tests.monoid:monoid-test
+  list
+  list
+  (gen-list :length (gen-integer :min 0 :max 30)
+            :elements (gen-object)))

@@ -30,7 +30,10 @@
     #:mlet #:mprogn #:mdo
     #:mzero #:mplus #:msum
     #:guard
-    #:qc))
+    #:qc
+
+    ;; Utility
+    #:qu-append #:qu-reverse))
 (in-package :fcl.queue)
 
 
@@ -165,6 +168,7 @@
     ((%queue '() _) (unfoldl 'queue x->? x->x x->a x))
     ((%queue l1 l2) (check (%queue (unfoldl+ 'list x->? x->x x->a l1 x) l2)))))
 
+
 ;;; Monad Plus
 (defmethod unit ((class (eql 'queue)) a)
   (check (%queue (list a) '())))
@@ -196,3 +200,19 @@
                         `(guard 'queue ,clause)))
                   clauses)
         (unit 'queue ,element)))
+
+;;; Utility
+(defun queue (&rest args)
+  (list->queue (copy-list args)))
+
+(defun qu-append (&rest queues)
+  (mapc (lambda (queue) (check-type queue queue)) queues)
+  (flet ((cat2 (q1 q2)
+           (foldl (lambda (acc x) (add x acc)) q1 q2)))
+    (foldr #'cat2 (empty) queues)))
+
+(defun qu-reverse (queue)
+  (check-type queue queue)
+  (check
+    (ematch queue
+      ((%queue l1 l2) (%queue l2 l1)))))

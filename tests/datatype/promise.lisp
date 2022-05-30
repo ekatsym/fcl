@@ -1,74 +1,86 @@
 (defpackage fcl/tests.promise
   (:nicknames :fcl/tests.data.promise :fcl/t.pm)
-  (:use :common-lisp :rove :fcl/tests.util :fcl.promise)
+  (:use :common-lisp :fiveam :fcl/tests :fcl/tests.util :fcl.promise)
   (:import-from :fcl.adata #:data=)
   (:import-from :fcl.match #:match))
 (in-package fcl/tests.promise)
 
 
-(deftest matching
-  (testing "DELAY"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (match (delay a)
-              ((delay b) (equal a b))))))))
+(defun gen-promise (&optional element)
+  (lambda ()
+    (if element
+        (delay (funcall element))
+        (delay (funcall (gen-object))))))
 
-(deftest delay=unit
-  (testing "Equality of DELAY and UNIT"
-    (dotimes (i 10)
-      (let ((a (random-object)))
-        (ok (data= (delay a) (unit 'promise a)))))))
 
-(deftest functor
-  (testing "Identity"
-    (dotimes (i 10)
-      (let ((a* (delay (random-object))))
-        (fcl/tests.functor:identity-test a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (let ((a*   (delay (random-number -1.0d6 1.0d6)))
-            (a->b (random-function))
-            (b->c (random-function)))
-        (fcl/tests.functor:composition-test b->c a->b a*)))))
+(def-suite* promise-tests :in :fcl/tests)
 
-(deftest applicative
-  (testing "Identity"
-    (dotimes (i 10)
-      (let ((a* (delay (random-object))))
-        (fcl/tests.applicative:identity-test 'promise a*))))
-  (testing "Composition"
-    (dotimes (i 10)
-      (let ((a*    (delay (random-number -1.0d6 1.0d6)))
-            (a->*b (delay (random-function)))
-            (b->*c (delay (random-function))))
-        (fcl/tests.applicative:composition-test 'promise b->*c a->*b a*))))
-  (testing "Homomorphism"
-    (dotimes (i 10)
-      (let ((a    (random-number -1.0d6 1.0d6))
-            (a->b (random-function)))
-        (fcl/tests.applicative:homomorphism-test 'promise a->b a))))
-  (testing "Interchange"
-    (dotimes (i 10)
-      (let ((a     (random-number -1.0d6 1.0d6))
-            (a->*b (delay (random-function))))
-        (fcl/tests.applicative:interchange-test 'promise a->*b a)))))
+(test pattern-match
+  "Pattern Match"
+  (for-all ((a (gen-object)))
+    (match (delay a)
+      ((delay b) (is (data= a b)))
+      (_ (fail)))))
 
-(deftest monad
-  (testing "Left Identity"
-    (dotimes (i 10)
-      (let* ((a     (random-number -1.0d6 1.0d6))
-             (a->b  (random-function))
-             (a->b* (lambda (a) (delay (funcall a->b a)))))
-        (fcl/tests.monad:left-identity-test 'promise a->b* a))))
-  (testing "Right Identity"
-    (dotimes (i 10)
-      (let ((a* (delay (random-object))))
-        (fcl/tests.monad:right-identity-test 'promise a*))))
-  (testing "Associativity"
-    (dotimes (i 10)
-      (let* ((a*    (delay (random-number -1.0d6 1.0d6)))
-             (a->b  (random-function))
-             (b->c  (random-function))
-             (a->b* (lambda (a) (delay (funcall a->b a))))
-             (b->c* (lambda (b) (delay (funcall b->c b)))))
-        (fcl/tests.monad:associativity-test a->b* b->c* a*)))))
+(def-suite* monad-plus :in promise-tests)
+
+(test unit=delay
+  "Equality of UNIT and DELAY"
+  (for-all ((a (gen-object)))
+    (is (data= (unit 'promise a) (delay a)))))
+
+(fcl/tests.functor:functor-test
+  promise1
+  (gen-promise)
+  (gen-function)
+  (gen-function))
+
+(fcl/tests.functor:functor-test
+  promise2
+  (gen-promise (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
+
+(fcl/tests.applicative:applicative-test
+  promise1
+  promise
+  (gen-object)
+  (gen-promise)
+  (gen-function)
+  (gen-function))
+
+(fcl/tests.applicative:applicative-test
+  promise2
+  promise
+  (gen-integer :min -100 :max 100)
+  (gen-promise (gen-integer :min -100 :max 100))
+  (gen-num-function)
+  (gen-num-function))
+
+(fcl/tests.monad:monad-test
+  promise1
+  promise
+  (gen-object)
+  (gen-promise)
+  (gen-one-element
+    (lambda (a) (delay a))
+    (lambda (a) (delay (make-list 3 :initial-element a)))
+    (lambda (a) (delay (make-array 4 :initial-element a))))
+  (gen-one-element
+    (lambda (b) (delay b))
+    (lambda (b) (delay (make-list 5 :initial-element b)))
+    (lambda (b) (delay (make-array 6 :initial-element b)))))
+
+(fcl/tests.monad:monad-test
+  promise2
+  promise
+  (gen-integer :min -100 :max 100)
+  (gen-promise (gen-integer :min -100 :max 100))
+  (gen-one-element
+    (lambda (a) (delay a))
+    (lambda (a) (delay (+ a a)))
+    (lambda (a) (delay (* a a))))
+  (gen-one-element
+    (lambda (b) (delay b))
+    (lambda (b) (delay (+ b b b)))
+    (lambda (b) (delay (* b b b)))))
